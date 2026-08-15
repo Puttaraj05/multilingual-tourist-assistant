@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-
+from backend.api.chat import router as chat_router
 from backend.database.mongodb import client
-
+from backend.api.chat_history import router as chat_history_router
 
 app = FastAPI(
     title="Multilingual Tourist Assistant",
@@ -9,7 +9,8 @@ app = FastAPI(
     version="1.0.0",
 )
 
-
+app.include_router(chat_router)
+app.include_router(chat_history_router)
 @app.get("/")
 async def root():
     return {
