@@ -1,12 +1,17 @@
 from fastapi import FastAPI
+
+from fastapi.middleware.cors import CORSMiddleware
 from backend.api.chat import router as chat_router
 from backend.database.mongodb import client
 from backend.api.chat_history import router as chat_history_router
 
-app = FastAPI(
-    title="Multilingual Tourist Assistant",
-    description="AI-powered multilingual tourism assistant",
-    version="1.0.0",
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(chat_router)
