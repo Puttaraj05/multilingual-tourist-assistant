@@ -7,7 +7,12 @@ if not MONGODB_URI:
     raise RuntimeError("MONGODB_URI is not configured")
 
 
-client = MongoClient(MONGODB_URI)
+client = MongoClient(
+    MONGODB_URI,
+    serverSelectionTimeoutMS=10000,
+    connectTimeoutMS=10000,
+    socketTimeoutMS=20000,
+)
 
 db = client[DATABASE_NAME]
 
