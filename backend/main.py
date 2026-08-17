@@ -8,6 +8,11 @@ from fastapi.staticfiles import StaticFiles
 from backend.api.chat import router as chat_router
 from backend.api.chat_history import router as chat_history_router
 from backend.api.translator import router as translator_router
+from backend.api.emergency import (
+    router as emergency_router,
+    initialize_emergency_database,
+)
+
 from backend.database.mongodb import client
 
 
@@ -40,6 +45,7 @@ app.add_middleware(
 app.include_router(chat_router)
 app.include_router(chat_history_router)
 app.include_router(translator_router)
+app.include_router(emergency_router)
 
 
 # =========================================================
@@ -52,10 +58,19 @@ FRONTEND_DIR = BASE_DIR / "frontend"
 
 
 app.mount(
-    "/frontend",
+    "/static",
     StaticFiles(directory=FRONTEND_DIR),
-    name="frontend"
+    name="static",
 )
+
+
+# =========================================================
+# STARTUP
+# =========================================================
+
+@app.on_event("startup")
+def startup():
+    initialize_emergency_database()
 
 
 # =========================================================
@@ -64,6 +79,17 @@ app.mount(
 
 @app.get("/")
 async def root():
+    return FileResponse(
+        FRONTEND_DIR / "index.html"
+    )
+
+
+# =========================================================
+# API INFO
+# =========================================================
+
+@app.get("/api")
+async def api_info():
     return {
         "success": True,
         "message": "Multilingual Tourist Assistant API is running",
@@ -71,9 +97,17 @@ async def root():
         "features": {
             "chat": "/api/chat",
             "translation": "/api/translate",
-            "image_translation": "/api/image-translate"
-        }
+            "image_translation": "/api/image-translate",
+
+            "emergency_contacts": "/api/emergency-contacts",
+            "location": "/api/location",
+            "sos": "/api/sos",
+            "incidents": "/api/incidents",
+            "locations": "/api/locations",
+            "database_status": "/api/database-status",
+        },
     }
+
 
 # =========================================================
 # HEALTH CHECK
