@@ -4,102 +4,111 @@ const durationInput = document.getElementById("duration");
 const decreaseButton = document.getElementById("decreaseDays");
 const increaseButton = document.getElementById("increaseDays");
 
-decreaseButton.addEventListener("click",()=>{
+// -----------------------------
+// Duration
+// -----------------------------
 
-let days=parseInt(durationInput.value);
-
-if(days>1) durationInput.value=days-1;
-
+decreaseButton.addEventListener("click", () => {
+    let days = parseInt(durationInput.value);
+    if (days > 1) durationInput.value = days - 1;
 });
 
-increaseButton.addEventListener("click",()=>{
-
-let days=parseInt(durationInput.value);
-
-if(days<30) durationInput.value=days+1;
-
+increaseButton.addEventListener("click", () => {
+    let days = parseInt(durationInput.value);
+    if (days < 30) durationInput.value = days + 1;
 });
 
-form.addEventListener("submit",async(e)=>{
+// -----------------------------
+// Submit
+// -----------------------------
 
-e.preventDefault();
+form.addEventListener("submit", async (e) => {
 
-const destination=document.getElementById("destination").value.trim();
+    e.preventDefault();
 
-const duration=parseInt(document.getElementById("duration").value);
+    const destination = document.getElementById("destination").value.trim();
+    const duration = parseInt(durationInput.value);
+    const travelDate = document.getElementById("travelDate").value;
 
-const travelDate=document.getElementById("travelDate").value;
+    const budget = Number(document.getElementById("budget").value);
+    const currencySymbol = document.getElementById("currency").value;
 
-const budget=Number(document.getElementById("budget").value);
+    const language = document.getElementById("language").value;
 
-const language=document.getElementById("language").value;
+    const travelType =
+        document.querySelector('input[name="travelType"]:checked').value;
 
-const interests=[];
+    const tripStyle =
+        document.querySelector('input[name="tripStyle"]:checked').value;
 
-document.querySelectorAll('input[name="interest"]:checked').forEach(i=>{
+    const kidsUnder12 =
+        document.getElementById("kidsUnder12").checked;
 
-interests.push(i.value);
+    const interests = [];
 
-});
+    document.querySelectorAll('input[name="interest"]:checked').forEach(i => {
+        interests.push(i.value);
+    });
 
-const tripData={
+    const tripData = {
+        destination,
+        duration,
+        travelDate,
+        budget,
+        currencySymbol,
+        language,
+        travelType,
+        tripStyle,
+        kidsUnder12,
+        interests
+    };
 
-destination,
+    const button = document.querySelector(".generate-button");
 
-duration,
+    button.disabled = true;
+    button.innerHTML = "Generating...";
 
-travelDate,
+    try {
 
-budget,
+        const response = await fetch(
+            "http://127.0.0.1:8000/api/itinerary",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(tripData)
+            }
+        );
 
-language,
+        const result = await response.json();
 
-interests
+        if (!response.ok) {
+            throw new Error(result.error || "Something went wrong.");
+        }
 
-};
+        result.destination = destination;
+        result.currencySymbol = currencySymbol;
+        result.travelType = travelType;
+        result.tripStyle = tripStyle;
+        result.kidsUnder12 = kidsUnder12;
 
-const button=document.querySelector(".generate-button");
+        localStorage.setItem(
+            "itinerary",
+            JSON.stringify(result)
+        );
 
-button.disabled=true;
+        window.location.href = "itinerary.html";
 
-button.innerHTML="Generating...";
+    } catch (err) {
 
-try{
+        alert(err.message);
 
-const response=await fetch(
-"http://127.0.0.1:8000/api/itinerary",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(tripData)
-}
-);
+        button.disabled = false;
 
-const result=await response.json();
+        button.innerHTML =
+            '<span data-key="continue">Generate My Itinerary</span>';
 
-if(!response.ok){
-throw new Error(result.error||"Something went wrong.");
-}
-
-result.destination=destination;
-
-localStorage.setItem(
-"itinerary",
-JSON.stringify(result)
-);
-
-window.location.href="itinerary.html";
-
-}catch(err){
-
-alert(err.message);
-
-button.disabled=false;
-
-button.innerHTML='<span data-key="continue">Generate My Itinerary</span>';
-
-}
+    }
 
 });

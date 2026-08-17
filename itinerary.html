@@ -12,11 +12,10 @@
 <body class="itinerary-page">
 
     <!-- Navigation -->
-
     <header class="planner-navbar">
 
         <a href="index.html" class="planner-logo">
-            TravelMate
+            ← TravelMate
         </a>
 
         <a href="planner.html" class="back-link">
@@ -25,16 +24,13 @@
 
     </header>
 
-
     <!-- Main Content -->
-
     <main class="itinerary-container">
 
-        <!-- Header -->
+        <!-- Hero Section -->
+        <section class="itinerary-hero">
 
-        <section class="itinerary-header">
-
-            <p class="section-label" id="planLabel">
+            <p class="hero-tag" id="planLabel">
                 YOUR PERSONALIZED PLAN
             </p>
 
@@ -42,77 +38,46 @@
                 Your Destination
             </h1>
 
-            <p>
+            <p class="hero-subtitle">
                 Your personalized travel itinerary
             </p>
 
-
-            <!-- Trip Summary -->
-
-            <div class="trip-summary">
+            <!-- Summary Card -->
+            <div class="trip-summary-card">
 
                 <div class="summary-item">
-
-                    <span class="summary-label" id="durationLabel">
-                        Duration
-                    </span>
-
-                    <strong id="summaryDuration">
-                        -
-                    </strong>
-
+                    <span id="durationLabel">Duration</span>
+                    <strong id="summaryDuration">3 Days</strong>
                 </div>
 
-
                 <div class="summary-item">
-
-                    <span class="summary-label" id="budgetLabel">
-                        Budget
-                    </span>
-
-                    <strong id="summaryBudget">
-                        -
-                    </strong>
-
+                    <span id="budgetLabel">Budget</span>
+                    <strong id="summaryBudget">$90,000</strong>
                 </div>
 
-
-                <div class="summary-item">
-
-                    <span class="summary-label" id="interestsLabel">
-                        Interests
-                    </span>
-
-                    <strong id="summaryInterests">
-                        -
-                    </strong>
-
+                <div class="summary-item full-width">
+                    <span id="interestsLabel">Interests</span>
+                    <strong id="summaryInterests">Food, History, Shopping</strong>
                 </div>
 
             </div>
 
         </section>
 
-
         <!-- AI Generated Itinerary -->
-
         <div id="itineraryContent">
-
-            <!-- JavaScript will create all day cards here -->
-
+            <!-- JS will generate day cards here -->
         </div>
 
-
         <!-- Bottom Actions -->
+        <div class="action-buttons">
 
-        <div class="itinerary-actions">
-
-            <a href="planner.html" class="secondary-button">
-                <span id="modifyLabel">Modify Trip</span>
+            <a href="planner.html" class="action-btn secondary" id="modifyLabel">
+                Modify Trip
             </a>
 
-            <button type="button" class="primary-button" id="saveButton">
-                <span id="saveLabel">Save Itinerary</span>
+            <button class="action-btn primary" id="saveLabel">
+                Save Itinerary
             </button>
 
         </div>

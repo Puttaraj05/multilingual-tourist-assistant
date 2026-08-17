@@ -580,7 +580,145 @@ body {
 }
 
 }
+/* ===== Budget ===== */
 
+.budget-row{
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.currency-select{
+    width:170px;
+    height:52px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:white;
+    padding:0 14px;
+    font-size:15px;
+    font-weight:600;
+    color:var(--dark);
+    outline:none;
+    transition:.25s;
+}
+
+.currency-select:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(213,108,83,.15);
+}
+
+.budget-row input{
+    flex:1;
+}
+/* ===== Travel Type & Trip Style ===== */
+
+.travel-type-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+}
+
+.trip-style-grid{
+    grid-template-columns:1fr;
+}
+
+.travel-card{
+    cursor:pointer;
+}
+
+.travel-card input{
+    display:none;
+}
+
+.travel-card span{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:6px;
+    min-height:78px;
+    padding:18px;
+    border-radius:16px;
+    border:2px solid var(--border);
+    background:white;
+    transition:.25s ease;
+    font-weight:600;
+    color:var(--dark);
+}
+
+.travel-card small{
+    font-size:12px;
+    color:var(--muted);
+    font-weight:400;
+    line-height:1.4;
+}
+
+.travel-card:hover span{
+    border-color:var(--accent);
+    transform:translateY(-2px);
+}
+
+.travel-card input:checked + span{
+    border-color:var(--accent);
+    background:var(--accent-light);
+    color:var(--accent);
+}
+/* ===== Premium Toggle Switch ===== */
+
+.toggle-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-top:8px;
+}
+
+.switch{
+    position:relative;
+    display:inline-block;
+    width:56px;
+    height:32px;
+}
+
+.switch input{
+    opacity:0;
+    width:0;
+    height:0;
+}
+
+.slider{
+    position:absolute;
+    inset:0;
+    background:#d6d6d6;
+    border-radius:999px;
+    transition:.3s ease;
+    cursor:pointer;
+}
+
+.slider::before{
+    content:"";
+    position:absolute;
+    width:24px;
+    height:24px;
+    left:4px;
+    top:4px;
+    background:#fff;
+    border-radius:50%;
+    transition:.3s ease;
+    box-shadow:0 3px 8px rgba(0,0,0,.2);
+}
+
+.switch input:checked + .slider{
+    background:#22c55e; /* Premium green */
+}
+
+.switch input:checked + .slider::before{
+    transform:translateX(24px);
+}
+
+.toggle-label{
+    font-size:15px;
+    font-weight:500;
+    color:var(--dark);
+}
 /* ===========================
    ITINERARY PAGE
 =========================== */
@@ -643,60 +781,67 @@ body {
     padding:0 20px;
 }
 
-/* Hero Card */
+/* Hero Section */
 
 .itinerary-hero{
-    background:white;
-    border-radius:28px;
-    padding:36px;
-    box-shadow:0 10px 30px rgba(22,33,62,.08);
-    margin-bottom:28px;
+    max-width:850px;
+    margin:20px auto 35px;
 }
 
-#planLabel{
+.hero-tag{
     color:#E76F51;
-    text-transform:uppercase;
     font-size:14px;
-    letter-spacing:1px;
-    font-weight:600;
+    font-weight:700;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    margin-bottom:12px;
 }
 
-#destinationTitle{
-    font-size:46px;
-    margin:8px 0;
+.itinerary-hero h1{
+    font-size:64px;
+    font-weight:800;
     color:#16213E;
+    line-height:1.05;
+    margin-bottom:12px;
 }
 
 .hero-subtitle{
-    color:#6B7A90;
+    font-size:20px;
+    color:#71809A;
     margin-bottom:28px;
 }
 
-/* Summary */
-
-.summary-grid{
+.trip-summary-card{
+    background:#fff;
+    border-radius:26px;
+    padding:30px;
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:18px;
+    grid-template-columns:repeat(2,1fr);
+    gap:22px;
+    box-shadow:0 12px 30px rgba(22,33,62,.08);
 }
 
-.summary-card{
-    background:#FAFAFA;
-    border-radius:18px;
-    padding:18px;
-    text-align:center;
+.summary-item{
+    display:flex;
+    flex-direction:column;
 }
 
-.summary-card span{
-    display:block;
+.summary-item span{
     color:#7B869C;
     font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
     margin-bottom:8px;
 }
 
-.summary-card strong{
-    font-size:17px;
+.summary-item strong{
     color:#16213E;
+    font-size:22px;
+    font-weight:700;
+}
+
+.full-width{
+    grid-column:1/-1;
 }
 
 /* Day Cards */
@@ -842,12 +987,12 @@ body {
 
 @media(max-width:768px){
 
-.summary-grid{
+.trip-summary-card{
     grid-template-columns:1fr;
 }
 
-#destinationTitle{
-    font-size:34px;
+.itinerary-hero h1{
+    font-size:42px;
 }
 
 .day-heading h2{
@@ -857,5 +1002,56 @@ body {
 .itinerary-actions{
     flex-direction:column;
 }
+}
 
+/* Itinerary Action Buttons */
+
+.action-buttons{
+    display:flex;
+    gap:16px;
+    justify-content:center;
+    align-items:center;
+    margin:40px 0;
+    flex-wrap:wrap;
+}
+
+.action-btn{
+    text-decoration:none;
+    border:none;
+    cursor:pointer;
+    padding:14px 28px;
+    border-radius:16px;
+    font-size:16px;
+    font-weight:600;
+    transition:.25s ease;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* Primary Button */
+
+.action-btn.primary{
+    background:#1B2340;
+    color:white;
+    box-shadow:0 8px 20px rgba(27,35,64,.18);
+}
+
+.action-btn.primary:hover{
+    background:#11182f;
+    transform:translateY(-2px);
+}
+
+/* Secondary Button */
+
+.action-btn.secondary{
+    background:white;
+    color:#E46F43;
+    border:2px solid #E46F43;
+}
+
+.action-btn.secondary:hover{
+    background:#E46F43;
+    color:white;
+    transform:translateY(-2px);
 }

@@ -25,41 +25,6 @@ app.add_middleware(
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 # -----------------------------
-# Currency Map
-# -----------------------------
-
-CURRENCY_MAP = {
-    "india": ("INR", "₹"),
-    "usa": ("USD", "$"),
-    "united states": ("USD", "$"),
-    "new york": ("USD", "$"),
-    "japan": ("JPY", "¥"),
-    "tokyo": ("JPY", "¥"),
-    "france": ("EUR", "€"),
-    "paris": ("EUR", "€"),
-    "italy": ("EUR", "€"),
-    "rome": ("EUR", "€"),
-    "spain": ("EUR", "€"),
-    "germany": ("EUR", "€"),
-    "uae": ("AED", "د.إ"),
-    "dubai": ("AED", "د.إ"),
-    "china": ("CNY", "¥"),
-    "south korea": ("KRW", "₩"),
-    "korea": ("KRW", "₩"),
-    "thailand": ("THB", "฿"),
-    "bangkok": ("THB", "฿"),
-    "turkey": ("TRY", "₺"),
-    "vietnam": ("VND", "₫"),
-    "indonesia": ("IDR", "Rp"),
-    "switzerland": ("CHF", "CHF"),
-    "uk": ("GBP", "£"),
-    "united kingdom": ("GBP", "£"),
-    "london": ("GBP", "£"),
-    "canada": ("CAD", "C$"),
-    "australia": ("AUD", "A$")
-}
-
-# -----------------------------
 # Models
 # -----------------------------
 
@@ -90,8 +55,17 @@ class ItineraryRequest(BaseModel):
     duration: int
     travelDate: str
     budget: int
+    currencySymbol: str = "$"
+
     interests: List[str]
+
     language: str = "English"
+
+    travelType: str = "Solo"
+
+    tripStyle: str = "Balanced"
+
+    kidsUnder12: bool = False
 
 
 class UITranslationRequest(BaseModel):
@@ -106,30 +80,92 @@ class UITranslationRequest(BaseModel):
 @app.post("/api/itinerary")
 async def create_itinerary(data: ItineraryRequest):
 
-    currency_code, currency_symbol = CURRENCY_MAP.get(
-        data.destination.lower(),
-        ("USD", "$")
-    )
-
     prompt = f"""
-You are an expert multilingual travel planner.
+You are TravelMate, an expert multilingual travel planner.
 
 Create a realistic {data.duration}-day itinerary.
 
-Destination: {data.destination}
-Travel Date: {data.travelDate}
-Budget: {currency_symbol}{data.budget} ({currency_code})
-Interests: {", ".join(data.interests)}
-Preferred Language: {data.language}
+Traveler Profile
 
-Rules:
-- Write EVERYTHING in {data.language}.
-- Use REAL tourist attractions.
-- Keep famous landmark names unchanged.
-- Include breakfast, lunch and dinner.
-- Show every activity cost using {currency_symbol}.
-- Stay within budget.
-- Return ONLY valid JSON.
+Destination: {data.destination}
+
+Travel Date: {data.travelDate}
+
+Budget: {data.currencySymbol}{data.budget}
+
+Language: {data.language}
+
+Who's Travelling: {data.travelType}
+
+Trip Style: {data.tripStyle}
+
+Child Under 12: {"Yes" if data.kidsUnder12 else "No"}
+
+Interests:
+{", ".join(data.interests)}
+
+Rules
+
+1. Write EVERYTHING in {data.language}.
+
+2. Use REAL tourist attractions.
+
+3. Keep famous landmark names unchanged.
+
+4. Include breakfast, lunch and dinner.
+
+5. Keep the total cost within {data.currencySymbol}{data.budget}.
+
+6. Show all prices using {data.currencySymbol}.
+
+Personalization
+
+Travel Type
+
+Solo:
+- safer routes
+- cafés
+- local experiences
+- walking exploration
+
+Couple:
+- scenic viewpoints
+- romantic restaurants
+- sunset activities
+- photo-worthy spots
+
+Family:
+- comfortable schedules
+- family-friendly restaurants
+- easy transport
+
+Friends:
+- adventure
+- nightlife
+- group activities
+
+Trip Style
+
+Relaxed:
+- around 3 activities per day
+- longer breaks
+- relaxed sightseeing
+
+Balanced:
+- around 4 activities
+- sightseeing with breaks
+
+Packed:
+- around 5–6 activities
+- maximize sightseeing
+
+If Child Under 12 is Yes:
+
+- include ONE child-friendly activity every day
+- avoid excessive walking
+- include rest breaks.
+
+Return ONLY valid JSON.
 """
 
     response = client.models.generate_content(
@@ -147,8 +183,11 @@ Rules:
     itinerary["budget"] = data.budget
     itinerary["interests"] = data.interests
     itinerary["language"] = data.language
-    itinerary["currencyCode"] = currency_code
-    itinerary["currencySymbol"] = currency_symbol
+
+    itinerary["currencySymbol"] = data.currencySymbol
+    itinerary["travelType"] = data.travelType
+    itinerary["tripStyle"] = data.tripStyle
+    itinerary["kidsUnder12"] = data.kidsUnder12
 
     return itinerary
 
