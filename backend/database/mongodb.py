@@ -9,6 +9,8 @@ if not MONGODB_URI:
 
 client = MongoClient(
     MONGODB_URI,
+    tls=True,
+    tlsAllowInvalidCertificates=False,
     serverSelectionTimeoutMS=10000,
     connectTimeoutMS=10000,
     socketTimeoutMS=20000,
