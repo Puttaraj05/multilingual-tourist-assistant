@@ -1,0 +1,861 @@
+/* ========================================
+   GLOBAL
+======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+
+    --dark: #202637;
+
+    --text: #4f5665;
+
+    --muted: #858c9a;
+
+    --accent: #d56c53;
+
+    --accent-light: #fff5f1;
+
+    --cream: #faf8f4;
+
+    --white: #ffffff;
+
+    --border: #e8e4dc;
+}
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color: var(--text);
+
+}
+
+
+/* ========================================
+   HOME PAGE
+======================================== */
+
+.home-page {
+
+    min-height: 100vh;
+
+    background: var(--cream);
+
+    position: relative;
+
+    overflow: hidden;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.bg-circle {
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+}
+
+
+.circle-one {
+
+    width: 500px;
+
+    height: 500px;
+
+    background: #f4ded5;
+
+    top: -220px;
+
+    right: -150px;
+
+}
+
+
+.circle-two {
+
+    width: 400px;
+
+    height: 400px;
+
+    background: #e9e4da;
+
+    bottom: -220px;
+
+    left: -150px;
+
+}
+
+
+.home-container {
+
+    width: 90%;
+
+    max-width: 850px;
+
+    text-align: center;
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+}
+
+
+.app-icon {
+
+    width: 75px;
+
+    height: 75px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: white;
+
+    border-radius: 22px;
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+    color: var(--accent);
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.08);
+
+    margin-bottom: 25px;
+
+}
+
+
+.app-name {
+
+    font-size: 64px;
+
+    margin: 0;
+
+    font-weight: 700;
+
+    letter-spacing: -2px;
+
+    color: var(--dark);
+
+}
+
+
+.tagline {
+
+    margin-top: 10px;
+
+    font-size: 20px;
+
+    color: var(--accent);
+
+    font-weight: 600;
+
+}
+
+
+.home-description {
+
+    max-width: 570px;
+
+    margin-top: 22px;
+
+    color: var(--muted);
+
+    font-size: 16px;
+
+    line-height: 1.7;
+
+}
+
+
+.start-button {
+
+    margin-top: 35px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 16px 30px;
+
+    border-radius: 12px;
+
+    background: var(--dark);
+
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    transition: 0.25s ease;
+
+}
+
+
+.start-button:hover {
+
+    background: var(--accent);
+
+    transform: translateY(-2px);
+
+}
+
+
+.start-button span {
+
+    font-size: 20px;
+
+}
+
+
+.home-features {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 45px;
+
+    margin-top: 60px;
+
+}
+
+
+.home-feature {
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+}
+
+
+.home-footer {
+
+    position: absolute;
+
+    bottom: 25px;
+
+    left: 0;
+
+    width: 100%;
+
+    text-align: center;
+
+    color: #a2a6b0;
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+
+}
+
+
+/* ========================================
+   NAVBAR
+======================================== */
+
+.planner-page,
+.itinerary-page {
+
+    background: var(--cream);
+
+    color: var(--dark);
+
+    min-height: 100vh;
+
+}
+
+
+.planner-navbar {
+
+    height: 72px;
+
+    padding: 0 7%;
+
+    background: var(--white);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+
+.planner-logo {
+
+    color: var(--dark);
+
+    text-decoration: none;
+
+    font-size: 21px;
+
+    font-weight: 700;
+
+}
+
+
+.back-link {
+
+    color: #6f7685;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+}
+
+
+.back-link:hover {
+
+    color: var(--dark);
+
+}
+/* ===========================
+   Planner Page
+=========================== */
+
+.planner-page{
+    background:#F7F5F2;
+    font-family:'Poppins',sans-serif;
+    margin:0;
+    color:#16213E;
+    position:relative;
+    overflow-x:hidden;
+}
+
+/* Decorative circles like home */
+
+.planner-page::before{
+    content:"";
+    position:fixed;
+    width:260px;
+    height:260px;
+    background:#EFE1D8;
+    border-radius:50%;
+    top:-70px;
+    right:-70px;
+    z-index:-1;
+}
+
+.planner-page::after{
+    content:"";
+    position:fixed;
+    width:220px;
+    height:220px;
+    background:#E7E1D5;
+    border-radius:50%;
+    bottom:-90px;
+    left:-90px;
+    z-index:-1;
+}
+
+/* Remove big blue navbar */
+
+.planner-navbar{
+    background:transparent;
+    box-shadow:none;
+    padding:28px 8% 10px;
+}
+
+.planner-logo{
+    color:#16213E;
+    text-decoration:none;
+    font-size:15px;
+    font-weight:500;
+}
+
+.planner-logo::before{
+    content:"← ";
+    font-size:18px;
+}
+
+/* Container */
+
+.planner-container{
+    max-width:620px;
+    margin:10px auto 60px;
+    padding:0 18px;
+}
+
+/* Header */
+
+.planner-header{
+    text-align:center;
+    margin-bottom:28px;
+}
+
+.planner-header h1{
+    font-size:48px;
+    font-weight:700;
+    margin-bottom:10px;
+    color:#16213E;
+}
+
+.planner-header p{
+    color:#71809A;
+    font-size:18px;
+    line-height:1.7;
+}
+
+/* Form */
+
+.planner-form{
+    background:white;
+    border-radius:26px;
+    padding:30px;
+    box-shadow:0 8px 28px rgba(22,33,62,.08);
+}
+
+/* Labels */
+
+.form-group{
+    margin-bottom:22px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:600;
+    color:#16213E;
+    font-size:15px;
+}
+
+/* Inputs */
+
+.form-group input[type=text],
+.form-group input[type=number],
+.form-group input[type=date],
+.form-group input[list]{
+    width:100%;
+    padding:14px 16px;
+    border:1px solid #E5E7EB;
+    border-radius:14px;
+    font-size:15px;
+    background:#FCFCFD;
+    box-sizing:border-box;
+    transition:.25s;
+}
+
+.form-group input:focus{
+    outline:none;
+    border-color:#E76F51;
+    box-shadow:0 0 0 3px rgba(231,111,81,.15);
+}
+
+/* Duration */
+
+.duration-box{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+}
+
+.duration-box button{
+    width:38px;
+    height:38px;
+    border:none;
+    border-radius:12px;
+    background:#16213E;
+    color:white;
+    font-size:20px;
+    cursor:pointer;
+}
+
+.duration-box button:hover{
+    background:#24365f;
+}
+
+.duration-box input{
+    width:72px;
+    text-align:center;
+    font-weight:600;
+}
+
+/* Interest chips */
+
+.interest-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+}
+
+.interest-chip{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:11px 14px;
+    border-radius:14px;
+    background:#FAFAFA;
+    border:1px solid #ECECEC;
+    cursor:pointer;
+    transition:.25s;
+    font-size:14px;
+}
+
+.interest-chip:hover{
+    background:#FFF3EF;
+    border-color:#E76F51;
+}
+
+.interest-chip input{
+    accent-color:#E76F51;
+}
+
+/* Button */
+
+.generate-button{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:16px;
+    background:#16213E;
+    color:white;
+    font-size:17px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.generate-button:hover{
+    transform:translateY(-2px);
+    background:#24365f;
+}
+
+/* Mobile */
+
+@media(max-width:640px){
+
+.planner-header h1{
+    font-size:36px;
+}
+
+.planner-form{
+    padding:22px;
+}
+
+.interest-grid{
+    grid-template-columns:1fr;
+}
+
+}
+
+/* ===========================
+   ITINERARY PAGE
+=========================== */
+
+.itinerary-page{
+    background:#F7F5F2;
+    font-family:'Poppins',sans-serif;
+    color:#16213E;
+    margin:0;
+    position:relative;
+    overflow-x:hidden;
+}
+
+.itinerary-page::before{
+    content:"";
+    position:fixed;
+    width:260px;
+    height:260px;
+    background:#EFE1D8;
+    border-radius:50%;
+    top:-70px;
+    right:-70px;
+    z-index:-1;
+}
+
+.itinerary-page::after{
+    content:"";
+    position:fixed;
+    width:220px;
+    height:220px;
+    background:#E7E1D5;
+    border-radius:50%;
+    bottom:-90px;
+    left:-90px;
+    z-index:-1;
+}
+
+/* Top */
+
+.itinerary-navbar{
+    background:transparent;
+    padding:28px 8% 10px;
+}
+
+.back-link{
+    color:#16213E;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.back-link:hover{
+    color:#E76F51;
+}
+
+/* Container */
+
+.itinerary-container{
+    max-width:850px;
+    margin:20px auto 70px;
+    padding:0 20px;
+}
+
+/* Hero Card */
+
+.itinerary-hero{
+    background:white;
+    border-radius:28px;
+    padding:36px;
+    box-shadow:0 10px 30px rgba(22,33,62,.08);
+    margin-bottom:28px;
+}
+
+#planLabel{
+    color:#E76F51;
+    text-transform:uppercase;
+    font-size:14px;
+    letter-spacing:1px;
+    font-weight:600;
+}
+
+#destinationTitle{
+    font-size:46px;
+    margin:8px 0;
+    color:#16213E;
+}
+
+.hero-subtitle{
+    color:#6B7A90;
+    margin-bottom:28px;
+}
+
+/* Summary */
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+}
+
+.summary-card{
+    background:#FAFAFA;
+    border-radius:18px;
+    padding:18px;
+    text-align:center;
+}
+
+.summary-card span{
+    display:block;
+    color:#7B869C;
+    font-size:13px;
+    margin-bottom:8px;
+}
+
+.summary-card strong{
+    font-size:17px;
+    color:#16213E;
+}
+
+/* Day Cards */
+
+.day-section{
+    background:white;
+    border-radius:24px;
+    padding:28px;
+    margin-bottom:24px;
+    box-shadow:0 8px 24px rgba(22,33,62,.08);
+}
+
+.day-heading{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-bottom:26px;
+}
+
+.day-number{
+    width:54px;
+    height:54px;
+    border-radius:16px;
+    background:#16213E;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:18px;
+}
+
+.day-heading p{
+    margin:0;
+    color:#E76F51;
+    font-size:13px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+}
+
+.day-heading h2{
+    margin:4px 0 0;
+    font-size:28px;
+    color:#16213E;
+}
+
+/* Timeline */
+
+.timeline{
+    position:relative;
+    padding-left:28px;
+}
+
+.timeline::before{
+    content:"";
+    position:absolute;
+    left:8px;
+    top:6px;
+    bottom:6px;
+    width:3px;
+    background:#E8E8E8;
+    border-radius:3px;
+}
+
+.activity{
+    position:relative;
+    margin-bottom:26px;
+}
+
+.activity::before{
+    content:"";
+    position:absolute;
+    left:-25px;
+    top:8px;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:#E76F51;
+}
+
+.activity-time{
+    color:#E76F51;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+.activity-content h3{
+    margin:0 0 8px;
+    font-size:22px;
+    color:#16213E;
+}
+
+.activity-content p{
+    margin:0 0 12px;
+    color:#5F6675;
+    line-height:1.7;
+}
+
+.activity-meta{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    color:#7B869C;
+    font-size:14px;
+}
+
+/* Buttons */
+
+.itinerary-actions{
+    display:flex;
+    gap:16px;
+    margin-top:30px;
+}
+
+.action-btn{
+    flex:1;
+    text-align:center;
+    text-decoration:none;
+    padding:15px;
+    border-radius:16px;
+    font-weight:600;
+}
+
+.modify-btn{
+    background:#16213E;
+    color:white;
+}
+
+.modify-btn:hover{
+    background:#24365F;
+}
+
+.save-btn{
+    background:#E76F51;
+    color:white;
+}
+
+.save-btn:hover{
+    background:#D95C2C;
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+.summary-grid{
+    grid-template-columns:1fr;
+}
+
+#destinationTitle{
+    font-size:34px;
+}
+
+.day-heading h2{
+    font-size:24px;
+}
+
+.itinerary-actions{
+    flex-direction:column;
+}
+
+}
