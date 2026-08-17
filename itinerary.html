@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Itinerary | TravelMate</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="itinerary-page">
+
+    <!-- Navigation -->
+
+    <header class="planner-navbar">
+
+        <a href="index.html" class="planner-logo">
+            TravelMate
+        </a>
+
+        <a href="planner.html" class="back-link">
+            Edit Trip
+        </a>
+
+    </header>
+
+
+    <!-- Main Content -->
+
+    <main class="itinerary-container">
+
+        <!-- Header -->
+
+        <section class="itinerary-header">
+
+            <p class="section-label" id="planLabel">
+                YOUR PERSONALIZED PLAN
+            </p>
+
+            <h1 id="destinationTitle">
+                Your Destination
+            </h1>
+
+            <p>
+                Your personalized travel itinerary
+            </p>
+
+
+            <!-- Trip Summary -->
+
+            <div class="trip-summary">
+
+                <div class="summary-item">
+
+                    <span class="summary-label" id="durationLabel">
+                        Duration
+                    </span>
+
+                    <strong id="summaryDuration">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span class="summary-label" id="budgetLabel">
+                        Budget
+                    </span>
+
+                    <strong id="summaryBudget">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span class="summary-label" id="interestsLabel">
+                        Interests
+                    </span>
+
+                    <strong id="summaryInterests">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- AI Generated Itinerary -->
+
+        <div id="itineraryContent">
+
+            <!-- JavaScript will create all day cards here -->
+
+        </div>
+
+
+        <!-- Bottom Actions -->
+
+        <div class="itinerary-actions">
+
+            <a href="planner.html" class="secondary-button">
+                <span id="modifyLabel">Modify Trip</span>
+            </a>
+
+            <button type="button" class="primary-button" id="saveButton">
+                <span id="saveLabel">Save Itinerary</span>
+            </button>
+
+        </div>
+
+    </main>
+
+    <script src="js/itinerary.js"></script>
+
+</body>
+
+</html>
