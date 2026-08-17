@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <meta
+        name="theme-color"
+        content="#5b43e8"
+    >
+
+    <title>
+        TravelAI — Emergency Support
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="top">
+
+    <a
+        class="brand"
+        href="/"
+    >
+        ✦ TravelAI
+    </a>
+
+
+    <div class="top-right">
+
+        <select
+            id="language"
+            class="language-select"
+        >
+
+            <option value="en">
+                🌐 English
+            </option>
+
+            <option value="hi">
+                🌐 हिन्दी
+            </option>
+
+            <option value="te">
+                🌐 తెలుగు
+            </option>
+
+            <option value="ta">
+                🌐 தமிழ்
+            </option>
+
+        </select>
+    </div>
+
+</header>
+
+
+<main>
+
+
+<!-- =====================================================
+     HERO
+     ===================================================== -->
+
+<section class="hero">
+
+
+    <div class="hero-copy">
+
+        <small data-i18n="eyebrow">
+            FEATURE 5 · EMERGENCY TRAVEL SUPPORT
+        </small>
+
+
+        <h1>
+
+            <span data-i18n="heroLine1">
+                Help when you
+            </span>
+
+            <br>
+
+            <span data-i18n="heroLine2">
+                need it most.
+            </span>
+
+        </h1>
+
+
+        <p data-i18n="heroDesc">
+
+            Quick access to local emergency services,
+            location sharing, incident logging and
+            multilingual emergency phrases.
+
+        </p>
+
+
+        <div class="actions">
+
+            <button
+                class="sos"
+                id="sos"
+                type="button"
+                data-i18n="sos"
+            >
+                🚨 SOS — GET HELP
+            </button>
+
+
+            <button
+                class="outline"
+                id="loc"
+                type="button"
+                data-i18n="shareLocation"
+            >
+                📍 Share My Location
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="status">
+
+        <div class="status-dot">
+            ●
+        </div>
+
+
+        <b data-i18n="safetyStatus">
+            Safety status
+        </b>
+
+
+        <strong
+            id="status"
+            data-i18n="locationNotShared"
+        >
+            Location not shared
+        </strong>
+
+
+        <small data-i18n="locationPrivacy">
+
+            Your location stays in this browser unless
+            you submit an SOS or incident.
+
+        </small>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     CONTACTS + ACTIONS
+     ===================================================== -->
+
+<section class="cols">
+
+
+    <div class="card">
+
+        <h2 data-i18n="emergencyContacts">
+            Emergency contacts
+        </h2>
+
+
+        <p data-i18n="chooseCountry">
+            Choose your current country.
+        </p>
+
+
+        <div class="row">
+
+            <select id="country"></select>
+
+
+            <button
+                id="refresh-button"
+                type="button"
+                data-i18n="refresh"
+                class="refresh-button"
+            >
+                Refresh
+            </button>
+
+        </div>
+
+
+        <div id="contacts"></div>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h2 data-i18n="emergencyActions">
+            Emergency actions
+        </h2>
+
+
+        <p data-i18n="oneTap">
+            One-tap tools for common situations.
+        </p>
+
+
+        <div class="actions-grid">
+
+
+            <button
+                type="button"
+                onclick="action('medical')"
+            >
+
+                <span>🏥</span>
+
+                <b data-i18n="medicalHelp">
+                    Medical help
+                </b>
+
+                <small data-i18n="openAmbulance">
+                    Open ambulance contact
+                </small>
+
+            </button>
+
+
+            <button
+                type="button"
+                onclick="action('unsafe')"
+            >
+
+                <span>🛡️</span>
+
+                <b data-i18n="unsafe">
+                    I'm unsafe
+                </b>
+
+                <small data-i18n="openPolice">
+                    Open police contact
+                </small>
+
+            </button>
+
+
+            <button
+                type="button"
+                onclick="action('lost')"
+            >
+
+                <span>🧭</span>
+
+                <b data-i18n="lost">
+                    I'm lost
+                </b>
+
+                <small data-i18n="shareCurrentLocation">
+                    Share current location
+                </small>
+
+            </button>
+
+
+            <button
+                type="button"
+                onclick="action('document')"
+            >
+
+                <span>🪪</span>
+
+                <b data-i18n="lostDocuments">
+                    Lost documents
+                </b>
+
+                <small data-i18n="recordIncident">
+                    Record an incident
+                </small>
+
+            </button>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHRASES + INCIDENT
+     ===================================================== -->
+
+<section class="cols">
+
+
+    <div class="card">
+
+        <h2 data-i18n="phrasesTitle">
+            Multilingual emergency phrases
+        </h2>
+
+
+        <p data-i18n="phrasesDesc">
+            Click a phrase to hear it.
+        </p>
+
+
+        <select id="phraseLanguage">
+
+            <option value="en">
+                English
+            </option>
+
+            <option value="hi">
+                हिन्दी
+            </option>
+
+            <option value="te">
+                తెలుగు
+            </option>
+
+            <option value="ta">
+                தமிழ்
+            </option>
+
+        </select>
+
+
+        <div id="phrases"></div>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h2 data-i18n="reportIncident">
+            Report an incident
+        </h2>
+
+
+        <p data-i18n="saveDetails">
+            Save details to your support log.
+        </p>
+
+
+        <form id="form">
+
+
+            <label>
+
+                <span data-i18n="incidentType">
+                    Type
+                </span>
+
+
+                <select id="type">
+
+                    <option
+                        value="medical"
+                        data-i18n="medical"
+                    >
+                        Medical
+                    </option>
+
+
+                    <option
+                        value="lost"
+                        data-i18n="lostStranded"
+                    >
+                        Lost / stranded
+                    </option>
+
+
+                    <option
+                        value="theft"
+                        data-i18n="theft"
+                    >
+                        Theft
+                    </option>
+
+
+                    <option
+                        value="unsafe"
+                        data-i18n="unsafeSituation"
+                    >
+                        Unsafe situation
+                    </option>
+
+
+                    <option
+                        value="document"
+                        data-i18n="lostDocument"
+                    >
+                        Lost document
+                    </option>
+
+
+                    <option
+                        value="other"
+                        data-i18n="other"
+                    >
+                        Other
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <label>
+
+                <span data-i18n="description">
+                    Description
+                </span>
+
+
+                <textarea
+                    id="desc"
+                    rows="5"
+                    placeholder="What happened?"
+                    data-i18n-placeholder="descriptionPlaceholder"
+                ></textarea>
+
+            </label>
+
+
+            <button
+                class="primary"
+                type="submit"
+                data-i18n="saveIncident"
+            >
+                Save incident
+            </button>
+
+
+        </form>
+
+
+        <div id="result"></div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     SUPPORT LOG
+     ===================================================== -->
+
+<section class="card">
+
+
+    <div class="row between">
+
+        <div>
+
+            <h2 data-i18n="recentLog">
+                Recent support log
+            </h2>
+
+
+            <p data-i18n="recentLogDesc">
+                Incidents recorded by this demo application.
+            </p>
+
+        </div>
+
+
+        <button
+            id="logsBtn"
+            type="button"
+            data-i18n="refresh"
+            class="refresh-button"
+        >
+            Refresh
+        </button>
+
+    </div>
+
+
+    <div id="logs"></div>
+
+</section>
+
+
+</main>
+
+
+<!-- =====================================================
+     SOS MODAL
+     ===================================================== -->
+
+<div
+    id="modal"
+    class="modal hidden"
+>
+
+    <div class="modalbox">
+
+
+        <button
+            class="close"
+            type="button"
+            onclick="closeModal()"
+        >
+            ×
+        </button>
+
+
+        <div>
+            🚨
+        </div>
+
+
+        <h2 data-i18n="sosActivated">
+            SOS activated
+        </h2>
+
+
+        <p data-i18n="sosLogged">
+
+            SOS was logged.
+            Call the local emergency service now.
+
+        </p>
+        <div id="sosContacts"></div>
+        <button
+            class="primary full"
+            type="button"
+            onclick="closeModal()"
+            data-i18n="understand"
+        >
+            I understand
+        </button>
+
+
+    </div>
+
+</div>
+
+
+<div id="toast"></div>
+
+
+<script src="/static/app.js"></script>
+
+
+</body>
+</html>
