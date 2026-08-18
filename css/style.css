@@ -1,0 +1,1730 @@
+/* ========================================
+   GLOBAL
+======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+
+    --dark: #202637;
+
+    --text: #4f5665;
+
+    --muted: #858c9a;
+
+    --accent: #d56c53;
+
+    --accent-light: #fff5f1;
+
+    --cream: #faf8f4;
+
+    --white: #ffffff;
+
+    --border: #e8e4dc;
+}
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color: var(--text);
+
+}
+
+
+/* ========================================
+   HOME PAGE
+======================================== */
+
+.home-page {
+
+    min-height: 100vh;
+
+    background: var(--cream);
+
+    position: relative;
+
+    overflow: hidden;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.bg-circle {
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+}
+
+
+.circle-one {
+
+    width: 500px;
+
+    height: 500px;
+
+    background: #f4ded5;
+
+    top: -220px;
+
+    right: -150px;
+
+}
+
+
+.circle-two {
+
+    width: 400px;
+
+    height: 400px;
+
+    background: #e9e4da;
+
+    bottom: -220px;
+
+    left: -150px;
+
+}
+
+
+.home-container {
+
+    width: 90%;
+
+    max-width: 850px;
+
+    text-align: center;
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+}
+
+
+.app-icon {
+
+    width: 75px;
+
+    height: 75px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: white;
+
+    border-radius: 22px;
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+    color: var(--accent);
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.08);
+
+    margin-bottom: 25px;
+
+}
+
+
+.app-name {
+
+    font-size: 64px;
+
+    margin: 0;
+
+    font-weight: 700;
+
+    letter-spacing: -2px;
+
+    color: var(--dark);
+
+}
+
+
+.tagline {
+
+    margin-top: 10px;
+
+    font-size: 20px;
+
+    color: var(--accent);
+
+    font-weight: 600;
+
+}
+
+
+.home-description {
+
+    max-width: 570px;
+
+    margin-top: 22px;
+
+    color: var(--muted);
+
+    font-size: 16px;
+
+    line-height: 1.7;
+
+}
+
+
+.start-button {
+
+    margin-top: 35px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 16px 30px;
+
+    border-radius: 12px;
+
+    background: var(--dark);
+
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    transition: 0.25s ease;
+
+}
+
+
+.start-button:hover {
+
+    background: var(--accent);
+
+    transform: translateY(-2px);
+
+}
+
+
+.start-button span {
+
+    font-size: 20px;
+
+}
+
+
+.home-features {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 45px;
+
+    margin-top: 60px;
+
+}
+
+
+.home-feature {
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+}
+
+
+.home-footer {
+
+    position: absolute;
+
+    bottom: 25px;
+
+    left: 0;
+
+    width: 100%;
+
+    text-align: center;
+
+    color: #a2a6b0;
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+
+}
+
+
+/* ========================================
+   NAVBAR
+======================================== */
+
+.planner-page,
+.itinerary-page {
+
+    background: var(--cream);
+
+    color: var(--dark);
+
+    min-height: 100vh;
+
+}
+
+
+.planner-navbar {
+
+    height: 72px;
+
+    padding: 0 7%;
+
+    background: var(--white);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+
+.planner-logo {
+
+    color: var(--dark);
+
+    text-decoration: none;
+
+    font-size: 21px;
+
+    font-weight: 700;
+
+}
+
+
+.back-link {
+
+    color: #6f7685;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+}
+
+
+.back-link:hover {
+
+    color: var(--dark);
+
+}
+/* ===========================
+   Planner Page
+=========================== */
+
+.planner-page{
+    background:#F7F5F2;
+    font-family:'Poppins',sans-serif;
+    margin:0;
+    color:#16213E;
+    position:relative;
+    overflow-x:hidden;
+}
+
+/* Decorative circles like home */
+
+.planner-page::before{
+    content:"";
+    position:fixed;
+    width:260px;
+    height:260px;
+    background:#EFE1D8;
+    border-radius:50%;
+    top:-70px;
+    right:-70px;
+    z-index:-1;
+}
+
+.planner-page::after{
+    content:"";
+    position:fixed;
+    width:220px;
+    height:220px;
+    background:#E7E1D5;
+    border-radius:50%;
+    bottom:-90px;
+    left:-90px;
+    z-index:-1;
+}
+
+/* Remove big blue navbar */
+
+.planner-navbar{
+    background:transparent;
+    box-shadow:none;
+    padding:28px 8% 10px;
+}
+
+.planner-logo{
+    color:#16213E;
+    text-decoration:none;
+    font-size:15px;
+    font-weight:500;
+}
+
+.planner-logo::before{
+    content:"← ";
+    font-size:18px;
+}
+
+/* Container */
+
+.planner-container{
+    max-width:620px;
+    margin:10px auto 60px;
+    padding:0 18px;
+}
+
+/* Header */
+
+.planner-header{
+    text-align:center;
+    margin-bottom:28px;
+}
+
+.planner-header h1{
+    font-size:48px;
+    font-weight:700;
+    margin-bottom:10px;
+    color:#16213E;
+}
+
+.planner-header p{
+    color:#71809A;
+    font-size:18px;
+    line-height:1.7;
+}
+
+/* Form */
+
+.planner-form{
+    background:white;
+    border-radius:26px;
+    padding:30px;
+    box-shadow:0 8px 28px rgba(22,33,62,.08);
+}
+
+/* Labels */
+
+.form-group{
+    margin-bottom:22px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:600;
+    color:#16213E;
+    font-size:15px;
+}
+
+/* Inputs */
+
+.form-group input[type=text],
+.form-group input[type=number],
+.form-group input[type=date],
+.form-group input[list]{
+    width:100%;
+    padding:14px 16px;
+    border:1px solid #E5E7EB;
+    border-radius:14px;
+    font-size:15px;
+    background:#FCFCFD;
+    box-sizing:border-box;
+    transition:.25s;
+}
+.input-error{
+    display:none;
+    color:#E76F51;
+    font-size:.85rem;
+    margin-top:6px;
+}
+
+.form-group input:focus{
+    outline:none;
+    border-color:#E76F51;
+    box-shadow:0 0 0 3px rgba(231,111,81,.15);
+}
+
+/* Duration */
+
+.duration-box{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+}
+
+.duration-box button{
+    width:38px;
+    height:38px;
+    border:none;
+    border-radius:12px;
+    background:#16213E;
+    color:white;
+    font-size:20px;
+    cursor:pointer;
+}
+
+.duration-box button:hover{
+    background:#24365f;
+}
+
+.duration-box input{
+    width:72px;
+    text-align:center;
+    font-weight:600;
+}
+
+/* Interest chips */
+
+.interest-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+}
+
+.interest-chip{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:11px 14px;
+    border-radius:14px;
+    background:#FAFAFA;
+    border:1px solid #ECECEC;
+    cursor:pointer;
+    transition:.25s;
+    font-size:14px;
+}
+
+.interest-chip:hover{
+    background:#FFF3EF;
+    border-color:#E76F51;
+}
+
+.interest-chip input{
+    accent-color:#E76F51;
+}
+
+/* Button */
+
+.generate-button{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:16px;
+    background:#16213E;
+    color:white;
+    font-size:17px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.generate-button:hover{
+    transform:translateY(-2px);
+    background:#24365f;
+}
+
+/* Mobile */
+
+@media(max-width:640px){
+
+.planner-header h1{
+    font-size:36px;
+}
+
+.planner-form{
+    padding:22px;
+}
+
+.interest-grid{
+    grid-template-columns:1fr;
+}
+
+}
+/* ===== Budget ===== */
+
+.budget-row{
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.currency-select{
+    width:170px;
+    height:52px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:white;
+    padding:0 14px;
+    font-size:15px;
+    font-weight:600;
+    color:var(--dark);
+    outline:none;
+    transition:.25s;
+}
+
+.currency-select:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(213,108,83,.15);
+}
+
+.budget-row input{
+    flex:1;
+}
+/* ===== Travel Type & Trip Style ===== */
+
+.travel-type-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+}
+
+.trip-style-grid{
+    grid-template-columns:1fr;
+}
+
+.travel-card{
+    cursor:pointer;
+}
+
+.travel-card input{
+    display:none;
+}
+
+.travel-card span{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:6px;
+    min-height:78px;
+    padding:18px;
+    border-radius:16px;
+    border:2px solid var(--border);
+    background:white;
+    transition:.25s ease;
+    font-weight:600;
+    color:var(--dark);
+}
+
+.travel-card small{
+    font-size:12px;
+    color:var(--muted);
+    font-weight:400;
+    line-height:1.4;
+}
+
+.travel-card:hover span{
+    border-color:var(--accent);
+    transform:translateY(-2px);
+}
+
+.travel-card input:checked + span{
+    border-color:var(--accent);
+    background:var(--accent-light);
+    color:var(--accent);
+}
+/* ===== Premium Toggle Switch ===== */
+
+.toggle-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-top:8px;
+}
+
+.switch{
+    position:relative;
+    display:inline-block;
+    width:56px;
+    height:32px;
+}
+
+.switch input{
+    opacity:0;
+    width:0;
+    height:0;
+}
+
+.slider{
+    position:absolute;
+    inset:0;
+    background:#d6d6d6;
+    border-radius:999px;
+    transition:.3s ease;
+    cursor:pointer;
+}
+
+.slider::before{
+    content:"";
+    position:absolute;
+    width:24px;
+    height:24px;
+    left:4px;
+    top:4px;
+    background:#fff;
+    border-radius:50%;
+    transition:.3s ease;
+    box-shadow:0 3px 8px rgba(0,0,0,.2);
+}
+
+.switch input:checked + .slider{
+    background:#22c55e; /* Premium green */
+}
+
+.switch input:checked + .slider::before{
+    transform:translateX(24px);
+}
+
+.toggle-label{
+    font-size:15px;
+    font-weight:500;
+    color:var(--dark);
+}
+/* ===========================
+   ITINERARY PAGE
+=========================== */
+
+.itinerary-page{
+    background:#F7F5F2;
+    font-family:'Poppins',sans-serif;
+    color:#16213E;
+    margin:0;
+    position:relative;
+    overflow-x:hidden;
+}
+
+.itinerary-page::before{
+    content:"";
+    position:fixed;
+    width:260px;
+    height:260px;
+    background:#EFE1D8;
+    border-radius:50%;
+    top:-70px;
+    right:-70px;
+    z-index:-1;
+}
+
+.itinerary-page::after{
+    content:"";
+    position:fixed;
+    width:220px;
+    height:220px;
+    background:#E7E1D5;
+    border-radius:50%;
+    bottom:-90px;
+    left:-90px;
+    z-index:-1;
+}
+
+/* Top */
+
+.itinerary-navbar{
+    background:transparent;
+    padding:28px 8% 10px;
+}
+
+.back-link{
+    color:#16213E;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.back-link:hover{
+    color:#E76F51;
+}
+
+/* Container */
+
+.itinerary-container{
+    max-width:850px;
+    margin:20px auto 70px;
+    padding:0 20px;
+}
+
+/* Hero Section */
+
+.itinerary-hero{
+    max-width:850px;
+    margin:20px auto 35px;
+}
+
+.hero-tag{
+    color:#E76F51;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    margin-bottom:12px;
+}
+
+.itinerary-hero h1{
+    font-size:64px;
+    font-weight:800;
+    color:#16213E;
+    line-height:1.05;
+    margin-bottom:12px;
+}
+
+.hero-subtitle{
+    font-size:20px;
+    color:#71809A;
+    margin-bottom:28px;
+}
+
+.trip-summary-card{
+    background:#fff;
+    border-radius:26px;
+    padding:30px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:22px;
+    box-shadow:0 12px 30px rgba(22,33,62,.08);
+}
+
+.summary-item{
+    display:flex;
+    flex-direction:column;
+}
+
+.summary-item span{
+    color:#7B869C;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:8px;
+}
+
+.summary-item strong{
+    color:#16213E;
+    font-size:22px;
+    font-weight:700;
+}
+
+.full-width{
+    grid-column:1/-1;
+}
+
+/* Day Cards */
+
+.day-section{
+    background:white;
+    border-radius:24px;
+    padding:28px;
+    margin-bottom:24px;
+    box-shadow:0 8px 24px rgba(22,33,62,.08);
+}
+
+.day-heading{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-bottom:26px;
+}
+
+.day-number{
+    width:54px;
+    height:54px;
+    border-radius:16px;
+    background:#16213E;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:18px;
+}
+
+.day-heading p{
+    margin:0;
+    color:#E76F51;
+    font-size:13px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+}
+
+.day-heading h2{
+    margin:4px 0 0;
+    font-size:28px;
+    color:#16213E;
+}
+
+/* Timeline */
+
+.timeline{
+    position:relative;
+    padding-left:28px;
+}
+
+.timeline::before{
+    content:"";
+    position:absolute;
+    left:8px;
+    top:6px;
+    bottom:6px;
+    width:3px;
+    background:#E8E8E8;
+    border-radius:3px;
+}
+
+.activity{
+    position:relative;
+    margin-bottom:26px;
+}
+
+.activity::before{
+    content:"";
+    position:absolute;
+    left:-25px;
+    top:8px;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:#E76F51;
+}
+
+.activity-time{
+    color:#E76F51;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+.activity-content h3{
+    margin:0 0 8px;
+    font-size:22px;
+    color:#16213E;
+}
+
+.activity-content p{
+    margin:0 0 12px;
+    color:#5F6675;
+    line-height:1.7;
+}
+
+.activity-meta{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    color:#7B869C;
+    font-size:14px;
+}
+
+/* Buttons */
+
+.itinerary-actions{
+    display:flex;
+    gap:16px;
+    margin-top:30px;
+}
+
+.action-btn{
+    flex:1;
+    text-align:center;
+    text-decoration:none;
+    padding:15px;
+    border-radius:16px;
+    font-weight:600;
+}
+
+.modify-btn{
+    background:#16213E;
+    color:white;
+}
+
+.modify-btn:hover{
+    background:#24365F;
+}
+
+.save-btn{
+    background:#E76F51;
+    color:white;
+}
+
+.save-btn:hover{
+    background:#D95C2C;
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+.trip-summary-card{
+    grid-template-columns:1fr;
+}
+
+.itinerary-hero h1{
+    font-size:42px;
+}
+
+.day-heading h2{
+    font-size:24px;
+}
+
+.itinerary-actions{
+    flex-direction:column;
+}
+}
+
+/* Itinerary Action Buttons */
+
+.action-buttons{
+    display:flex;
+    gap:16px;
+    justify-content:center;
+    align-items:center;
+    margin:40px 0;
+    flex-wrap:wrap;
+}
+
+.action-btn{
+    text-decoration:none;
+    border:none;
+    cursor:pointer;
+    padding:14px 28px;
+    border-radius:16px;
+    font-size:16px;
+    font-weight:600;
+    transition:.25s ease;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* Primary Button */
+
+.action-btn.primary{
+    background:#1B2340;
+    color:white;
+    box-shadow:0 8px 20px rgba(27,35,64,.18);
+}
+
+.action-btn.primary:hover{
+    background:#11182f;
+    transform:translateY(-2px);
+}
+
+/* Secondary Button */
+
+.action-btn.secondary{
+    background:white;
+    color:#E46F43;
+    border:2px solid #E46F43;
+}
+
+.action-btn.secondary:hover{
+    background:#E46F43;
+    color:white;
+    transform:translateY(-2px);
+}
+/* ==========================================
+   ITINERARY PAGE (Updated)
+========================================== */
+
+.itinerary-page{
+    background:#F8F5F0;
+    color:#1D2A44;
+    font-family:"Poppins",sans-serif;
+}
+
+.itinerary-container{
+    max-width:980px;
+    margin:40px auto;
+    padding:0 24px;
+}
+
+/* Hero */
+
+.destination-hero{
+    background:linear-gradient(135deg,#1D2A44,#364E74);
+    color:white;
+    border-radius:28px;
+    overflow:hidden;
+    padding:50px 42px;
+    margin-bottom:26px;
+    box-shadow:0 18px 40px rgba(25,40,70,.18);
+}
+
+.hero-overlay{
+    max-width:620px;
+}
+
+.section-label{
+    text-transform:uppercase;
+    letter-spacing:2px;
+    font-size:.78rem;
+    color:#F3C98B;
+    font-weight:600;
+}
+
+.destination-hero h1{
+    font-size:3rem;
+    margin:12px 0;
+    font-weight:700;
+}
+
+.hero-subtitle{
+    color:#EEF2F8;
+    font-size:1rem;
+}
+
+/* Destination Overview */
+
+.overview-card{
+    background:#FFFDF8;
+    border-radius:22px;
+    padding:28px;
+    margin-bottom:26px;
+    border:1px solid rgba(29,42,68,.08);
+    box-shadow:0 8px 24px rgba(0,0,0,.05);
+}
+
+.overview-card h2{
+    font-size:1.35rem;
+    margin-bottom:12px;
+    color:#1D2A44;
+}
+
+.overview-card p{
+    color:#5B6475;
+    line-height:1.8;
+}
+
+/* Summary */
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:16px;
+    margin-bottom:34px;
+}
+
+.summary-card{
+    background:#FFFDF8;
+    border-radius:18px;
+    padding:20px;
+    border:1px solid rgba(29,42,68,.08);
+    transition:.25s;
+}
+
+.summary-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 24px rgba(0,0,0,.08);
+}
+
+.summary-card span{
+    display:block;
+    color:#8A92A3;
+    font-size:.82rem;
+    margin-bottom:6px;
+}
+
+.summary-card h3{
+    color:#1D2A44;
+    font-size:1.1rem;
+    margin:0;
+}
+
+.full-width{
+    grid-column:1/-1;
+}
+
+/* Day Section */
+
+.day-section{
+    margin:42px 0;
+}
+
+.day-header{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-bottom:16px;
+}
+
+.day-circle{
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    background:#1D2A44;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:1rem;
+}
+
+.day-label{
+    color:#A08155;
+    font-size:.78rem;
+    letter-spacing:1px;
+    font-weight:600;
+    margin:0;
+}
+
+.day-header h2{
+    margin:3px 0 0;
+    font-size:1.6rem;
+}
+
+.day-introduction{
+    color:#5B6475;
+    line-height:1.8;
+    margin:0 0 22px 74px;
+}
+
+/* Activities */
+
+.activities-container{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    margin-left:74px;
+}
+
+.activity-card{
+    background:#FFFDF8;
+    border-radius:20px;
+    padding:22px;
+    border:1px solid rgba(29,42,68,.08);
+    box-shadow:0 8px 20px rgba(0,0,0,.05);
+    transition:.25s;
+}
+
+.activity-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 16px 30px rgba(0,0,0,.08);
+}
+
+.activity-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:18px;
+}
+
+.activity-time{
+    color:#A08155;
+    font-weight:600;
+    margin-bottom:4px;
+}
+
+.activity-top h3{
+    margin:0;
+    font-size:1.22rem;
+}
+
+.popularity-badge{
+    background:#F3C98B;
+    color:#1D2A44;
+    padding:7px 14px;
+    border-radius:999px;
+    font-size:.78rem;
+    font-weight:600;
+    white-space:nowrap;
+}
+
+.activity-description{
+    color:#5B6475;
+    line-height:1.75;
+    margin:16px 0;
+}
+
+.activity-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    color:#6C7483;
+    font-size:.9rem;
+    padding-bottom:14px;
+    border-bottom:1px solid rgba(29,42,68,.08);
+}
+
+.activity-extra{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:16px;
+}
+
+.activity-info{
+    background:#F8F5F0;
+    border-radius:12px;
+    padding:12px 14px;
+    color:#4F5A6D;
+    font-size:.92rem;
+    line-height:1.5;
+}
+
+.activity-info strong{
+    color:#1D2A44;
+}
+
+/* Bottom Buttons */
+
+.action-buttons{
+    display:flex;
+    gap:16px;
+    justify-content:center;
+    margin:50px 0 20px;
+    flex-wrap:wrap;
+}
+
+.action-btn{
+    padding:14px 26px;
+    border-radius:14px;
+    text-decoration:none;
+    font-weight:600;
+    transition:.25s;
+}
+
+.action-btn.primary{
+    background:#1D2A44;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+.action-btn.primary:hover{
+    background:#263759;
+}
+
+.action-btn.secondary{
+    background:white;
+    color:#1D2A44;
+    border:1px solid rgba(29,42,68,.12);
+}
+
+.action-btn.secondary:hover{
+    background:#F5F2EC;
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+.destination-hero{
+    padding:34px 24px;
+}
+
+.destination-hero h1{
+    font-size:2.2rem;
+}
+
+.day-introduction,
+.activities-container{
+    margin-left:0;
+}
+
+.day-header{
+    align-items:flex-start;
+}
+
+.activity-top{
+    flex-direction:column;
+}
+
+.summary-grid{
+    grid-template-columns:repeat(2,1fr);
+}
+
+}
+/* ==========================================================
+   ITINERARY PAGE (TravelMate Premium UI)
+========================================================== */
+
+.itinerary-page{
+    background:#F8F5F0;
+    font-family:"Poppins",sans-serif;
+    color:#1D2A44;
+}
+
+.itinerary-container{
+    max-width:980px;
+    margin:40px auto;
+    padding:0 22px;
+}
+
+/* ---------------- Hero ---------------- */
+
+.destination-hero{
+    background:linear-gradient(135deg,#182347,#30456C);
+    border-radius:28px;
+    padding:50px 40px;
+    color:white;
+    box-shadow:0 18px 40px rgba(24,35,71,.18);
+    margin-bottom:26px;
+}
+
+.hero-overlay{
+    max-width:620px;
+}
+
+.section-label{
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:#E9C48A;
+    font-size:.78rem;
+    font-weight:600;
+}
+
+.destination-hero h1{
+    font-size:3rem;
+    margin:12px 0;
+    line-height:1.1;
+}
+
+.hero-subtitle{
+    color:#E9EDF6;
+    line-height:1.7;
+}
+
+/* ---------------- Overview ---------------- */
+
+.overview-card{
+    background:#FFFDF8;
+    border-radius:22px;
+    padding:28px;
+    border:1px solid rgba(24,35,71,.08);
+    box-shadow:0 8px 24px rgba(0,0,0,.05);
+    margin-bottom:28px;
+}
+
+.overview-card h2{
+    margin-bottom:12px;
+}
+
+.overview-card p{
+    color:#5F6B85;
+    line-height:1.8;
+}
+
+/* ---------------- Summary ---------------- */
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:16px;
+    margin-bottom:40px;
+}
+
+.summary-card{
+    background:#FFFDF8;
+    border-radius:18px;
+    padding:20px;
+    border:1px solid rgba(24,35,71,.08);
+    transition:.25s ease;
+}
+
+.summary-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 24px rgba(0,0,0,.08);
+}
+
+.summary-card span{
+    display:block;
+    color:#8A92A3;
+    font-size:.82rem;
+    margin-bottom:6px;
+}
+
+.summary-card h3{
+    margin:0;
+    color:#182347;
+    font-size:1.05rem;
+}
+
+.summary-card.full-width{
+    grid-column:1/-1;
+}
+
+/* ---------------- Day Header ---------------- */
+
+.day-section{
+    margin:46px 0;
+}
+
+.day-header{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.day-circle{
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    background:#182347;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+}
+
+.day-label{
+    color:#A37D4D;
+    font-size:.78rem;
+    letter-spacing:1px;
+    font-weight:600;
+    margin:0;
+}
+
+.day-header h2{
+    margin:4px 0 0;
+    font-size:1.55rem;
+}
+
+.day-introduction{
+    margin:18px 0 26px 74px;
+    color:#5F6B85;
+    line-height:1.8;
+}
+
+/* ---------------- Activities ---------------- */
+
+.activities-container{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    margin-left:74px;
+}
+
+.activity-card{
+    background:#FFFDF8;
+    border-radius:20px;
+    padding:22px;
+    border:1px solid rgba(24,35,71,.08);
+    box-shadow:0 8px 22px rgba(0,0,0,.05);
+    transition:.25s ease;
+}
+
+.activity-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 16px 32px rgba(0,0,0,.08);
+}
+
+.activity-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+}
+
+.activity-time{
+    color:#A37D4D;
+    font-weight:600;
+    margin-bottom:4px;
+}
+
+.activity-top h3{
+    margin:0;
+    font-size:1.2rem;
+}
+
+.popularity-badge{
+    background:#E9C48A;
+    color:#182347;
+    padding:7px 14px;
+    border-radius:999px;
+    font-size:.78rem;
+    font-weight:600;
+    white-space:nowrap;
+}
+
+.activity-description{
+    margin:16px 0;
+    line-height:1.8;
+    color:#5F6B85;
+}
+
+.activity-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    color:#667086;
+    font-size:.9rem;
+    padding-bottom:14px;
+    border-bottom:1px solid rgba(24,35,71,.08);
+}
+
+.activity-extra{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:16px;
+}
+
+.activity-info{
+    background:#F8F5F0;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:.92rem;
+    line-height:1.5;
+    color:#4F5A6D;
+}
+
+.activity-info strong{
+    color:#182347;
+}
+
+/* ---------------- Buttons ---------------- */
+
+.action-buttons{
+    display:flex;
+    justify-content:center;
+    gap:16px;
+    margin:46px 0 20px;
+    flex-wrap:wrap;
+}
+
+.action-btn{
+    padding:14px 28px;
+    border-radius:14px;
+    text-decoration:none;
+    font-weight:600;
+    transition:.25s;
+}
+
+.action-btn.primary{
+    background:#182347;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+.action-btn.primary:hover{
+    background:#24355B;
+}
+
+.action-btn.secondary{
+    background:white;
+    color:#182347;
+    border:1px solid rgba(24,35,71,.12);
+}
+
+.action-btn.secondary:hover{
+    background:#F3EFE8;
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media(max-width:768px){
+
+.destination-hero{
+    padding:36px 24px;
+}
+
+.destination-hero h1{
+    font-size:2.2rem;
+}
+
+.day-header{
+    align-items:flex-start;
+}
+
+.day-introduction,
+.activities-container{
+    margin-left:0;
+}
+
+.activity-top{
+    flex-direction:column;
+}
+
+.summary-grid{
+    grid-template-columns:repeat(2,1fr);
+}
+
+}
+/* ===========================
+   Activity Map Button
+=========================== */
+
+.map-button{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:100%;
+
+    margin-top:18px;
+    padding:14px 18px;
+
+    border-radius:14px;
+
+    background:#182347;
+    color:#ffffff;
+
+    text-decoration:none;
+    font-weight:600;
+    font-size:.95rem;
+
+    transition:.25s ease;
+    box-shadow:0 8px 18px rgba(24,35,71,.15);
+
+}
+
+.map-button:hover{
+
+    background:#24355B;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 12px 24px rgba(24,35,71,.22);
+
+}
+
+.map-button:active{
+
+    transform:translateY(0);
+
+}
