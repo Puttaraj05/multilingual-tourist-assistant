@@ -1,44 +1,28 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from backend.database.mongodb import client
+from backend.api.recommendation import router as recommendation_router
 
 
 app = FastAPI(
-    title="Multilingual Tourist Assistant",
-    description="AI-powered multilingual tourism assistant",
-    version="1.0.0",
+    title="Multilingual Tourist Assistant"
 )
 
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+app.include_router(recommendation_router)
+
+
 @app.get("/")
-async def root():
+def home():
     return {
-        "success": True,
-        "message": "Multilingual Tourist Assistant API is running",
+        "message": "Multilingual Tourist Assistant API is running"
     }
-
-
-@app.get("/api/health")
-async def health():
-    return {
-        "success": True,
-        "status": "healthy",
-    }
-
-
-@app.get("/api/health/database")
-async def database_health():
-    try:
-        client.admin.command("ping")
-
-        return {
-            "success": True,
-            "database": "connected",
-        }
-
-    except Exception as e:
-        return {
-            "success": False,
-            "database": "disconnected",
-            "error": str(e),
-        }
