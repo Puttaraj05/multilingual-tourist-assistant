@@ -5,66 +5,234 @@ from backend.services.gemini_service import generate_text
 from backend.prompts.tourist_chat import TOURIST_SYSTEM_PROMPT
 
 
+# =========================================================
+# Empty Response
+# =========================================================
+
+def empty_chat_response(message: str = "") -> dict:
+
+    return {
+        "message": message,
+        "destination": None,
+        "attractions": [],
+        "food": [],
+        "transportation": [],
+        "tips": [],
+        "itinerary": [],
+    }
+
+
+# =========================================================
+# Clean Gemini JSON
+# =========================================================
+
+def clean_json_response(response: str) -> str:
+
+    if not response:
+        return ""
+
+    response = str(response).strip()
+
+    if response.startswith("```json"):
+        response = response[7:].strip()
+
+    elif response.startswith("```"):
+        response = response[3:].strip()
+
+    if response.endswith("```"):
+        response = response[:-3].strip()
+
+    return response
+
+
+# =========================================================
+# Parse JSON
+# =========================================================
+
+def parse_json_response(response: str) -> Optional[dict]:
+
+    if not response:
+        return None
+
+    response = clean_json_response(response)
+
+    # -----------------------------------------------------
+    # Normal JSON
+    # -----------------------------------------------------
+
+    try:
+
+        parsed = json.loads(response)
+
+        if isinstance(parsed, dict):
+            return parsed
+
+    except json.JSONDecodeError:
+        pass
+
+    # -----------------------------------------------------
+    # JSON embedded in other text
+    # -----------------------------------------------------
+
+    start = response.find("{")
+    end = response.rfind("}")
+
+    if start == -1 or end == -1:
+        return None
+
+    try:
+
+        parsed = json.loads(
+            response[start:end + 1]
+        )
+
+        if isinstance(parsed, dict):
+            return parsed
+
+    except json.JSONDecodeError:
+        return None
+
+    return None
+
+
+# =========================================================
+# Normalize
+# =========================================================
+
+def normalize_response(response: dict) -> dict:
+
+    return {
+
+        "message": response.get(
+            "message",
+            "",
+        ),
+
+        "destination": response.get(
+            "destination"
+        ),
+
+        "attractions": response.get(
+            "attractions",
+            [],
+        ),
+
+        "food": response.get(
+            "food",
+            [],
+        ),
+
+        "transportation": response.get(
+            "transportation",
+            [],
+        ),
+
+        "tips": response.get(
+            "tips",
+            [],
+        ),
+
+        "itinerary": response.get(
+            "itinerary",
+            [],
+        ),
+    }
+
+
+# =========================================================
+# Generate Chat Response
+# =========================================================
+
 def generate_chat_response(
     message: str,
     language: str,
-    conversation_history: Optional[List] = None
+    conversation_history: Optional[List] = None,
 ) -> dict:
 
     prompt = TOURIST_SYSTEM_PROMPT.format(
         language=language
     )
 
+
+    # =====================================================
+    # Conversation History
+    # =====================================================
+
     if conversation_history:
-        prompt += "\n\nConversation history:\n"
+
+        prompt += (
+            "\n\nConversation history:\n"
+        )
 
         for item in conversation_history:
-            prompt += f"User: {item['user']}\n"
-            prompt += f"Assistant: {item['assistant']}\n"
+
+            user_text = item.get(
+                "user",
+                "",
+            )
+
+            assistant_text = item.get(
+                "assistant",
+                "",
+            )
+
+            if isinstance(
+                assistant_text,
+                dict,
+            ):
+
+                assistant_text = json.dumps(
+                    assistant_text,
+                    ensure_ascii=False,
+                )
+
+            prompt += (
+                f"User: {user_text}\n"
+            )
+
+            prompt += (
+                f"Assistant: {assistant_text}\n"
+            )
+
+
+    # =====================================================
+    # Current Request
+    # =====================================================
 
     prompt += f"""
 
 Current user message:
 {message}
 
-You are a multilingual tourist assistant.
-
-Respond in {language}.
-
-IMPORTANT:
-Return ONLY valid JSON.
-Do not use Markdown.
-Do not add explanations outside the JSON.
-
-Use exactly this structure:
+Return ONE JSON object using exactly this structure:
 
 {{
-    "message": "A short helpful summary for the user",
-    "destination": "Destination name",
+    "message": "Short helpful answer",
+    "destination": "Destination name or null",
     "attractions": [
         {{
             "name": "Attraction name",
-            "description": "Short useful description",
-            "category": "Historical / Nature / Museum / Entertainment"
+            "description": "Short description",
+            "category": "Historical"
         }}
     ],
     "food": [
         {{
             "name": "Food or restaurant",
-            "description": "Short useful description",
-            "type": "Local food / Restaurant / Dessert / Drink"
+            "description": "Short description",
+            "type": "Local food"
         }}
     ],
     "transportation": [
         {{
-            "mode": "Metro / Bus / Taxi / Auto / Walking",
-            "description": "Useful transportation information"
+            "mode": "Metro",
+            "description": "Useful information"
         }}
     ],
     "tips": [
         {{
             "title": "Tip title",
-            "description": "Useful travel tip"
+            "description": "Useful tip"
         }}
     ],
     "itinerary": [
@@ -80,34 +248,69 @@ Use exactly this structure:
     ]
 }}
 
-Rules:
-- Keep information practical and useful for tourists.
-- If the user asks about a specific destination, focus on that destination.
-- Do not invent exact prices, opening hours, availability, or other time-sensitive facts unless you are given reliable data.
-- If a section is not relevant, return an empty array.
+IMPORTANT RULES:
+
+- Return JSON only.
+- Do not use Markdown.
+- Do not wrap JSON in code fences.
+- Do not put the JSON inside the "message" field.
+- "message" must contain only the human-readable summary.
+- Use the requested language: {language}.
+- If the user asks for a destination, provide useful attractions.
+- If the user asks for a trip plan, provide an itinerary.
+- Keep each description concise.
+- Use real tourist destinations and commonly known information.
+- Do not invent exact prices.
+- Do not invent opening hours.
+- Do not invent live availability.
+- If something is unknown, omit it or use a general statement.
+- Keep the entire response compact enough to complete fully.
 """
 
-    response = generate_text(prompt)
 
-    try:
-        # Remove accidental markdown code fences
-        response = response.strip()
+    # =====================================================
+    # Call Gemini
+    # =====================================================
 
-        if response.startswith("```"):
-            response = response.replace("```json", "")
-            response = response.replace("```", "")
-            response = response.strip()
+    raw_response = generate_text(
+        prompt
+    )
 
-        return json.loads(response)
 
-    except json.JSONDecodeError:
-        # Fallback if Gemini returns normal text
-        return {
-            "message": response,
-            "destination": None,
-            "attractions": [],
-            "food": [],
-            "transportation": [],
-            "tips": [],
-            "itinerary": []
-        }
+    # =====================================================
+    # Parse
+    # =====================================================
+
+    parsed = parse_json_response(
+        raw_response
+    )
+
+
+    # =====================================================
+    # Success
+    # =====================================================
+
+    if parsed is not None:
+
+        return normalize_response(
+            parsed
+        )
+
+
+    # =====================================================
+    # Fallback
+    # =====================================================
+
+    print(
+        "WARNING: Gemini returned invalid JSON.",
+        flush=True,
+    )
+
+    print(
+        raw_response,
+        flush=True,
+    )
+
+    return empty_chat_response(
+        "I couldn't format the travel response correctly. Please try again."
+    )

@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ChatRequest(BaseModel):
@@ -44,8 +44,23 @@ class ChatResponse(BaseModel):
     message: str
 
     destination: Optional[str] = None
-    attractions: List[Attraction] = []
-    food: List[FoodRecommendation] = []
-    transportation: List[TransportOption] = []
-    tips: List[TravelTip] = []
-    itinerary: List[ItineraryDay] = []  
+
+    attractions: List[Attraction] = Field(
+        default_factory=list
+    )
+
+    food: List[FoodRecommendation] = Field(
+        default_factory=list
+    )
+
+    transportation: List[TransportOption] = Field(
+        default_factory=list
+    )
+
+    tips: List[TravelTip] = Field(
+        default_factory=list
+    )
+
+    itinerary: List[ItineraryDay] = Field(
+        default_factory=list
+    )

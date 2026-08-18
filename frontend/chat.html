@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="theme-color" content="#5b43e8">
+
+    <title>TravelAI — AI Travel Assistant</title>
+
+    <link rel="stylesheet" href="/static/chat.css">
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <a href="/" class="brand">
+        ✦ TravelAI
+    </a>
+
+    <div class="top-actions">
+
+        <a href="/" class="back-link">
+            ← Home
+        </a>
+
+        <select id="language" class="language-select">
+            <option value="English">🌐 English</option>
+            <option value="Hindi">🌐 हिन्दी</option>
+            <option value="Telugu">🌐 తెలుగు</option>
+            <option value="Tamil">🌐 தமிழ்</option>
+        </select>
+
+        <button id="newChat" class="new-chat">
+            + New Chat
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="chat-page">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-title">
+            <span>✦</span>
+            <div>
+                <strong>TravelAI</strong>
+                <small>AI Travel Assistant</small>
+            </div>
+        </div>
+
+        <button class="suggestion" data-message="Plan a 3 day trip to Hyderabad">
+            <span>🗺️</span>
+            <div>
+                <b>Plan a trip</b>
+                <small>Get a complete itinerary</small>
+            </div>
+        </button>
+
+        <button class="suggestion" data-message="What food should I try there?">
+            <span>🍛</span>
+            <div>
+                <b>Local food</b>
+                <small>Discover what to eat</small>
+            </div>
+        </button>
+
+        <button class="suggestion" data-message="What are the best attractions to visit there?">
+            <span>📍</span>
+            <div>
+                <b>Places to visit</b>
+                <small>Explore attractions</small>
+            </div>
+        </button>
+
+        <button class="suggestion" data-message="How should I get around there?">
+            <span>🚕</span>
+            <div>
+                <b>Transportation</b>
+                <small>Find the best ways to travel</small>
+            </div>
+        </button>
+
+        <div class="sidebar-bottom">
+            <div class="session-label">
+                SESSION
+            </div>
+
+            <div id="sessionId" class="session-id">
+                New conversation
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- CHAT -->
+
+    <section class="chat-container">
+
+        <div id="messages" class="messages">
+
+            <div class="welcome">
+
+                <div class="welcome-icon">
+                    ✦
+                </div>
+
+                <h1>
+                    Where do you want to go?
+                </h1>
+
+                <p>
+                    Ask me anything about destinations, attractions,
+                    food, transportation, itineraries and travel tips.
+                </p>
+
+                <div class="welcome-suggestions">
+
+                    <button data-message="Plan a 3 day trip to Hyderabad">
+                        🗺️ Plan a 3-day Hyderabad trip
+                    </button>
+
+                    <button data-message="What food should I try in Hyderabad?">
+                        🍛 What food should I try?
+                    </button>
+
+                    <button data-message="What are the best places to visit in Hyderabad?">
+                        📍 Best places to visit
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TYPING -->
+
+        <div id="typing" class="typing hidden">
+
+            <div class="typing-avatar">
+                ✦
+            </div>
+
+            <div class="typing-bubble">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+        </div>
+
+
+        <!-- INPUT -->
+
+        <div class="composer-wrapper">
+
+            <form id="chatForm" class="composer">
+
+                <textarea
+                    id="messageInput"
+                    rows="1"
+                    placeholder="Ask TravelAI anything..."
+                    autocomplete="off"
+                ></textarea>
+
+                <button
+                    id="sendButton"
+                    type="submit"
+                    aria-label="Send message"
+                >
+                    ↑
+                </button>
+
+            </form>
+
+            <small class="composer-note">
+                TravelAI can help with destinations, food, attractions,
+                transportation and travel planning.
+            </small>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script src="/static/chat.js"></script>
+
+</body>
+</html>
