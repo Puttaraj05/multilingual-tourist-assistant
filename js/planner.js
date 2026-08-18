@@ -5,7 +5,7 @@ const decreaseButton = document.getElementById("decreaseDays");
 const increaseButton = document.getElementById("increaseDays");
 
 // -----------------------------
-// Duration
+// Duration Buttons
 // -----------------------------
 
 decreaseButton.addEventListener("click", () => {
@@ -19,7 +19,7 @@ increaseButton.addEventListener("click", () => {
 });
 
 // -----------------------------
-// Submit
+// Form Submit
 // -----------------------------
 
 form.addEventListener("submit", async (e) => {
@@ -46,27 +46,55 @@ form.addEventListener("submit", async (e) => {
 
     const interests = [];
 
-    document.querySelectorAll('input[name="interest"]:checked').forEach(i => {
-        interests.push(i.value);
-    });
+    document
+        .querySelectorAll('input[name="interest"]:checked')
+        .forEach(item => interests.push(item.value));
+
+    // Basic validation
+
+    if (!destination) {
+        alert("Please enter a destination.");
+        return;
+    }
+
+    if (!travelDate) {
+        alert("Please select a travel date.");
+        return;
+    }
+
+    if (budget <= 0) {
+        alert("Please enter a valid budget.");
+        return;
+    }
+
+    if (interests.length === 0) {
+        alert("Please select at least one interest.");
+        return;
+    }
 
     const tripData = {
+
         destination,
         duration,
         travelDate,
+
         budget,
         currencySymbol,
+
         language,
+
         travelType,
         tripStyle,
         kidsUnder12,
+
         interests
+
     };
 
     const button = document.querySelector(".generate-button");
 
     button.disabled = true;
-    button.innerHTML = "Generating...";
+    button.innerHTML = "Generating your itinerary...";
 
     try {
 
@@ -87,6 +115,8 @@ form.addEventListener("submit", async (e) => {
             throw new Error(result.error || "Something went wrong.");
         }
 
+        // Preserve frontend values
+
         result.destination = destination;
         result.currencySymbol = currencySymbol;
         result.travelType = travelType;
@@ -102,7 +132,9 @@ form.addEventListener("submit", async (e) => {
 
     } catch (err) {
 
-        alert(err.message);
+        console.error(err);
+
+        alert(err.message || "Unable to generate itinerary.");
 
         button.disabled = false;
 

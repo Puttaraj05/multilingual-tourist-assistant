@@ -76,9 +76,10 @@
                 id="destination"
                 placeholder="Country or city..."
                 required>
+                <p id="destinationError" class="input-error"></p>
         </div>
 
-        <!-- Duration -->
+        <!-- Trip Duration -->
         <div class="form-group">
             <label data-key="duration">Trip Duration</label>
 
@@ -155,26 +156,26 @@
         </div>
 
         <!-- Child Under 12 -->
-       <div class="form-group">
-    <label class="form-label">Travelling with a Child Under 12?</label>
+        <div class="form-group">
+            <label class="form-label">Travelling with a Child Under 12?</label>
 
-    <div class="toggle-row">
-        <label class="switch">
-            <input type="checkbox" id="kidsUnder12">
-            <span class="slider"></span>
-        </label>
-        <span class="toggle-label">Yes</span>
-    </div>
-</div>
+            <div class="toggle-row">
+                <label class="switch">
+                    <input type="checkbox" id="kidsUnder12">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label">Yes</span>
+            </div>
+        </div>
 
         <!-- Trip Style -->
         <div class="form-group">
             <label>Trip Style</label>
 
-            <div class="travel-type-grid trip-style-grid">
+            <div class="trip-style-grid">
 
                 <label class="travel-card">
-                    <input type="radio" name="tripStyle" value="Relaxed" checked>
+                    <input type="radio" name="tripStyle" value="Relaxed">
                     <span>
                         Relaxed
                         <small>Fewer places with more time at each stop.</small>
@@ -182,7 +183,7 @@
                 </label>
 
                 <label class="travel-card">
-                    <input type="radio" name="tripStyle" value="Balanced">
+                    <input type="radio" name="tripStyle" value="Balanced" checked>
                     <span>
                         Balanced
                         <small>A mix of sightseeing and breaks.</small>
@@ -207,12 +208,19 @@
             <div class="interest-grid">
 
                 <label class="interest-chip"><input type="checkbox" name="interest" value="Food"> Food</label>
+
                 <label class="interest-chip"><input type="checkbox" name="interest" value="History"> History</label>
+
                 <label class="interest-chip"><input type="checkbox" name="interest" value="Culture"> Culture</label>
+
                 <label class="interest-chip"><input type="checkbox" name="interest" value="Shopping"> Shopping</label>
+
                 <label class="interest-chip"><input type="checkbox" name="interest" value="Nature"> Nature</label>
+
                 <label class="interest-chip"><input type="checkbox" name="interest" value="Adventure"> Adventure</label>
+
                 <label class="interest-chip"><input type="checkbox" name="interest" value="Nightlife"> Nightlife</label>
+
                 <label class="interest-chip"><input type="checkbox" name="interest" value="Photography"> Photography</label>
 
             </div>

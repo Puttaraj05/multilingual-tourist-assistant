@@ -1,81 +1,95 @@
-const defaultText = {
-
+const defaultLabels = {
     title: "PLAN YOUR JOURNEY",
-
     subtitle: "Tell us a little about your trip",
-
     languageLabel: "Language",
-
     destination: "Destination",
-
     duration: "Trip Duration",
-
     date: "Travel Date",
-
-    budget: "Budget (INR)",
-
+    budget: "Budget",
     interests: "Interests",
+    continue: "Generate My Itinerary",
 
-    continue: "Generate My Itinerary"
+    travelType: "Who's Travelling?",
+    kids: "Travelling with a Child Under 12?",
+    tripStyle: "Trip Style",
 
+    relaxed: "Relaxed",
+    balanced: "Balanced",
+    packed: "Packed"
 };
 
 const languageInput = document.getElementById("language");
 
-async function changeLanguage(lang) {
+// -----------------------------
+// Apply Labels
+// -----------------------------
 
-    let translated = defaultText;
-
-    if (lang.toLowerCase() !== "english") {
-
-        try {
-
-            const response = await fetch(
-                "http://127.0.0.1:8000/api/ui-translate",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        language: lang,
-                        labels: defaultText
-                    })
-                }
-            );
-
-            translated = await response.json();
-
-        } catch (error) {
-
-            console.error("Translation failed:", error);
-
-            translated = defaultText;
-        }
-
-    }
+function applyLabels(labels) {
 
     document.querySelectorAll("[data-key]").forEach(el => {
 
         const key = el.dataset.key;
 
-        if (translated[key]) {
-            el.textContent = translated[key];
+        if (labels[key]) {
+            el.textContent = labels[key];
         }
 
     });
 
     document.body.dir =
-        lang.toLowerCase() === "arabic"
+        languageInput.value.toLowerCase() === "arabic"
             ? "rtl"
             : "ltr";
+}
+
+// -----------------------------
+// Translate UI
+// -----------------------------
+
+async function translateUI(language) {
+
+    if (!language || language.toLowerCase() === "english") {
+        applyLabels(defaultLabels);
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/api/ui-translate",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    language,
+                    labels: defaultLabels
+                })
+            }
+        );
+
+        const translated = await response.json();
+
+        applyLabels(translated);
+
+    } catch (err) {
+
+        console.error("Translation failed:", err);
+
+        applyLabels(defaultLabels);
+
+    }
 
 }
 
-languageInput.addEventListener("change", e => {
+// -----------------------------
+// Listen for Language Changes
+// -----------------------------
 
-    changeLanguage(e.target.value);
-
+languageInput.addEventListener("change", () => {
+    translateUI(languageInput.value);
 });
 
-changeLanguage("English");
+// Initial Load
+translateUI("English");

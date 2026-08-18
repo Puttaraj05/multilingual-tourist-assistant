@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Itinerary | TravelMate</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Itinerary | TravelMate</title>
 
-    <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body class="itinerary-page">
 
-    <!-- Navigation -->
-    <header class="planner-navbar">
+<header class="planner-navbar">
 
-        <a href="index.html" class="planner-logo">
-            ← TravelMate
-        </a>
+    <a href="index.html" class="planner-logo">
+        TravelMate
+    </a>
 
-        <a href="planner.html" class="back-link">
-            Edit Trip
-        </a>
+    <a href="planner.html" class="back-link">
+        Edit Trip
+    </a>
 
-    </header>
+</header>
 
-    <!-- Main Content -->
-    <main class="itinerary-container">
+<main class="itinerary-container">
 
-        <!-- Hero Section -->
-        <section class="itinerary-hero">
+    <!-- Destination Hero -->
 
-            <p class="hero-tag" id="planLabel">
+    <section class="destination-hero">
+
+        <div class="hero-overlay">
+
+            <p class="section-label" id="planLabel">
                 YOUR PERSONALIZED PLAN
             </p>
 
@@ -39,53 +40,88 @@
             </h1>
 
             <p class="hero-subtitle">
-                Your personalized travel itinerary
+                A personalized AI-powered travel itinerary.
             </p>
 
-            <!-- Summary Card -->
-            <div class="trip-summary-card">
-
-                <div class="summary-item">
-                    <span id="durationLabel">Duration</span>
-                    <strong id="summaryDuration">3 Days</strong>
-                </div>
-
-                <div class="summary-item">
-                    <span id="budgetLabel">Budget</span>
-                    <strong id="summaryBudget">$90,000</strong>
-                </div>
-
-                <div class="summary-item full-width">
-                    <span id="interestsLabel">Interests</span>
-                    <strong id="summaryInterests">Food, History, Shopping</strong>
-                </div>
-
-            </div>
-
-        </section>
-
-        <!-- AI Generated Itinerary -->
-        <div id="itineraryContent">
-            <!-- JS will generate day cards here -->
         </div>
 
-        <!-- Bottom Actions -->
-        <div class="action-buttons">
+    </section>
 
-            <a href="planner.html" class="action-btn secondary" id="modifyLabel">
-                Modify Trip
-            </a>
+    <!-- Destination Overview -->
 
-            <button class="action-btn primary" id="saveLabel">
-                Save Itinerary
-            </button>
+    <section class="overview-card">
 
+        <div class="overview-header">
+            <h2>Destination Overview</h2>
         </div>
 
-    </main>
+        <p id="destinationOverview">
+            Your destination overview will appear here.
+        </p>
 
-    <script src="js/itinerary.js"></script>
+    </section>
+
+    <!-- Trip Summary -->
+
+    <section class="summary-grid">
+
+        <div class="summary-card">
+            <span id="durationLabel">Duration</span>
+            <h3 id="summaryDuration">3 Days</h3>
+        </div>
+
+        <div class="summary-card">
+            <span id="budgetLabel">Budget</span>
+            <h3 id="summaryBudget">$900</h3>
+        </div>
+
+        <div class="summary-card">
+            <span id="travelTypeLabel">Travel Type</span>
+            <h3 id="summaryTravelType">Solo</h3>
+        </div>
+
+        <div class="summary-card">
+            <span id="tripStyleLabel">Trip Style</span>
+            <h3 id="summaryTripStyle">Balanced</h3>
+        </div>
+
+        <div class="summary-card">
+            <span id="kidsLabel">Child Under 12</span>
+            <h3 id="summaryKids">No</h3>
+        </div>
+
+        <div class="summary-card full-width">
+            <span id="interestsLabel">Interests</span>
+            <h3 id="summaryInterests">
+                Food, History
+            </h3>
+        </div>
+
+    </section>
+
+    <!-- AI Generated Itinerary -->
+
+    <div id="itineraryContent">
+        <!-- itinerary.js will generate Day 1, Day 2... -->
+    </div>
+
+    <!-- Bottom Actions -->
+
+    <div class="action-buttons">
+
+        <a href="planner.html" class="action-btn secondary" id="modifyLabel">
+            Modify Trip
+        </a>
+
+        <button class="action-btn primary" id="saveButton">
+            Save Itinerary
+        </button>
+
+    </div>
+
+</main>
+
+<script src="js/itinerary.js"></script>
 
 </body>
-
 </html>

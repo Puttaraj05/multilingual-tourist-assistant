@@ -1,124 +1,240 @@
-const saved=localStorage.getItem("itinerary");
+const saved = localStorage.getItem("itinerary");
 
-if(!saved){
-window.location.href="planner.html";
+if (!saved) {
+    window.location.href = "planner.html";
 }
 
-const itinerary=JSON.parse(saved);
+const itinerary = JSON.parse(saved);
 
-const currency=itinerary.currencySymbol||"₹";
+// -----------------------------
+// Helper
+// -----------------------------
 
-const labels={
-
-English:{
-plan:"YOUR PERSONALIZED PLAN",
-duration:"Duration",
-budget:"Budget",
-interests:"Interests",
-modify:"Modify Trip",
-save:"Save Itinerary"
-}
-
+const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
 };
 
-const ui=labels[itinerary.language]||labels.English;
+// -----------------------------
+// UI Labels
+// -----------------------------
 
-document.getElementById("planLabel").textContent=ui.plan;
-document.getElementById("durationLabel").textContent=ui.duration;
-document.getElementById("budgetLabel").textContent=ui.budget;
-document.getElementById("interestsLabel").textContent=ui.interests;
-document.getElementById("modifyLabel").textContent=ui.modify;
-document.getElementById("saveLabel").textContent=ui.save;
+const labels = {
+    English: {
+        plan: "YOUR PERSONALIZED PLAN",
+        duration: "Duration",
+        budget: "Budget",
+        interests: "Interests",
+        travelType: "Travel Type",
+        tripStyle: "Trip Style",
+        kids: "Child Under 12",
+        modify: "Modify Trip",
+        save: "Save Itinerary"
+    }
+};
 
-document.getElementById("destinationTitle").textContent=itinerary.destination;
+const language = itinerary.language || "English";
+const ui = labels[language] || labels.English;
 
-document.getElementById("summaryDuration").textContent=
-itinerary.duration+" Days";
+// -----------------------------
+// Static Labels
+// -----------------------------
 
-document.getElementById("summaryBudget").textContent=
-currency+Number(itinerary.budget).toLocaleString();
+setText("planLabel", ui.plan);
+setText("durationLabel", ui.duration);
+setText("budgetLabel", ui.budget);
+setText("interestsLabel", ui.interests);
+setText("travelTypeLabel", ui.travelType);
+setText("tripStyleLabel", ui.tripStyle);
+setText("kidsLabel", ui.kids);
+setText("modifyLabel", ui.modify);
+setText("saveButton", ui.save);
 
-document.getElementById("summaryInterests").textContent=
-itinerary.interests.join(", ");
+// -----------------------------
+// Hero
+// -----------------------------
 
-const container=document.getElementById("itineraryContent");
+setText("destinationTitle", itinerary.destination || "Your Destination");
 
-container.innerHTML="";
+setText(
+    "destinationOverview",
+    itinerary.destination_overview ||
+        `Discover the best of ${itinerary.destination} with a personalized AI-powered itinerary.`
+);
 
-itinerary.days.forEach(day=>{
+// -----------------------------
+// Summary
+// -----------------------------
 
-const section=document.createElement("section");
+setText("summaryDuration", `${itinerary.duration} Days`);
 
-section.className="day-section";
+setText(
+    "summaryBudget",
+    `${itinerary.currencySymbol || "$"}${Number(
+        itinerary.budget || 0
+    ).toLocaleString()}`
+);
 
-let activities="";
+setText("summaryTravelType", itinerary.travelType || "Solo");
+setText("summaryTripStyle", itinerary.tripStyle || "Balanced");
+setText("summaryKids", itinerary.kidsUnder12 ? "Yes" : "No");
 
-day.activities.forEach(activity=>{
+setText(
+    "summaryInterests",
+    (itinerary.interests || []).join(", ")
+);
 
-activities+=`
+// -----------------------------
+// Build Itinerary
+// -----------------------------
 
-<div class="activity">
+const container = document.getElementById("itineraryContent");
+container.innerHTML = "";
 
-<div class="activity-time">
-${activity.time}
-</div>
+(itinerary.days || []).forEach(day => {
 
-<div class="activity-content">
+    const section = document.createElement("section");
+    section.className = "day-section";
 
-<h3>${activity.place}</h3>
+    let activitiesHTML = "";
 
-<p>${activity.description}</p>
+    (day.activities || []).forEach(activity => {
 
-<div class="activity-meta">
+        const mapUrl =
+            `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                activity.place + " " + itinerary.destination
+            )}`;
 
-${activity.category}
+        activitiesHTML += `
 
-<span>•</span>
+        <div class="activity-card">
 
-${currency}${Number(activity.cost).toLocaleString()}
+            <div class="activity-top">
 
-<span>•</span>
+                <div>
+                    <p class="activity-time">${activity.time || "Flexible"}</p>
+                    <h3>${activity.place || "Destination"}</h3>
+                </div>
 
-${activity.duration}
+                <span class="popularity-badge">
+                    ${activity.popularity || "Recommended"}
+                </span>
 
-</div>
+            </div>
 
-</div>
+            <p class="activity-description">
+                ${activity.description || "A must-visit stop during your journey."}
+            </p>
 
-</div>
+            <div class="activity-meta">
 
-`;
+                <span>${activity.category || "Sightseeing"}</span>
 
+                <span>•</span>
+
+                <span>${activity.duration || "1-2 hrs"}</span>
+
+                <span>•</span>
+
+                <span>${itinerary.currencySymbol || "$"}${activity.cost ?? "-"}</span>
+
+            </div>
+
+            <div class="activity-extra">
+
+                <div class="activity-info">
+                    <strong>Best Time:</strong>
+                    ${activity.best_time || "Morning or Evening"}
+                </div>
+
+                <div class="activity-info">
+                    <strong>Travel Tip:</strong>
+                    ${activity.tip || "Arrive early to avoid crowds."}
+                </div>
+
+                ${
+                    activity.nearby_food
+                        ? `
+                        <div class="activity-info">
+                            <strong>Nearby Food:</strong>
+                            ${activity.nearby_food}
+                        </div>
+                        `
+                        : ""
+                }
+
+            </div>
+
+            <a
+                href="${mapUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="map-button"
+            >
+                View on Map
+            </a>
+
+        </div>
+
+        `;
+    });
+
+    section.innerHTML = `
+
+        <div class="day-header">
+
+            <div class="day-circle">
+                ${String(day.day).padStart(2, "0")}
+            </div>
+
+            <div>
+                <p class="day-label">DAY ${day.day}</p>
+                <h2>${day.title || `Day ${day.day}`}</h2>
+            </div>
+
+        </div>
+
+        <p class="day-introduction">
+            ${
+                day.introduction ||
+                `Enjoy a memorable day exploring ${itinerary.destination}.`
+            }
+        </p>
+
+        <div class="activities-container">
+            ${activitiesHTML}
+        </div>
+
+    `;
+
+    container.appendChild(section);
 });
 
-section.innerHTML=`
+// -----------------------------
+// Save Itinerary
+// -----------------------------
 
-<div class="day-heading">
+const saveButton = document.getElementById("saveButton");
 
-<span class="day-number">
+if (saveButton) {
 
-${String(day.day).padStart(2,"0")}
+    saveButton.addEventListener("click", () => {
 
-</span>
+        const blob = new Blob(
+            [JSON.stringify(itinerary, null, 2)],
+            { type: "application/json" }
+        );
 
-<div>
+        const url = URL.createObjectURL(blob);
 
-<p>DAY ${day.day}</p>
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${itinerary.destination}-itinerary.json`;
 
-<h2>${day.title}</h2>
+        a.click();
 
-</div>
+        URL.revokeObjectURL(url);
 
-</div>
+    });
 
-<div class="timeline">
-
-${activities}
-
-</div>
-
-`;
-
-container.appendChild(section);
-
-});
+}
