@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergency Help | TravelMate</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body class="emergency-page">
+
+<header class="planner-navbar">
+    <a href="index.html" class="planner-logo">TravelMate</a>
+
+    <nav class="planner-nav-links">
+        <a href="index.html">Home</a>
+        <a href="features.html">Features</a>
+    </nav>
+</header>
+
+<main class="emergency-container">
+
+    <section class="emergency-hero">
+
+        <span class="hero-tag">Travel Safety</span>
+
+        <h1>Emergency Assistance</h1>
+
+        <p>
+            Find nearby hospitals, police stations, embassies and emergency
+            contacts instantly while travelling.
+        </p>
+
+        <div class="quick-actions">
+
+            <div class="quick-card hospital">
+                <i class="fa-solid fa-hospital"></i>
+                <span>Hospital</span>
+            </div>
+
+            <div class="quick-card police">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Police</span>
+            </div>
+
+            <div class="quick-card ambulance">
+                <i class="fa-solid fa-truck-medical"></i>
+                <span>Ambulance</span>
+            </div>
+
+            <div class="quick-card embassy">
+                <i class="fa-solid fa-landmark"></i>
+                <span>Embassy</span>
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="emergency-search-card">
+
+        <h2>Find Nearby Help</h2>
+
+        <form id="emergencyForm">
+
+            <div class="search-grid">
+
+                <div class="form-group">
+                    <label>Current Location</label>
+                    <input id="location" type="text" placeholder="Enter city or current location">
+                </div>
+
+                <div class="form-group">
+                    <label>Emergency Type</label>
+
+                    <select id="type">
+                        <option>Hospital</option>
+                        <option>Police</option>
+                        <option>Ambulance</option>
+                        <option>Fire Station</option>
+                        <option>Embassy</option>
+                    </select>
+
+                </div>
+
+            </div>
+
+            <button class="generate-button" type="submit">
+                Find Nearby Help
+            </button>
+
+        </form>
+
+    </section>
+
+    <section class="results-card">
+
+        <div class="results-header">
+
+            <h2>Nearby Assistance</h2>
+
+            <span class="status-pill">Live Results</span>
+
+        </div>
+
+        <div id="results">
+
+            <div class="placeholder-box">
+
+                <i class="fa-solid fa-location-crosshairs"></i>
+
+                <h3>Search your location</h3>
+
+                <p>
+                    Nearby emergency services will appear here with
+                    directions and contact numbers.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="js/emergency.js"></script>
+
+</body>
+</html>

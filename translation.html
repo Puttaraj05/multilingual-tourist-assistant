@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multilingual Chat | TravelMate</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="translation-page">
+
+<header class="planner-navbar">
+
+    <a href="index.html" class="planner-logo">
+        TravelMate
+    </a>
+
+    <nav class="planner-links">
+        <a href="index.html">Home</a>
+        <a href="features.html">Features</a>
+    </nav>
+
+</header>
+
+<main class="translation-container">
+
+    <!-- Hero -->
+
+    <section class="translation-hero">
+
+        <span class="planner-tag">
+            Multilingual Assistant
+        </span>
+
+        <h1>Translate Without Barriers</h1>
+
+        <p>
+            Instantly translate text, images and conversations while travelling.
+            Designed to help you communicate confidently wherever you go.
+        </p>
+
+    </section>
+
+    <!-- TEXT -->
+
+    <section class="translation-card">
+
+        <div class="card-header">
+            <h2>Text Translation</h2>
+            <p>Type a sentence and translate it into another language.</p>
+        </div>
+
+        <div class="language-row">
+
+            <select id="sourceLanguage">
+                <option>English</option>
+                <option>Hindi</option>
+                <option>Telugu</option>
+                <option>Spanish</option>
+                <option>French</option>
+                <option>Japanese</option>
+            </select>
+
+            <button class="swap-btn">⇄</button>
+
+            <select id="targetLanguage">
+                <option>Spanish</option>
+                <option>English</option>
+                <option>Hindi</option>
+                <option>Telugu</option>
+                <option>French</option>
+                <option>Japanese</option>
+            </select>
+
+        </div>
+
+        <div class="translate-grid">
+
+            <div class="translate-box">
+
+                <label>Your Text</label>
+
+                <textarea
+                    id="inputText"
+                    placeholder="Type something here..."></textarea>
+
+            </div>
+
+            <div class="translate-box">
+
+                <label>Translation</label>
+
+                <textarea
+                    id="translatedText"
+                    placeholder="Your translated text will appear here..."
+                    readonly></textarea>
+
+            </div>
+
+        </div>
+
+        <button id="translateTextBtn" class="primary-action">
+            Translate Text
+        </button>
+
+    </section>
+
+    <!-- IMAGE -->
+
+    <section class="translation-card">
+
+        <div class="card-header">
+            <h2>Image Translation</h2>
+            <p>Upload an image containing text and view the translated result.</p>
+        </div>
+
+        <div class="upload-box">
+
+            <input type="file" id="imageInput" accept="image/*">
+
+            <label for="imageInput" class="upload-label">
+
+                <span class="upload-title">Drop an image here or click to upload</span>
+
+                <span class="upload-subtitle">
+                    JPG, PNG or WEBP supported
+                </span>
+
+            </label>
+
+        </div>
+
+        <div id="imagePreviewContainer" class="preview-card">
+
+            <img id="imagePreview" alt="Preview">
+
+        </div>
+
+        <div class="translate-box image-result">
+
+            <label>Translated Text</label>
+
+            <textarea
+                id="imageTranslation"
+                placeholder="The translated text will appear here..."
+                readonly></textarea>
+
+        </div>
+
+        <button id="translateImageBtn" class="primary-action">
+            Translate Image
+        </button>
+
+    </section>
+
+    <!-- VOICE -->
+
+    <section class="translation-card">
+
+        <div class="card-header">
+            <h2>Voice Translation</h2>
+            <p>Real-time conversation translation coming soon.</p>
+        </div>
+
+        <div class="voice-preview">
+
+            <div class="voice-circle">
+                <div class="pulse-ring"></div>
+            </div>
+
+            <h3>Speak Naturally</h3>
+
+            <p>
+                Hold the microphone to translate live conversations in your
+                preferred language.
+            </p>
+
+            <button class="voice-btn" disabled>
+                Coming Soon
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="js/chat.js"></script>
+
+</body>
+</html>

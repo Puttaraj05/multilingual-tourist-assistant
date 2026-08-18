@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelMate AI Chat</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+
+<body class="chat-page">
+
+<header class="navbar">
+
+<div class="logo">
+<i class="fa-solid fa-earth-asia"></i>
+
+<div>
+<h2>TravelMate</h2>
+<p>Your Smart Travel Companion</p>
+</div>
+
+</div>
+
+<nav>
+<a href="index.html">Home</a>
+<a href="features.html">Features</a>
+<a href="#" class="active">AI Chat</a>
+</nav>
+
+<a href="planner.html" class="nav-btn">
+Plan My Journey
+</a>
+
+</header>
+
+<main class="chat-layout">
+
+<!-- Sidebar -->
+
+<aside class="chat-sidebar">
+
+<h3>Quick Travel Prompts</h3>
+
+<button class="quick-btn" data-prompt="Best places in Tokyo">Best places in Tokyo</button>
+<button class="quick-btn" data-prompt="Budget trip to Paris">Budget trip to Paris</button>
+<button class="quick-btn" data-prompt="Hidden gems in Bali">Hidden gems in Bali</button>
+<button class="quick-btn" data-prompt="Best street food">Best street food</button>
+<button class="quick-btn" data-prompt="Nearby attractions">Nearby attractions</button>
+<button class="quick-btn" data-prompt="Visa tips">Visa tips</button>
+
+<div class="sidebar-bottom">
+
+<div class="tip-card">
+<i class="fa-solid fa-lightbulb"></i>
+<p>Ask naturally. TravelMate understands follow-up questions too.</p>
+</div>
+
+</div>
+
+</aside>
+
+<!-- Chat -->
+
+<section class="chat-container">
+
+<div class="chat-header">
+
+<div>
+<h2>TravelMate AI Assistant</h2>
+<p>Your multilingual travel companion.</p>
+</div>
+
+<div class="chat-actions">
+<select id="languageSelect">
+<option value="English">English</option>
+<option value="Hindi">Hindi</option>
+<option value="Telugu">Telugu</option>
+<option value="Tamil">Tamil</option>
+<option value="Kannada">Kannada</option>
+<option value="Malayalam">Malayalam</option>
+</select>
+
+<span class="status" id="chatStatus">
+● Online
+</span>
+</div>
+
+</div>
+
+<div class="chat-messages" id="chatMessages">
+
+<div class="message ai">
+
+<div class="avatar">
+🤖
+</div>
+
+<div class="bubble">
+Hi! 👋 I'm TravelMate. Ask me about destinations, transport,
+food, visas, budgets or travel tips.
+</div>
+
+</div>
+
+</div>
+
+<div class="suggestions">
+
+<button class="suggestion" data-prompt="Best places in Japan">Best places in Japan</button>
+<button class="suggestion" data-prompt="3-day Goa itinerary">3-day Goa itinerary</button>
+<button class="suggestion" data-prompt="Translate this sentence">Translate this sentence</button>
+<button class="suggestion" data-prompt="Find local food">Find local food</button>
+
+</div>
+
+<form id="chatForm" class="chat-input">
+
+<input
+id="userInput"
+type="text"
+placeholder="Ask anything about your trip..."
+autocomplete="off"
+required>
+
+<button type="submit" id="sendBtn">
+<i class="fa-solid fa-paper-plane"></i>
+</button>
+
+</form>
+
+</section>
+
+</main>
+
+<script src="js/chat.js"></script>
+
+</body>
+</html>
