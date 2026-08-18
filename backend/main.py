@@ -91,7 +91,7 @@ from backend.api.chat import router as chat_router
 from backend.api.chat_history import router as chat_history_router
 from backend.api.emergency import router as emergency_router
 from backend.api.translator import router as translator_router
-
+from backend.api.speech_router import router as speech_router
 
 app.include_router(chat_router)
 
@@ -101,7 +101,7 @@ app.include_router(emergency_router)
 
 app.include_router(translator_router)
 
-
+app.include_router(speech_router)   
 # =========================================================
 # Static Frontend Files
 # =========================================================
