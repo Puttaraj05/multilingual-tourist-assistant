@@ -1,5 +1,6 @@
 /* =========================================================
-   TRAVELAI — FASTAPI + MONGODB FRONTEND
+   TRAVELAI — EMERGENCY SUPPORT
+   FastAPI + MongoDB Frontend
    ========================================================= */
 
 
@@ -10,14 +11,10 @@
 const state = {
 
     language:
-        localStorage.getItem(
-            "travelaiLanguage"
-        ) || "en",
+        localStorage.getItem("travelaiLanguage") || "en",
 
     country:
-        localStorage.getItem(
-            "travelaiCountry"
-        ) || "IN",
+        localStorage.getItem("travelaiCountry") || "IN",
 
     location: null,
 
@@ -27,29 +24,19 @@ const state = {
 
 
 /* =========================================================
-   HELPER
+   HELPER FUNCTIONS
    ========================================================= */
 
 function $(id) {
-
     return document.getElementById(id);
-
 }
 
 
 function t(key) {
 
     return (
-        translations[
-            state.language
-        ]?.[key]
-
-        ||
-
-        translations.en[key]
-
-        ||
-
+        translations[state.language]?.[key] ||
+        translations.en?.[key] ||
         key
     );
 
@@ -58,27 +45,16 @@ function t(key) {
 
 function escapeHtml(value) {
 
-    return String(
-        value ?? ""
-    ).replace(
+    return String(value ?? "").replace(
         /[&<>"']/g,
 
         character => ({
 
-            "&":
-                "&amp;",
-
-            "<":
-                "&lt;",
-
-            ">":
-                "&gt;",
-
-            '"':
-                "&quot;",
-
-            "'":
-                "&#039;"
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
 
         })[character]
     );
@@ -88,31 +64,22 @@ function escapeHtml(value) {
 
 function toast(message) {
 
-    const element =
-        $("toast");
+    const element = $("toast");
 
-    if (!element) return;
+    if (!element) {
+        alert(message);
+        return;
+    }
 
+    element.textContent = message;
 
-    element.textContent =
-        message;
+    element.classList.add("show");
 
+    setTimeout(() => {
 
-    element.classList.add(
-        "show"
-    );
+        element.classList.remove("show");
 
-
-    setTimeout(
-        () => {
-
-            element.classList.remove(
-                "show"
-            );
-
-        },
-        3000
-    );
+    }, 3000);
 
 }
 
@@ -246,7 +213,7 @@ const translations = {
             "Recent support log",
 
         recentLogDesc:
-            "Incidents recorded by this demo application.",
+            "Incidents recorded by this application.",
 
         sosActivated:
             "SOS activated",
@@ -308,7 +275,7 @@ const translations = {
             "TravelAI — आपातकालीन सहायता",
 
         eyebrow:
-            "फीचर 5 · आपातकालीन यात्रा सहायता",
+            "आपातकालीन यात्रा सहायता",
 
         heroLine1:
             "जब आपको",
@@ -425,7 +392,7 @@ const translations = {
             "हाल की सहायता लॉग",
 
         recentLogDesc:
-            "इस डेमो एप्लिकेशन द्वारा दर्ज घटनाएँ।",
+            "इस एप्लिकेशन द्वारा दर्ज घटनाएँ।",
 
         sosActivated:
             "SOS सक्रिय",
@@ -487,7 +454,7 @@ const translations = {
             "TravelAI — అత్యవసర సహాయం",
 
         eyebrow:
-            "ఫీచర్ 5 · అత్యవసర ప్రయాణ సహాయం",
+            "అత్యవసర ప్రయాణ సహాయం",
 
         heroLine1:
             "మీకు",
@@ -604,7 +571,7 @@ const translations = {
             "ఇటీవలి సహాయ లాగ్",
 
         recentLogDesc:
-            "ఈ డెమో అప్లికేషన్‌లో నమోదు చేసిన సంఘటనలు.",
+            "ఈ అప్లికేషన్‌లో నమోదు చేసిన సంఘటనలు.",
 
         sosActivated:
             "SOS యాక్టివేట్ అయింది",
@@ -666,7 +633,7 @@ const translations = {
             "TravelAI — அவசர உதவி",
 
         eyebrow:
-            "அம்சம் 5 · அவசர பயண உதவி",
+            "அவசர பயண உதவி",
 
         heroLine1:
             "உங்களுக்கு",
@@ -783,7 +750,7 @@ const translations = {
             "சமீபத்திய உதவி பதிவு",
 
         recentLogDesc:
-            "இந்த முன்மாதிரி பயன்பாட்டில் பதிவு செய்யப்பட்ட சம்பவங்கள்.",
+            "இந்த பயன்பாட்டில் பதிவு செய்யப்பட்ட சம்பவங்கள்.",
 
         sosActivated:
             "SOS செயல்படுத்தப்பட்டது",
@@ -848,124 +815,68 @@ const translations = {
 const countryNames = {
 
     en: {
-
-        IN:
-            "India",
-
-        AE:
-            "United Arab Emirates",
-
-        US:
-            "United States",
-
-        GB:
-            "United Kingdom"
-
+        IN: "India",
+        AE: "United Arab Emirates",
+        US: "United States",
+        GB: "United Kingdom"
     },
 
     hi: {
-
-        IN:
-            "भारत",
-
-        AE:
-            "संयुक्त अरब अमीरात",
-
-        US:
-            "संयुक्त राज्य अमेरिका",
-
-        GB:
-            "यूनाइटेड किंगडम"
-
+        IN: "भारत",
+        AE: "संयुक्त अरब अमीरात",
+        US: "संयुक्त राज्य अमेरिका",
+        GB: "यूनाइटेड किंगडम"
     },
 
     te: {
-
-        IN:
-            "భారతదేశం",
-
-        AE:
-            "యునైటెడ్ అరబ్ ఎమిరేట్స్",
-
-        US:
-            "యునైటెడ్ స్టేట్స్",
-
-        GB:
-            "యునైటెడ్ కింగ్‌డమ్"
-
+        IN: "భారతదేశం",
+        AE: "యునైటెడ్ అరబ్ ఎమిరేట్స్",
+        US: "యునైటెడ్ స్టేట్స్",
+        GB: "యునైటెడ్ కింగ్‌డమ్"
     },
 
     ta: {
-
-        IN:
-            "இந்தியா",
-
-        AE:
-            "ஐக்கிய அரபு அமீரகம்",
-
-        US:
-            "அமெரிக்கா",
-
-        GB:
-            "ஐக்கிய இராச்சியம்"
-
+        IN: "இந்தியா",
+        AE: "ஐக்கிய அரபு அமீரகம்",
+        US: "அமெரிக்கா",
+        GB: "ஐக்கிய இராச்சியம்"
     }
 
 };
 
 
 /* =========================================================
-   PHRASES
+   EMERGENCY PHRASES
    ========================================================= */
 
 const phrases = {
 
     en: [
-
         "I need help.",
-
         "Please call an ambulance.",
-
         "Please call the police.",
-
         "I am lost."
-
     ],
 
     hi: [
-
         "मुझे मदद चाहिए।",
-
         "कृपया एम्बुलेंस बुलाइए।",
-
         "कृपया पुलिस को बुलाइए।",
-
         "मैं रास्ता भटक गया हूँ।"
-
     ],
 
     te: [
-
         "నాకు సహాయం కావాలి.",
-
         "దయచేసి అంబులెన్స్‌కు కాల్ చేయండి.",
-
         "దయచేసి పోలీసులకు కాల్ చేయండి.",
-
         "నేను దారి తప్పిపోయాను."
-
     ],
 
     ta: [
-
         "எனக்கு உதவி தேவை.",
-
         "தயவுசெய்து ஆம்புலன்ஸை அழைக்கவும்.",
-
         "தயவுசெய்து காவல்துறையை அழைக்கவும்.",
-
         "நான் வழி தவறிவிட்டேன்."
-
     ]
 
 };
@@ -980,58 +891,30 @@ function applyLanguage() {
     document.documentElement.lang =
         state.language;
 
-
     document.title =
         t("title");
 
 
     document
-        .querySelectorAll(
-            "[data-i18n]"
-        )
-        .forEach(
-            element => {
+        .querySelectorAll("[data-i18n]")
+        .forEach(element => {
 
-                element.textContent =
-                    t(
-                        element.dataset.i18n
-                    );
+            element.textContent =
+                t(element.dataset.i18n);
 
-            }
-        );
+        });
 
 
     document
-        .querySelectorAll(
-            "[data-i18n-placeholder]"
-        )
-        .forEach(
-            element => {
+        .querySelectorAll("[data-i18n-placeholder]")
+        .forEach(element => {
 
-                element.placeholder =
-                    t(
-                        element.dataset
-                            .i18nPlaceholder
-                    );
+            element.placeholder =
+                t(
+                    element.dataset.i18nPlaceholder
+                );
 
-            }
-        );
-
-
-    if ($("language")) {
-
-        $("language").value =
-            state.language;
-
-    }
-
-
-    if ($("phraseLanguage")) {
-
-        $("phraseLanguage").value =
-            state.language;
-
-    }
+        });
 
 
     renderCountryOptions();
@@ -1040,37 +923,26 @@ function applyLanguage() {
 
     renderContacts();
 
-    loadLogs();
-
 }
 
 
 /* =========================================================
-   LANGUAGE CHANGE
+   CHANGE LANGUAGE
    ========================================================= */
 
-function changeLanguage(
-    language
-) {
+function changeLanguage(language) {
 
-    if (
-        !translations[language]
-    ) {
-
+    if (!translations[language]) {
         language = "en";
-
     }
-
 
     state.language =
         language;
-
 
     localStorage.setItem(
         "travelaiLanguage",
         language
     );
-
 
     applyLanguage();
 
@@ -1083,32 +955,26 @@ function changeLanguage(
 
 function renderCountryOptions() {
 
-    const select =
-        $("country");
-
+    const select = $("country");
 
     if (!select) return;
 
-
     select.innerHTML =
-        Object.keys(
-            countryNames.en
-        )
-        .map(
-            code => `
+        Object.keys(countryNames.en)
+            .map(code => {
 
-                <option value="${code}">
-                    ${escapeHtml(
-                        countryNames[
-                            state.language
-                        ][code]
-                    )}
-                </option>
+                const name =
+                    countryNames[state.language]?.[code] ||
+                    countryNames.en[code];
 
-            `
-        )
-        .join("");
+                return `
+                    <option value="${code}">
+                        ${escapeHtml(name)}
+                    </option>
+                `;
 
+            })
+            .join("");
 
     select.value =
         state.country;
@@ -1117,7 +983,7 @@ function renderCountryOptions() {
 
 
 /* =========================================================
-   LOAD COUNTRIES FROM MONGODB THROUGH FASTAPI
+   LOAD COUNTRIES
    ========================================================= */
 
 async function loadCountries() {
@@ -1125,64 +991,37 @@ async function loadCountries() {
     try {
 
         const response =
-            await fetch(
-                "/api/countries"
-            );
-
+            await fetch("/api/countries");
 
         if (!response.ok) {
-
-            throw new Error(
-                "Countries API failed."
-            );
-
+            throw new Error("Countries API failed.");
         }
-
 
         const countries =
             await response.json();
 
-
         const select =
             $("country");
 
-
         if (!select) return;
-
 
         select.innerHTML = "";
 
+        countries.forEach(country => {
 
-        countries.forEach(
-            country => {
+            const option =
+                document.createElement("option");
 
-                const option =
-                    document.createElement(
-                        "option"
-                    );
+            option.value =
+                country.code;
 
+            option.textContent =
+                countryNames[state.language]?.[country.code] ||
+                country.name;
 
-                option.value =
-                    country.code;
+            select.appendChild(option);
 
-
-                option.textContent =
-                    countryNames[
-                        state.language
-                    ]?.[
-                        country.code
-                    ]
-                    ||
-                    country.name;
-
-
-                select.appendChild(
-                    option
-                );
-
-            }
-        );
-
+        });
 
         select.value =
             state.country;
@@ -1191,9 +1030,7 @@ async function loadCountries() {
 
     catch (error) {
 
-        console.error(
-            error
-        );
+        console.error(error);
 
         renderCountryOptions();
 
@@ -1203,7 +1040,7 @@ async function loadCountries() {
 
 
 /* =========================================================
-   LOAD CONTACTS
+   LOAD EMERGENCY CONTACTS
    ========================================================= */
 
 async function loadContacts() {
@@ -1217,23 +1054,15 @@ async function loadContacts() {
                 )}`
             );
 
-
         if (!response.ok) {
-
-            throw new Error(
-                "Contacts API failed."
-            );
-
+            throw new Error("Contacts API failed.");
         }
-
 
         const data =
             await response.json();
 
-
         state.contacts =
             data.contacts || [];
-
 
         renderContacts();
 
@@ -1241,23 +1070,65 @@ async function loadContacts() {
 
     catch (error) {
 
-        console.error(
-            error
-        );
+        console.error(error);
 
-
-        state.contacts =
-            [];
-
+        state.contacts = [];
 
         renderContacts();
 
-
-        toast(
-            t("databaseError")
-        );
+        toast(t("databaseError"));
 
     }
+
+}
+
+
+/* =========================================================
+   TRANSLATE SERVICE NAME
+   ========================================================= */
+
+function translateService(service) {
+
+    const map = {
+
+        en: {
+            "Unified Emergency": "Unified Emergency",
+            Police: "Police",
+            Ambulance: "Ambulance",
+            Fire: "Fire",
+            "Alternative Emergency": "Alternative Emergency"
+        },
+
+        hi: {
+            "Unified Emergency": "एकीकृत आपातकालीन सेवा",
+            Police: "पुलिस",
+            Ambulance: "एम्बुलेंस",
+            Fire: "फायर सेवा",
+            "Alternative Emergency": "वैकल्पिक आपातकालीन सेवा"
+        },
+
+        te: {
+            "Unified Emergency": "ఏకీకృత అత్యవసర సేవ",
+            Police: "పోలీస్",
+            Ambulance: "అంబులెన్స్",
+            Fire: "అగ్నిమాపక సేవ",
+            "Alternative Emergency": "ప్రత్యామ్నాయ అత్యవసర సేవ"
+        },
+
+        ta: {
+            "Unified Emergency": "ஒருங்கிணைந்த அவசர சேவை",
+            Police: "காவல்துறை",
+            Ambulance: "ஆம்புலன்ஸ்",
+            Fire: "தீயணைப்பு சேவை",
+            "Alternative Emergency": "மாற்று அவசர சேவை"
+        }
+
+    };
+
+    return (
+        map[state.language]?.[service] ||
+        service
+    );
 
 }
 
@@ -1271,31 +1142,25 @@ function renderContacts() {
     const container =
         $("contacts");
 
-
     if (!container) return;
 
-
-    if (
-        !state.contacts.length
-    ) {
+    if (!state.contacts.length) {
 
         container.innerHTML = `
-
             <div class="empty">
-                ${t("noContacts")}
+                ${escapeHtml(t("noContacts"))}
             </div>
-
         `;
 
         return;
 
     }
 
-
     container.innerHTML =
         state.contacts
-            .map(
-                contact => `
+            .map(contact => {
+
+                return `
 
                     <div class="contact">
 
@@ -1311,12 +1176,11 @@ function renderContacts() {
 
                             <small>
                                 ${escapeHtml(
-                                    contact.description
+                                    contact.description || ""
                                 )}
                             </small>
 
                         </div>
-
 
                         <a
                             class="call"
@@ -1324,127 +1188,24 @@ function renderContacts() {
                                 contact.number
                             )}"
                         >
-
                             ☎
                             ${escapeHtml(
                                 contact.number
                             )}
-
                         </a>
 
                     </div>
 
-                `
-            )
+                `;
+
+            })
             .join("");
 
 }
 
 
 /* =========================================================
-   TRANSLATE SERVICE NAMES
-   ========================================================= */
-
-function translateService(
-    service
-) {
-
-    const map = {
-
-        en: {
-
-            "Unified Emergency":
-                "Unified Emergency",
-
-            Police:
-                "Police",
-
-            Ambulance:
-                "Ambulance",
-
-            Fire:
-                "Fire",
-
-            "Alternative Emergency":
-                "Alternative Emergency"
-
-        },
-
-        hi: {
-
-            "Unified Emergency":
-                "एकीकृत आपातकालीन सेवा",
-
-            Police:
-                "पुलिस",
-
-            Ambulance:
-                "एम्बुलेंस",
-
-            Fire:
-                "फायर सेवा",
-
-            "Alternative Emergency":
-                "वैकल्पिक आपातकालीन सेवा"
-
-        },
-
-        te: {
-
-            "Unified Emergency":
-                "ఏకీకృత అత్యవసర సేవ",
-
-            Police:
-                "పోలీస్",
-
-            Ambulance:
-                "అంబులెన్స్",
-
-            Fire:
-                "అగ్నిమాపక సేవ",
-
-            "Alternative Emergency":
-                "ప్రత్యామ్నాయ అత్యవసర సేవ"
-
-        },
-
-        ta: {
-
-            "Unified Emergency":
-                "ஒருங்கிணைந்த அவசர சேவை",
-
-            Police:
-                "காவல்துறை",
-
-            Ambulance:
-                "ஆம்புலன்ஸ்",
-
-            Fire:
-                "தீயணைப்பு சேவை",
-
-            "Alternative Emergency":
-                "மாற்று அவசர சேவை"
-
-        }
-
-    };
-
-
-    return (
-        map[
-            state.language
-        ]?.[service]
-
-        ||
-
-        service
-    );
-
-}
-
-
-/* =========================================================
-   PHRASES
+   RENDER EMERGENCY PHRASES
    ========================================================= */
 
 function renderPhrases() {
@@ -1452,165 +1213,100 @@ function renderPhrases() {
     const container =
         $("phrases");
 
-
     if (!container) return;
 
-
     const list =
-        phrases[
-            state.language
-        ] || phrases.en;
-
+        phrases[state.language] ||
+        phrases.en;
 
     container.innerHTML = "";
 
+    list.forEach(phrase => {
 
-    list.forEach(
-        phrase => {
+        const button =
+            document.createElement("button");
 
-            const button =
-                document.createElement(
-                    "button"
-                );
+        button.type = "button";
 
+        button.className = "phrase";
 
-            button.type =
-                "button";
+        button.innerHTML = `
 
+            <span>🔊</span>
 
-            button.className =
-                "phrase";
+            <b>
+                ${escapeHtml(phrase)}
+            </b>
 
+        `;
 
-            button.innerHTML = `
+        button.addEventListener(
+            "click",
+            () => speak(
+                phrase,
+                state.language
+            )
+        );
 
-                <span>
-                    🔊
-                </span>
+        container.appendChild(button);
 
-                <b>
-                    ${escapeHtml(
-                        phrase
-                    )}
-                </b>
-
-            `;
-
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    speak(
-                        phrase,
-                        state.language
-                    );
-
-                }
-            );
-
-
-            container.appendChild(
-                button
-            );
-
-        }
-    );
+    });
 
 }
 
 
 /* =========================================================
-   SPEECH
+   TEXT TO SPEECH
    ========================================================= */
 
-function getSpeechLanguage(
-    language
-) {
+function getSpeechLanguage(language) {
 
     return {
 
-        en:
-            "en-US",
+        en: "en-US",
+        hi: "hi-IN",
+        te: "te-IN",
+        ta: "ta-IN"
 
-        hi:
-            "hi-IN",
-
-        te:
-            "te-IN",
-
-        ta:
-            "ta-IN"
-
-    }[
-        language
-    ] || "en-US";
+    }[language] || "en-US";
 
 }
 
 
-function speak(
-    text,
-    language
-) {
+function speak(text, language) {
 
-    if (
-        !window.speechSynthesis
-    ) {
+    if (!window.speechSynthesis) {
 
-        toast(
-            t("browserSpeech")
-        );
+        toast(t("browserSpeech"));
 
         return;
 
     }
 
-
     window.speechSynthesis.cancel();
 
-
     const utterance =
-        new SpeechSynthesisUtterance(
-            text
-        );
-
+        new SpeechSynthesisUtterance(text);
 
     utterance.lang =
-        getSpeechLanguage(
-            language
-        );
+        getSpeechLanguage(language);
 
-
-    utterance.rate =
-        0.85;
-
+    utterance.rate = 0.85;
 
     const voices =
-        window.speechSynthesis
-            .getVoices();
+        window.speechSynthesis.getVoices();
 
-
-    const matchingVoice =
+    const voice =
         voices.find(
-            voice =>
-                voice.lang
-                    .toLowerCase()
-                    .startsWith(
-                        language
-                    )
+            item =>
+                item.lang
+                    ?.toLowerCase()
+                    .startsWith(language)
         );
 
-
-    if (
-        matchingVoice
-    ) {
-
-        utterance.voice =
-            matchingVoice;
-
+    if (voice) {
+        utterance.voice = voice;
     }
-
 
     window.speechSynthesis.speak(
         utterance
@@ -1620,20 +1316,15 @@ function speak(
 
 
 /* =========================================================
-   GET LOCATION
+   GET CURRENT LOCATION
    ========================================================= */
 
 function getLocation() {
 
     return new Promise(
-        (
-            resolve,
-            reject
-        ) => {
+        (resolve, reject) => {
 
-            if (
-                !navigator.geolocation
-            ) {
+            if (!navigator.geolocation) {
 
                 reject(
                     new Error(
@@ -1645,71 +1336,52 @@ function getLocation() {
 
             }
 
+            navigator.geolocation.getCurrentPosition(
 
-            navigator.geolocation
-                .getCurrentPosition(
+                position => {
 
-                    position => {
+                    state.location = {
 
-                        state.location = {
+                        latitude:
+                            position.coords.latitude,
 
-                            latitude:
-                                position
-                                    .coords
-                                    .latitude,
+                        longitude:
+                            position.coords.longitude,
 
-                            longitude:
-                                position
-                                    .coords
-                                    .longitude,
+                        accuracy:
+                            position.coords.accuracy
 
-                            accuracy:
-                                position
-                                    .coords
-                                    .accuracy
+                    };
 
-                        };
+                    resolve(
+                        state.location
+                    );
 
+                },
 
-                        resolve(
-                            state.location
-                        );
+                error => {
 
-                    },
+                    console.error(error);
 
+                    reject(
+                        new Error(
+                            t("locationDenied")
+                        )
+                    );
 
-                    error => {
+                },
 
-                        console.error(
-                            error
-                        );
+                {
 
+                    enableHighAccuracy: true,
 
-                        reject(
-                            new Error(
-                                t(
-                                    "locationDenied"
-                                )
-                            )
-                        );
+                    timeout: 15000,
 
-                    },
+                    maximumAge: 0
 
+                }
 
-                    {
-
-                        enableHighAccuracy:
-                            true,
-
-                        timeout:
-                            15000,
-
-                        maximumAge:
-                            0
-
-                    }
-
-                );
+            );
 
         }
     );
@@ -1718,26 +1390,21 @@ function getLocation() {
 
 
 /* =========================================================
-   SAVE LOCATION TO MONGODB
+   SAVE LOCATION
    ========================================================= */
 
-async function saveLocation(
-    location
-) {
+async function saveLocation(location) {
 
     const response =
         await fetch(
             "/api/location",
             {
 
-                method:
-                    "POST",
+                method: "POST",
 
                 headers: {
-
                     "Content-Type":
                         "application/json"
-
                 },
 
                 body:
@@ -1760,15 +1427,11 @@ async function saveLocation(
             }
         );
 
-
     if (!response.ok) {
-
         throw new Error(
             "Unable to save location."
         );
-
     }
-
 
     return response.json();
 
@@ -1786,29 +1449,27 @@ async function shareLocation() {
         const location =
             await getLocation();
 
+        await saveLocation(location);
 
-        await saveLocation(
-            location
-        );
+        const status =
+            $("status");
 
+        if (status) {
 
-        $("status").textContent =
-            t(
-                "locationShared"
-            );
+            status.textContent =
+                t("locationShared");
 
+        }
 
         toast(
-            `${location.latitude.toFixed(
-                6
-            )}, ${location.longitude.toFixed(
-                6
-            )}`
+            t("locationReady")
         );
 
     }
 
     catch (error) {
+
+        console.error(error);
 
         toast(
             error.message
@@ -1830,35 +1491,24 @@ async function activateSOS() {
             "Activate SOS?"
         );
 
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
+    if (!confirmed) return;
 
     try {
 
         const location =
-            state.location
-            ||
+            state.location ||
             await getLocation();
-
 
         const response =
             await fetch(
                 "/api/sos",
                 {
 
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
-
                         "Content-Type":
                             "application/json"
-
                     },
 
                     body:
@@ -1881,19 +1531,14 @@ async function activateSOS() {
                 }
             );
 
-
         if (!response.ok) {
-
             throw new Error(
                 "SOS request failed."
             );
-
         }
-
 
         const data =
             await response.json();
-
 
         showSOSModal(
             data.contacts || []
@@ -1903,10 +1548,7 @@ async function activateSOS() {
 
     catch (error) {
 
-        console.error(
-            error
-        );
-
+        console.error(error);
 
         toast(
             error.message
@@ -1921,57 +1563,60 @@ async function activateSOS() {
    SOS MODAL
    ========================================================= */
 
-function showSOSModal(
-    contacts
-) {
+function showSOSModal(contacts) {
 
     const modal =
         $("modal");
 
-
     const container =
         $("sosContacts");
 
-
-    if (!modal) return;
-
+    if (!modal || !container) return;
 
     container.innerHTML = "";
 
+    if (!contacts.length) {
 
-    contacts.forEach(
-        contact => {
+        container.innerHTML = `
+            <p>
+                ${escapeHtml(
+                    t("noContacts")
+                )}
+            </p>
+        `;
 
-            container.innerHTML += `
+    }
 
-                <a
-                    class="call full"
-                    href="tel:${escapeHtml(
-                        contact.number
-                    )}"
-                >
+    contacts.forEach(contact => {
 
-                    ☎
+        container.innerHTML += `
 
-                    ${escapeHtml(
-                        translateService(
-                            contact.service
-                        )
-                    )}
+            <a
+                class="call full"
+                href="tel:${escapeHtml(
+                    contact.number
+                )}"
+            >
 
-                    -
+                ☎
 
-                    ${escapeHtml(
-                        contact.number
-                    )}
+                ${escapeHtml(
+                    translateService(
+                        contact.service
+                    )
+                )}
 
-                </a>
+                -
 
-            `;
+                ${escapeHtml(
+                    contact.number
+                )}
 
-        }
-    );
+            </a>
 
+        `;
+
+    });
 
     modal.classList.remove(
         "hidden"
@@ -1982,10 +1627,9 @@ function showSOSModal(
 
 function closeModal() {
 
-    $("modal")
-        ?.classList.add(
-            "hidden"
-        );
+    $("modal")?.classList.add(
+        "hidden"
+    );
 
 }
 
@@ -1994,22 +1638,17 @@ function closeModal() {
    EMERGENCY ACTIONS
    ========================================================= */
 
-async function action(
-    type
-) {
+async function emergencyAction(type) {
 
-
-    if (
-        type === "medical"
-    ) {
+    if (type === "medical") {
 
         const ambulance =
             state.contacts.find(
                 contact =>
                     contact.service
-                    === "Ambulance"
+                    .toLowerCase()
+                    === "ambulance"
             );
-
 
         if (ambulance) {
 
@@ -2026,29 +1665,27 @@ async function action(
 
         }
 
-
         return;
 
     }
 
 
-    if (
-        type === "unsafe"
-    ) {
+    if (type === "unsafe") {
 
         const police =
             state.contacts.find(
                 contact =>
                     contact.service
-                    === "Police"
+                        .toLowerCase()
+                        === "police"
             )
             ||
             state.contacts.find(
                 contact =>
                     contact.service
-                    === "Unified Emergency"
+                        .toLowerCase()
+                        === "unified emergency"
             );
-
 
         if (police) {
 
@@ -2065,38 +1702,30 @@ async function action(
 
         }
 
-
         return;
 
     }
 
 
-    if (
-        type === "lost"
-    ) {
+    if (type === "lost") {
 
         try {
 
             const location =
-                state.location
-                ||
+                state.location ||
                 await getLocation();
-
 
             await saveLocation(
                 location
             );
 
-
             const mapsURL =
                 `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
-
 
             window.open(
                 mapsURL,
                 "_blank"
             );
-
 
             toast(
                 t("mapsOpened")
@@ -2112,22 +1741,27 @@ async function action(
 
         }
 
-
         return;
 
     }
 
 
-    if (
-        type === "document"
-    ) {
+    if (type === "document") {
 
-        $("type").value =
-            "document";
+        const typeInput =
+            $("type");
 
+        const description =
+            $("desc");
 
-        $("desc").focus();
+        if (typeInput) {
+            typeInput.value =
+                "document";
+        }
 
+        if (description) {
+            description.focus();
+        }
 
         toast(
             t("recordIncident")
@@ -2142,31 +1776,33 @@ async function action(
    SAVE INCIDENT
    ========================================================= */
 
-async function saveIncident(
-    event
-) {
+async function saveIncident(event) {
 
     event.preventDefault();
 
-
     const type =
-        $("type").value;
-
+        $("type")?.value;
 
     const description =
         $("desc")
-            .value
-            .trim();
+            ?.value
+            ?.trim();
 
+    if (!type || !description) {
+
+        toast(
+            "Please enter incident details."
+        );
+
+        return;
+
+    }
 
     let location =
         state.location;
 
-
     /*
-       Try to capture location,
-       but incident saving should still
-       work if location permission is denied.
+       Location is optional for incident reports.
     */
 
     if (!location) {
@@ -2180,8 +1816,7 @@ async function saveIncident(
 
         catch (_) {
 
-            location =
-                null;
+            location = null;
 
         }
 
@@ -2195,54 +1830,38 @@ async function saveIncident(
                 "/api/incidents",
                 {
 
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
-
                         "Content-Type":
                             "application/json"
-
                     },
 
                     body:
                         JSON.stringify({
 
                             type:
-
                                 type,
 
                             description:
-
                                 description,
 
                             latitude:
-
-                                location
-                                ?.latitude
-                                ?? null,
+                                location?.latitude ?? null,
 
                             longitude:
-
-                                location
-                                ?.longitude
-                                ?? null,
+                                location?.longitude ?? null,
 
                             accuracy:
-
-                                location
-                                ?.accuracy
-                                ?? null,
+                                location?.accuracy ?? null,
 
                             countryCode:
-
                                 state.country
 
                         })
 
                 }
             );
-
 
         if (!response.ok) {
 
@@ -2252,26 +1871,33 @@ async function saveIncident(
 
         }
 
+        const desc =
+            $("desc");
 
-        $("desc").value =
-            "";
+        if (desc) {
+            desc.value = "";
+        }
 
+        const result =
+            $("result");
 
-        $("result").innerHTML = `
+        if (result) {
 
-            <div class="success">
+            result.innerHTML = `
 
-                ✓ ${escapeHtml(
-                    t("saved")
-                )}
+                <div class="success">
 
-            </div>
+                    ✓ ${escapeHtml(
+                        t("saved")
+                    )}
 
-        `;
+                </div>
 
+            `;
+
+        }
 
         await loadLogs();
-
 
         toast(
             t("saved")
@@ -2281,10 +1907,7 @@ async function saveIncident(
 
     catch (error) {
 
-        console.error(
-            error
-        );
-
+        console.error(error);
 
         toast(
             error.message
@@ -2296,7 +1919,7 @@ async function saveIncident(
 
 
 /* =========================================================
-   LOAD LOGS
+   LOAD INCIDENT LOGS
    ========================================================= */
 
 async function loadLogs() {
@@ -2304,9 +1927,7 @@ async function loadLogs() {
     const container =
         $("logs");
 
-
     if (!container) return;
-
 
     try {
 
@@ -2314,7 +1935,6 @@ async function loadLogs() {
             await fetch(
                 "/api/incidents"
             );
-
 
         if (!response.ok) {
 
@@ -2324,29 +1944,24 @@ async function loadLogs() {
 
         }
 
-
         const logs =
             await response.json();
 
-
-        renderLogs(
-            logs
-        );
+        renderLogs(logs);
 
     }
 
     catch (error) {
 
-        console.error(
-            error
-        );
-
+        console.error(error);
 
         container.innerHTML = `
 
             <div class="empty">
 
-                ${t("noLogs")}
+                ${escapeHtml(
+                    t("noLogs")
+                )}
 
             </div>
 
@@ -2358,29 +1973,25 @@ async function loadLogs() {
 
 
 /* =========================================================
-   RENDER LOGS
+   RENDER INCIDENT LOGS
    ========================================================= */
 
-function renderLogs(
-    logs
-) {
+function renderLogs(logs) {
 
     const container =
         $("logs");
 
-
     if (!container) return;
 
-
-    if (
-        !logs.length
-    ) {
+    if (!logs.length) {
 
         container.innerHTML = `
 
             <div class="empty">
 
-                ${t("noLogs")}
+                ${escapeHtml(
+                    t("noLogs")
+                )}
 
             </div>
 
@@ -2415,100 +2026,93 @@ function renderLogs(
 
 
     container.innerHTML =
-        logs
-            .map(
-                log => {
+        logs.map(log => {
 
-                    const date =
-                        new Date(
-                            log.created_at
-                        );
+            const date =
+                new Date(
+                    log.created_at
+                );
 
-
-                    const typeName =
-                        t(
-                            typeMap[
-                                log.type
-                            ]
-                            ||
-                            "incident"
-                        );
+            const typeName =
+                t(
+                    typeMap[log.type]
+                    ||
+                    "incident"
+                );
 
 
-                    const mapLink =
-                        log.latitude !== null
-                        &&
-                        log.longitude !== null
+            let mapLink =
+                `<small>
+                    ${escapeHtml(
+                        t("noLocation")
+                    )}
+                </small>`;
 
-                        ?
 
-                        `
+            if (
+                log.latitude !== null &&
+                log.latitude !== undefined &&
+                log.longitude !== null &&
+                log.longitude !== undefined
+            ) {
 
-                            <a
-                                href="https://www.google.com/maps?q=${log.latitude},${log.longitude}"
-                                target="_blank"
-                            >
+                mapLink = `
 
-                                📍
-                                ${escapeHtml(
-                                    t("open")
-                                )}
+                    <a
+                        href="https://www.google.com/maps?q=${encodeURIComponent(
+                            `${log.latitude},${log.longitude}`
+                        )}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
 
-                            </a>
+                        📍
+                        ${escapeHtml(
+                            t("open")
+                        )}
 
-                        `
+                    </a>
 
-                        :
+                `;
 
-                        `<small>
+            }
+
+
+            return `
+
+                <div class="log">
+
+                    <div>
+
+                        <strong>
                             ${escapeHtml(
-                                t("noLocation")
+                                typeName
                             )}
-                         </small>`;
+                        </strong>
 
+                        <p>
+                            ${escapeHtml(
+                                log.description
+                            )}
+                        </p>
 
-                    return `
+                        <small>
+                            ${escapeHtml(
+                                date.toLocaleString()
+                            )}
+                        </small>
 
-                        <div class="log">
+                    </div>
 
-                            <div>
+                    <div>
+                        ${mapLink}
+                    </div>
 
-                                <strong>
-                                    ${escapeHtml(
-                                        typeName
-                                    )}
-                                </strong>
+                </div>
 
+            `;
 
-                                <p>
-                                    ${escapeHtml(
-                                        log.description
-                                    )}
-                                </p>
-
-
-                                <small>
-                                    ${escapeHtml(
-                                        date.toLocaleString()
-                                    )}
-                                </small>
-
-                            </div>
-
-
-                            <div>
-
-                                ${mapLink}
-
-                            </div>
-
-                        </div>
-
-                    `;
-
-                }
-            )
-            .join("");
+        }).join("");
 
 }
 
@@ -2519,15 +2123,18 @@ function renderLogs(
 
 async function changeCountry() {
 
-    state.country =
-        $("country").value;
+    const country =
+        $("country")?.value;
 
+    if (!country) return;
+
+    state.country =
+        country;
 
     localStorage.setItem(
         "travelaiCountry",
         state.country
     );
-
 
     await loadContacts();
 
@@ -2539,7 +2146,6 @@ async function changeCountry() {
    ========================================================= */
 
 function setupLanguageEvents() {
-
 
     $("language")
         ?.addEventListener(
@@ -2553,11 +2159,6 @@ function setupLanguageEvents() {
             }
         );
 
-
-    /*
-       Phrase language selector
-       changes the ENTIRE WEBSITE.
-    */
 
     $("phraseLanguage")
         ?.addEventListener(
@@ -2575,25 +2176,168 @@ function setupLanguageEvents() {
 
 
 /* =========================================================
+   BUTTON EVENTS
+   ========================================================= */
+
+function setupEmergencyEvents() {
+
+    /*
+       Main SOS button
+    */
+
+    $("sos")
+        ?.addEventListener(
+            "click",
+            activateSOS
+        );
+
+
+    /*
+       Share location button
+    */
+
+    $("loc")
+        ?.addEventListener(
+            "click",
+            shareLocation
+        );
+
+
+    /*
+       Country selector
+    */
+
+    $("country")
+        ?.addEventListener(
+            "change",
+            changeCountry
+        );
+
+
+    /*
+       Refresh emergency contacts
+    */
+
+    $("refresh")
+        ?.addEventListener(
+            "click",
+            loadContacts
+        );
+
+
+    /*
+       Reload incident logs
+    */
+
+    $("logsBtn")
+        ?.addEventListener(
+            "click",
+            loadLogs
+        );
+
+
+    /*
+       Incident form
+    */
+
+    $("form")
+        ?.addEventListener(
+            "submit",
+            saveIncident
+        );
+
+
+    /*
+       Emergency action buttons
+    */
+
+    document
+        .querySelectorAll(
+            "[data-action]"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    emergencyAction(
+                        button.dataset.action
+                    );
+
+                }
+            );
+
+        });
+
+
+    /*
+       Modal close button
+    */
+
+    $("closeModal")
+        ?.addEventListener(
+            "click",
+            closeModal
+        );
+
+
+    /*
+       Also support buttons using IDs
+       if your emergency HTML uses them.
+    */
+
+    $("medical")
+        ?.addEventListener(
+            "click",
+            () =>
+                emergencyAction("medical")
+        );
+
+
+    $("unsafe")
+        ?.addEventListener(
+            "click",
+            () =>
+                emergencyAction("unsafe")
+        );
+
+
+    $("lost")
+        ?.addEventListener(
+            "click",
+            () =>
+                emergencyAction("lost")
+        );
+
+
+    $("document")
+        ?.addEventListener(
+            "click",
+            () =>
+                emergencyAction("document")
+        );
+
+}
+
+
+/* =========================================================
    INITIALIZATION
    ========================================================= */
 
-async function init() {
+async function initEmergency() {
 
     setupLanguageEvents();
 
+    setupEmergencyEvents();
 
     applyLanguage();
 
-
     await loadCountries();
-
 
     await loadContacts();
 
-
     await loadLogs();
-
 
     applyLanguage();
 
@@ -2601,57 +2345,10 @@ async function init() {
 
 
 /* =========================================================
-   DOM EVENTS
+   START APPLICATION
    ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
-
-
-        $("sos")
-            ?.addEventListener(
-                "click",
-                activateSOS
-            );
-
-
-        $("loc")
-            ?.addEventListener(
-                "click",
-                shareLocation
-            );
-
-
-        $("country")
-            ?.addEventListener(
-                "change",
-                changeCountry
-            );
-
-
-        $("refresh")
-            ?.addEventListener(
-                "click",
-                loadContacts
-            );
-
-
-        $("logsBtn")
-            ?.addEventListener(
-                "click",
-                loadLogs
-            );
-
-
-        $("form")
-            ?.addEventListener(
-                "submit",
-                saveIncident
-            );
-
-
-        init();
-
-    }
+    initEmergency
 );

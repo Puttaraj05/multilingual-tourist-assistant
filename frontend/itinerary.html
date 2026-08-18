@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>TravelMate | Your Itinerary</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/css/itinerary.css"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+</head>
+
+<body>
+
+    <header class="itinerary-navbar">
+
+        <a
+            href="/"
+            class="itinerary-logo"
+        >
+            TravelMate
+        </a>
+
+    </header>
+
+
+    <main class="itinerary-page">
+
+        <div class="itinerary-container">
+
+            <!-- LOADING -->
+
+            <div
+                id="loading"
+                class="loading-screen"
+            >
+
+                <div class="spinner"></div>
+
+                <h2>
+                    Preparing your itinerary...
+                </h2>
+
+                <p>
+                    We're organizing your perfect trip.
+                </p>
+
+            </div>
+
+
+            <!-- ERROR -->
+
+            <div
+                id="error"
+                class="error-box hidden"
+            ></div>
+
+
+            <!-- ITINERARY -->
+
+            <div
+                id="itineraryContainer"
+            ></div>
+
+        </div>
+
+    </main>
+
+
+    <script
+        src="/js/itinerary.js?v=4"
+    ></script>
+
+</body>
+
+</html>
