@@ -1,145 +1,531 @@
+# backend/services/speech_service.py
+
 import io
 import os
 import tempfile
-import uuid
-from pathlib import Path
 
 import edge_tts
 from faster_whisper import WhisperModel
 
+
 # =========================================================
-# CONFIG
+# CONFIGURATION
 # =========================================================
 
-# Load model once (base is good balance of speed/accuracy)
-# Options: tiny, base, small, medium, large-v3
+# Options:
+# tiny  -> fastest
+# base  -> better accuracy, slower
+# small -> better accuracy, slower
+#
+# For your Mac/hackathon demo, "base" is a good balance.
 WHISPER_MODEL_SIZE = "base"
-WHISPER_DEVICE = "cpu"          # change to "cuda" if you have GPU
-WHISPER_COMPUTE_TYPE = "int8"   # good for CPU
+
+# CPU is safest for Mac compatibility.
+WHISPER_DEVICE = "cpu"
+
+# int8 gives good CPU performance.
+WHISPER_COMPUTE_TYPE = "int8"
+
+
+# =========================================================
+# GLOBAL WHISPER MODEL
+# =========================================================
 
 _whisper_model = None
 
-# Edge-TTS voices (good quality free voices)
-# You can expand this list later
-VOICE_MAP = {
-    "en": "en-US-JennyNeural",
-    "hi": "hi-IN-SwaraNeural",
-    "te": "te-IN-ShrutiNeural",
-    "ta": "ta-IN-PallaviNeural",
-    "kn": "kn-IN-SapnaNeural",
-    "ml": "ml-IN-SobhanaNeural",
-    "bn": "bn-IN-TanishaaNeural",
-    "mr": "mr-IN-AarohiNeural",
-    "gu": "gu-IN-DhwaniNeural",
-    "pa": "pa-IN-GurpreetNeural",
-    "es": "es-ES-ElviraNeural",
-    "fr": "fr-FR-DeniseNeural",
-    "de": "de-DE-KatjaNeural",
-    "it": "it-IT-ElsaNeural",
-    "ja": "ja-JP-NanamiNeural",
-    "ko": "ko-KR-SunHiNeural",
-    "ar": "ar-SA-ZariyahNeural",
-    "zh-CN": "zh-CN-XiaoxiaoNeural",
-    "ru": "ru-RU-SvetlanaNeural",
-}
-
-DEFAULT_VOICE = "en-US-JennyNeural"
-
 
 def get_whisper_model():
+    """
+    Load Whisper only once.
+
+    The first speech request will take longer because
+    the model needs to be loaded. Subsequent requests
+    reuse the same model.
+    """
+
     global _whisper_model
+
     if _whisper_model is None:
-        print(f"Loading Whisper model: {WHISPER_MODEL_SIZE} ...")
+
+        print(
+            f"Loading Whisper model: "
+            f"{WHISPER_MODEL_SIZE} ..."
+        )
+
         _whisper_model = WhisperModel(
             WHISPER_MODEL_SIZE,
             device=WHISPER_DEVICE,
             compute_type=WHISPER_COMPUTE_TYPE,
         )
+
+        print("Whisper model loaded successfully.")
+
     return _whisper_model
 
 
 # =========================================================
-# SPEECH TO TEXT
+# EDGE-TTS VOICES
 # =========================================================
 
-def speech_to_text(audio_bytes: bytes, language: str | None = None) -> dict:
+VOICE_MAP = {
+
+    "en": "en-US-JennyNeural",
+
+    "hi": "hi-IN-SwaraNeural",
+
+    "te": "te-IN-ShrutiNeural",
+
+    "ta": "ta-IN-PallaviNeural",
+
+    "kn": "kn-IN-SapnaNeural",
+
+    "ml": "ml-IN-SobhanaNeural",
+
+    "bn": "bn-IN-TanishaaNeural",
+
+    "mr": "mr-IN-AarohiNeural",
+
+    "gu": "gu-IN-DhwaniNeural",
+
+    "pa": "pa-IN-GurpreetNeural",
+
+    "es": "es-ES-ElviraNeural",
+
+    "fr": "fr-FR-DeniseNeural",
+
+    "de": "de-DE-KatjaNeural",
+
+    "it": "it-IT-ElsaNeural",
+
+    "ja": "ja-JP-NanamiNeural",
+
+    "ko": "ko-KR-SunHiNeural",
+
+    "ar": "ar-SA-ZariyahNeural",
+
+    "zh-CN": "zh-CN-XiaoxiaoNeural",
+
+    "ru": "ru-RU-SvetlanaNeural",
+
+}
+
+
+DEFAULT_VOICE = "en-US-JennyNeural"
+
+
+# =========================================================
+# LANGUAGE NORMALIZATION
+# =========================================================
+
+def normalize_language(language: str | None) -> str | None:
     """
-    Convert audio bytes to text using faster-whisper.
-    Returns: { "text": str, "language": str, "confidence": float }
+    Normalize language values coming from frontend/backend.
+
+    Examples:
+
+        English -> en
+        Hindi -> hi
+        Telugu -> te
+        en-US -> en
+        zh -> zh-CN
+        auto -> None
     """
+
+    if not language:
+        return None
+
+    language = language.strip()
+
+    if not language:
+        return None
+
+    if language.lower() == "auto":
+        return None
+
+
+    # Already supported language code
+
+    if language in VOICE_MAP:
+        return language
+
+
+    # Browser / Whisper style codes
+
+    language_lower = language.lower()
+
+
+    aliases = {
+
+        "english": "en",
+        "en-us": "en",
+        "en-gb": "en",
+
+        "hindi": "hi",
+        "hi-in": "hi",
+
+        "telugu": "te",
+        "te-in": "te",
+
+        "tamil": "ta",
+        "ta-in": "ta",
+
+        "kannada": "kn",
+        "kn-in": "kn",
+
+        "malayalam": "ml",
+        "ml-in": "ml",
+
+        "bengali": "bn",
+        "bn-in": "bn",
+
+        "marathi": "mr",
+        "mr-in": "mr",
+
+        "gujarati": "gu",
+        "gu-in": "gu",
+
+        "punjabi": "pa",
+        "pa-in": "pa",
+
+        "spanish": "es",
+        "es-es": "es",
+
+        "french": "fr",
+        "fr-fr": "fr",
+
+        "german": "de",
+        "de-de": "de",
+
+        "italian": "it",
+        "it-it": "it",
+
+        "japanese": "ja",
+        "ja-jp": "ja",
+
+        "korean": "ko",
+        "ko-kr": "ko",
+
+        "arabic": "ar",
+        "ar-sa": "ar",
+
+        "chinese": "zh-CN",
+        "zh": "zh-CN",
+        "zh-cn": "zh-CN",
+
+        "russian": "ru",
+        "ru-ru": "ru",
+
+    }
+
+
+    if language_lower in aliases:
+
+        return aliases[language_lower]
+
+
+    # Handle values such as "en-US"
+
+    base_language = (
+        language_lower
+        .split("-")[0]
+        .split("_")[0]
+    )
+
+
+    if base_language in VOICE_MAP:
+
+        return base_language
+
+
+    return language
+
+
+# =========================================================
+# SPEECH → TEXT
+# =========================================================
+
+def speech_to_text(
+    audio_bytes: bytes,
+    language: str | None = None,
+) -> dict:
+    """
+    Convert uploaded audio into text using faster-whisper.
+
+    Expected browser audio:
+        WebM / Opus
+
+    Returns:
+
+        {
+            "text": "...",
+            "language": "en",
+            "confidence": 0.85
+        }
+    """
+
     if not audio_bytes:
-        return {"text": "", "language": None, "confidence": 0.0}
+
+        return {
+            "text": "",
+            "language": None,
+            "confidence": 0.0,
+        }
+
 
     model = get_whisper_model()
 
-    # Write to temporary file (faster-whisper works better with file path)
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+
+    # -----------------------------------------------------
+    # Normalize requested language
+    # -----------------------------------------------------
+
+    whisper_language = normalize_language(
+        language
+    )
+
+
+    # -----------------------------------------------------
+    # Save browser audio temporarily
+    #
+    # IMPORTANT:
+    # Browser MediaRecorder normally creates WebM.
+    # Do NOT save WebM bytes using a .wav extension.
+    # -----------------------------------------------------
+
+    with tempfile.NamedTemporaryFile(
+        suffix=".webm",
+        delete=False,
+    ) as tmp:
+
         tmp.write(audio_bytes)
+
         tmp_path = tmp.name
 
+
     try:
+
+        # -------------------------------------------------
+        # Whisper transcription
+        # -------------------------------------------------
+
         segments, info = model.transcribe(
+
             tmp_path,
-            language=language if language and language != "auto" else None,
-            beam_size=5,
+
+            language=whisper_language,
+
+            # Lower than 5 for better speed.
+            beam_size=3,
+
+            # Ignore silent sections.
             vad_filter=True,
+
+            # Helps avoid repetitive context processing.
+            condition_on_previous_text=False,
+
         )
 
+
+        # -------------------------------------------------
+        # Collect segments
+        # -------------------------------------------------
+
         text_parts = []
-        total_prob = 0.0
-        count = 0
+
+        total_confidence = 0.0
+
+        confidence_count = 0
+
 
         for segment in segments:
-            text_parts.append(segment.text.strip())
+
+            text = (
+                segment.text or ""
+            ).strip()
+
+
+            if text:
+
+                text_parts.append(text)
+
+
+            # -------------------------------------------------
+            # Convert avg_logprob into rough 0-1 confidence.
+            # This is NOT a calibrated probability.
+            # -------------------------------------------------
+
             if segment.avg_logprob is not None:
-                # Convert logprob to rough confidence
-                total_prob += max(0.0, min(1.0, (segment.avg_logprob + 1.0)))
-                count += 1
 
-        full_text = " ".join(text_parts).strip()
-        avg_confidence = (total_prob / count) if count > 0 else 0.0
+                confidence = max(
+                    0.0,
+                    min(
+                        1.0,
+                        segment.avg_logprob + 1.0,
+                    ),
+                )
 
-        detected_lang = info.language if info.language else "en"
+                total_confidence += confidence
+
+                confidence_count += 1
+
+
+        # -------------------------------------------------
+        # Final text
+        # -------------------------------------------------
+
+        full_text = " ".join(
+            text_parts
+        ).strip()
+
+
+        # -------------------------------------------------
+        # Average confidence
+        # -------------------------------------------------
+
+        if confidence_count > 0:
+
+            avg_confidence = (
+                total_confidence /
+                confidence_count
+            )
+
+        else:
+
+            avg_confidence = 0.0
+
+
+        # -------------------------------------------------
+        # Detected language
+        # -------------------------------------------------
+
+        detected_language = (
+            info.language
+            if info and info.language
+            else "en"
+        )
+
+
+        detected_language = normalize_language(
+            detected_language
+        ) or "en"
+
 
         return {
+
             "text": full_text,
-            "language": detected_lang,
-            "confidence": round(avg_confidence, 3),
+
+            "language": detected_language,
+
+            "confidence": round(
+                avg_confidence,
+                3,
+            ),
+
         }
 
+
     finally:
+
+        # -------------------------------------------------
+        # Remove temporary file
+        # -------------------------------------------------
+
         try:
+
             os.unlink(tmp_path)
-        except Exception:
+
+        except OSError:
+
             pass
 
 
 # =========================================================
-# TEXT TO SPEECH
+# TEXT → SPEECH
 # =========================================================
 
-async def text_to_speech(text: str, language: str = "en") -> bytes:
+async def text_to_speech(
+    text: str,
+    language: str = "en",
+) -> bytes:
     """
-    Convert text to speech using edge-tts.
-    Returns audio bytes (mp3).
+    Convert translated text into MP3 speech using Edge-TTS.
     """
+
     if not text or not text.strip():
+
         return b""
 
-    voice = VOICE_MAP.get(language, DEFAULT_VOICE)
 
-    communicate = edge_tts.Communicate(text=text, voice=voice)
+    # -----------------------------------------------------
+    # Normalize language
+    # -----------------------------------------------------
 
-    # Collect audio into memory
+    normalized_language = (
+        normalize_language(language)
+        or "en"
+    )
+
+
+    # -----------------------------------------------------
+    # Find voice
+    # -----------------------------------------------------
+
+    voice = VOICE_MAP.get(
+        normalized_language,
+        DEFAULT_VOICE,
+    )
+
+
+    print(
+        f"Generating TTS: "
+        f"language={normalized_language}, "
+        f"voice={voice}"
+    )
+
+
+    # -----------------------------------------------------
+    # Edge TTS
+    # -----------------------------------------------------
+
+    communicate = edge_tts.Communicate(
+        text=text.strip(),
+        voice=voice,
+    )
+
+
     audio_buffer = io.BytesIO()
 
+
     async for chunk in communicate.stream():
+
         if chunk["type"] == "audio":
-            audio_buffer.write(chunk["data"])
 
-    return audio_buffer.getvalue()
+            audio_buffer.write(
+                chunk["data"]
+            )
 
+
+    audio_data = (
+        audio_buffer.getvalue()
+    )
+
+
+    print(
+        f"TTS generated: "
+        f"{len(audio_data)} bytes"
+    )
+
+
+    return audio_data
+
+
+# =========================================================
+# AVAILABLE VOICES
+# =========================================================
 
 def get_available_voices() -> dict:
-    """Return the voice map for frontend reference."""
-    return VOICE_MAP
+    """
+    Return language -> Edge-TTS voice mapping.
+    """
+
+    return VOICE_MAP.copy()

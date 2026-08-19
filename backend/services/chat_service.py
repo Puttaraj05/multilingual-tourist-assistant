@@ -1,316 +1,421 @@
 import json
-from typing import Optional, List
+from uuid import uuid4
+from datetime import datetime, timezone
 
-from backend.services.gemini_service import generate_text
-from backend.prompts.tourist_chat import TOURIST_SYSTEM_PROMPT
+from fastapi import APIRouter, HTTPException
 
+from backend.models.chat import (
+    ChatRequest,
+    ChatResponse,
+)
 
-# =========================================================
-# Empty Response
-# =========================================================
+from backend.database.mongodb import (
+    messages_collection,
+)
 
-def empty_chat_response(message: str = "") -> dict:
-
-    return {
-        "message": message,
-        "destination": None,
-        "attractions": [],
-        "food": [],
-        "transportation": [],
-        "tips": [],
-        "itinerary": [],
-    }
+from backend.services.gemini_service import (
+    generate_chat_response,
+)
 
 
 # =========================================================
-# Clean Gemini JSON
+# ROUTER
 # =========================================================
 
-def clean_json_response(response: str) -> str:
-
-    if not response:
-        return ""
-
-    response = str(response).strip()
-
-    if response.startswith("```json"):
-        response = response[7:].strip()
-
-    elif response.startswith("```"):
-        response = response[3:].strip()
-
-    if response.endswith("```"):
-        response = response[:-3].strip()
-
-    return response
+router = APIRouter(
+    prefix="/api/chat",
+    tags=["Chat"],
+)
 
 
 # =========================================================
-# Parse JSON
+# NORMALIZE API RESPONSE
 # =========================================================
 
-def parse_json_response(response: str) -> Optional[dict]:
+def normalize_chat_response(response):
 
-    if not response:
-        return None
+    if isinstance(response, str):
 
-    response = clean_json_response(response)
+        try:
+            response = json.loads(response)
 
-    # -----------------------------------------------------
-    # Normal JSON
-    # -----------------------------------------------------
+        except json.JSONDecodeError:
 
-    try:
+            return {
+                "message": response,
+                "destination": None,
+                "trip_overview": "",
+                "trip_duration": "",
+                "travel_style": "",
+                "best_time_to_visit": "",
+                "estimated_budget": "",
+                "attractions": [],
+                "food": [],
+                "transportation": [],
+                "tips": [],
+                "itinerary": [],
+            }
 
-        parsed = json.loads(response)
+    if not isinstance(response, dict):
 
-        if isinstance(parsed, dict):
-            return parsed
+        return {
+            "message": str(response),
+            "destination": None,
+            "trip_overview": "",
+            "trip_duration": "",
+            "travel_style": "",
+            "best_time_to_visit": "",
+            "estimated_budget": "",
+            "attractions": [],
+            "food": [],
+            "transportation": [],
+            "tips": [],
+            "itinerary": [],
+        }
 
-    except json.JSONDecodeError:
-        pass
+    def safe_list(value):
 
-    # -----------------------------------------------------
-    # JSON embedded in other text
-    # -----------------------------------------------------
+        if isinstance(value, list):
+            return value
 
-    start = response.find("{")
-    end = response.rfind("}")
-
-    if start == -1 or end == -1:
-        return None
-
-    try:
-
-        parsed = json.loads(
-            response[start:end + 1]
-        )
-
-        if isinstance(parsed, dict):
-            return parsed
-
-    except json.JSONDecodeError:
-        return None
-
-    return None
-
-
-# =========================================================
-# Normalize
-# =========================================================
-
-def normalize_response(response: dict) -> dict:
+        return []
 
     return {
 
         "message": response.get(
             "message",
-            "",
+            ""
         ),
 
         "destination": response.get(
             "destination"
         ),
 
-        "attractions": response.get(
-            "attractions",
-            [],
+        "trip_overview": response.get(
+            "trip_overview",
+            ""
         ),
 
-        "food": response.get(
-            "food",
-            [],
+        "trip_duration": response.get(
+            "trip_duration",
+            ""
         ),
 
-        "transportation": response.get(
-            "transportation",
-            [],
+        "travel_style": response.get(
+            "travel_style",
+            ""
         ),
 
-        "tips": response.get(
-            "tips",
-            [],
+        "best_time_to_visit": response.get(
+            "best_time_to_visit",
+            ""
         ),
 
-        "itinerary": response.get(
-            "itinerary",
-            [],
+        "estimated_budget": response.get(
+            "estimated_budget",
+            ""
+        ),
+
+        "attractions": safe_list(
+            response.get(
+                "attractions",
+                []
+            )
+        ),
+
+        "food": safe_list(
+            response.get(
+                "food",
+                []
+            )
+        ),
+
+        "transportation": safe_list(
+            response.get(
+                "transportation",
+                []
+            )
+        ),
+
+        "tips": safe_list(
+            response.get(
+                "tips",
+                []
+            )
+        ),
+
+        "itinerary": safe_list(
+            response.get(
+                "itinerary",
+                []
+            )
         ),
     }
 
 
 # =========================================================
-# Generate Chat Response
+# CHAT ENDPOINT
 # =========================================================
 
-def generate_chat_response(
-    message: str,
-    language: str,
-    conversation_history: Optional[List] = None,
-) -> dict:
+@router.post(
+    "",
+    response_model=ChatResponse
+)
+async def chat(
+    request: ChatRequest
+):
 
-    prompt = TOURIST_SYSTEM_PROMPT.format(
-        language=language
+    # =====================================================
+    # 1. SESSION
+    # =====================================================
+
+    session_id = (
+        request.session_id
+        or str(uuid4())
     )
 
-
     # =====================================================
-    # Conversation History
+    # 2. LOAD CONVERSATION HISTORY
     # =====================================================
 
-    if conversation_history:
+    conversation_history = []
 
-        prompt += (
-            "\n\nConversation history:\n"
+    try:
+
+        previous_messages = list(
+
+            messages_collection
+            .find(
+                {
+                    "session_id":
+                        session_id
+                },
+                {
+                    "_id": 0
+                }
+            )
+            .sort(
+                "created_at",
+                1
+            )
         )
 
-        for item in conversation_history:
+        pending_user_message = None
 
-            user_text = item.get(
-                "user",
-                "",
+        for item in previous_messages:
+
+            role = item.get(
+                "role"
             )
 
-            assistant_text = item.get(
-                "assistant",
-                "",
+            content = item.get(
+                "content",
+                ""
             )
 
-            if isinstance(
-                assistant_text,
-                dict,
+            # -------------------------------------------------
+            # USER MESSAGE
+            # -------------------------------------------------
+
+            if role == "user":
+
+                pending_user_message = content
+
+            # -------------------------------------------------
+            # ASSISTANT MESSAGE
+            # -------------------------------------------------
+
+            elif (
+                role == "assistant"
+                and
+                pending_user_message
+                is not None
             ):
 
-                assistant_text = json.dumps(
-                    assistant_text,
-                    ensure_ascii=False,
-                )
+                assistant_content = content
 
-            prompt += (
-                f"User: {user_text}\n"
+                if isinstance(
+                    assistant_content,
+                    str
+                ):
+
+                    try:
+
+                        assistant_content = json.loads(
+                            assistant_content
+                        )
+
+                    except (
+                        json.JSONDecodeError,
+                        TypeError
+                    ):
+
+                        pass
+
+                conversation_history.append({
+
+                    "user":
+                        pending_user_message,
+
+                    "assistant":
+                        assistant_content,
+
+                })
+
+                pending_user_message = None
+
+    except Exception as e:
+
+        print(
+            f"MongoDB history unavailable: {e}",
+            flush=True
+        )
+
+        conversation_history = []
+
+    # =====================================================
+    # 3. GENERATE GEMINI RESPONSE
+    # =====================================================
+
+    try:
+
+        raw_response = generate_chat_response(
+
+            message=request.message,
+
+            language=request.language,
+
+            conversation_history=
+                conversation_history,
+
+        )
+
+    except RuntimeError as e:
+
+        error_message = str(e)
+
+        if (
+            "quota" in error_message.lower()
+            or
+            "resource_exhausted"
+            in error_message.lower()
+            or
+            "429" in error_message
+        ):
+
+            raise HTTPException(
+                status_code=429,
+                detail=error_message
             )
 
-            prompt += (
-                f"Assistant: {assistant_text}\n"
-            )
+        raise HTTPException(
+            status_code=500,
+            detail=error_message
+        )
 
+    except Exception as e:
 
-    # =====================================================
-    # Current Request
-    # =====================================================
+        print(
+            f"Chat generation error: {e}",
+            flush=True
+        )
 
-    prompt += f"""
-
-Current user message:
-{message}
-
-Return ONE JSON object using exactly this structure:
-
-{{
-    "message": "Short helpful answer",
-    "destination": "Destination name or null",
-    "attractions": [
-        {{
-            "name": "Attraction name",
-            "description": "Short description",
-            "category": "Historical"
-        }}
-    ],
-    "food": [
-        {{
-            "name": "Food or restaurant",
-            "description": "Short description",
-            "type": "Local food"
-        }}
-    ],
-    "transportation": [
-        {{
-            "mode": "Metro",
-            "description": "Useful information"
-        }}
-    ],
-    "tips": [
-        {{
-            "title": "Tip title",
-            "description": "Useful tip"
-        }}
-    ],
-    "itinerary": [
-        {{
-            "day": 1,
-            "title": "Day title",
-            "activities": [
-                "Activity 1",
-                "Activity 2",
-                "Activity 3"
-            ]
-        }}
-    ]
-}}
-
-IMPORTANT RULES:
-
-- Return JSON only.
-- Do not use Markdown.
-- Do not wrap JSON in code fences.
-- Do not put the JSON inside the "message" field.
-- "message" must contain only the human-readable summary.
-- Use the requested language: {language}.
-- If the user asks for a destination, provide useful attractions.
-- If the user asks for a trip plan, provide an itinerary.
-- Keep each description concise.
-- Use real tourist destinations and commonly known information.
-- Do not invent exact prices.
-- Do not invent opening hours.
-- Do not invent live availability.
-- If something is unknown, omit it or use a general statement.
-- Keep the entire response compact enough to complete fully.
-"""
-
+        raise HTTPException(
+            status_code=500,
+            detail=f"Chat service error: {str(e)}"
+        )
 
     # =====================================================
-    # Call Gemini
+    # 4. NORMALIZE RESPONSE
     # =====================================================
 
-    raw_response = generate_text(
-        prompt
-    )
-
-
-    # =====================================================
-    # Parse
-    # =====================================================
-
-    parsed = parse_json_response(
+    response = normalize_chat_response(
         raw_response
     )
 
-
     # =====================================================
-    # Success
+    # 5. SAVE USER MESSAGE
     # =====================================================
 
-    if parsed is not None:
+    try:
 
-        return normalize_response(
-            parsed
+        messages_collection.insert_one({
+
+            "session_id":
+                session_id,
+
+            "role":
+                "user",
+
+            "content":
+                request.message,
+
+            "language":
+                request.language,
+
+            "created_at":
+                datetime.now(
+                    timezone.utc
+                ),
+
+        })
+
+    except Exception as e:
+
+        print(
+            f"Could not save user message: {e}",
+            flush=True
         )
 
+    # =====================================================
+    # 6. SAVE ASSISTANT MESSAGE
+    # =====================================================
+
+    try:
+
+        messages_collection.insert_one({
+
+            "session_id":
+                session_id,
+
+            "role":
+                "assistant",
+
+            "content":
+                json.dumps(
+                    response,
+                    ensure_ascii=False
+                ),
+
+            "language":
+                request.language,
+
+            "created_at":
+                datetime.now(
+                    timezone.utc
+                ),
+
+        })
+
+    except Exception as e:
+
+        print(
+            f"Could not save assistant message: {e}",
+            flush=True
+        )
 
     # =====================================================
-    # Fallback
+    # 7. RETURN RESPONSE
     # =====================================================
 
-    print(
-        "WARNING: Gemini returned invalid JSON.",
-        flush=True,
-    )
+    return {
 
-    print(
-        raw_response,
-        flush=True,
-    )
+        "session_id":
+            session_id,
 
-    return empty_chat_response(
-        "I couldn't format the travel response correctly. Please try again."
-    )
+        "language":
+            request.language,
+
+        **response,
+
+    }

@@ -122,12 +122,12 @@ def clean_translation(text: str) -> str:
 # ---------------------------------------------------------
 # Normal text translation
 # ---------------------------------------------------------
-
 @router.post("/translate")
 async def translate(payload: dict):
 
     text = (payload.get("text") or "").strip()
-    target = payload.get("target")
+    source = (payload.get("source") or "auto").strip()
+    target = (payload.get("target") or "").strip()
 
     if not target:
         return {
@@ -143,36 +143,63 @@ async def translate(payload: dict):
 
     try:
 
-        source = detect_language(text)
+        # ---------------------------------------------
+        # Detect source if Auto Detect is selected
+        # ---------------------------------------------
 
-        # Numbers/prices don't need translation.
+        if source.lower() in ["auto", "auto detect"]:
+            detected_source = detect_language(text)
+        else:
+            detected_source = source
+
+        # ---------------------------------------------
+        # Numbers/prices don't need translation
+        # ---------------------------------------------
+
         if is_numeric_or_price(text):
+
             translated = text
 
         else:
+
             translated = translate_text(
                 text,
                 target,
-                source,
+                detected_source,
             )
 
-        translated = clean_translation(translated)
+        translated = clean_translation(
+            translated
+        )
 
         return {
+
             "success": True,
-            "source_language": source,
+
+            "source_language": detected_source,
+
             "target_language": target,
+
             "original_text": text,
+
             "translated_text": translated,
+
         }
 
     except Exception as e:
 
-        return {
-            "success": False,
-            "error": str(e),
-        }
+        print(
+            f"Translation error: {e}",
+            flush=True,
+        )
 
+        return {
+
+            "success": False,
+
+            "error": str(e),
+
+        }
 
 # ---------------------------------------------------------
 # Image translation

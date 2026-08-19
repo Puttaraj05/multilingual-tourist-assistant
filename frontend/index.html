@@ -1,70 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>TravelMate</title>
+<title>TravelMate</title>
 
-    <link rel="stylesheet" href="/static/css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="icon" type="image/webp" href="/static/images/logo.webp">
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+>
+
+<link
+    rel="stylesheet"
+    href="/static/css/style.css"
+>
+
 </head>
 
-<body class="home-page">
+<body>
 
-    <div class="bg-circle circle-one"></div>
-    <div class="bg-circle circle-two"></div>
+<!-- NAVBAR -->
 
-    <main class="home-container">
+<header class="navbar">
 
-        <div class="app-icon">
-            TM
+    <div class="logo">
+        <i class="fa-solid fa-earth-asia"></i>
+        <div>
+            <h2>TravelMate</h2>
+            <p>Your Smart Travel Companion</p>
         </div>
+    </div>
 
-        <h1 class="app-name">
-            TravelMate
-        </h1>
+    <nav>
+        <a href="#" class="active">Home</a>
+        <a href="features.html">Features</a>
+        <a href="#discover">Discover</a>
+        <a href="about.html">About</a>
+    </nav>
+<a href="auth.html" class="nav-btn">Login / Sign Up</a>
 
-        <p class="tagline">
-            Your AI-powered travel companion
+</header>
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <div class="hero-left">
+
+        <span class="hero-tag">
+            🌍 Explore • Connect • Experience
+        </span>
+
+        <h1>Where to <span>Next?</span></h1>
+
+        <p>
+            Plan smarter with AI-powered itineraries,
+            multilingual assistance, local recommendations
+            and emergency support — all in one place.
         </p>
 
-        <p class="home-description">
-            Plan your perfect journey, discover new places,
-            communicate across languages and travel with confidence.
-        </p>
-
-        <a href="planner.html" class="start-button">
-            Start Your Journey
-            <span>→</span>
+        <a href="features.html" class="hero-btn">
+            Get Started
         </a>
 
-        <div class="home-features">
+    </div>
 
-            <div class="home-feature">
-                <span>Multilingual</span>
-            </div>
+    <div class="hero-right">
+        <img src="/static/images/Heroimg.png" alt="TravelMate AI Assistant">
+    </div>
 
-            <div class="home-feature">
-                <span>AI Powered</span>
-            </div>
+</section>
+<!-- FEATURES -->
 
-            <div class="home-feature">
-                <span>Smart Explore</span>
-            </div>
+<section id="features" class="features">
 
-            <div class="home-feature">
-                <span>Travel Support</span>
-            </div>
+<h2>Everything You Need For a Smarter Journey</h2>
 
-        </div>
+<div class="feature-grid">
 
-    </main>
+<div class="feature-card">
+<i class="fa-solid fa-language"></i>
+<h3>Translation</h3>
+<p>Real-time multilingual assistance while travelling.</p>
+</div>
 
-    <footer class="home-footer">
-        Explore • Translate • Plan • Travel
-    </footer>
+<div class="feature-card">
+<i class="fa-solid fa-map-location-dot"></i>
+<h3>AI Itinerary</h3>
+<p>Personalized day-by-day travel plans within your budget.</p>
+</div>
+
+<div class="feature-card">
+<i class="fa-solid fa-compass"></i>
+<h3>Recommendations</h3>
+<p>Discover attractions, food and hidden local gems.</p>
+</div>
+
+<div class="feature-card">
+<i class="fa-solid fa-shield-heart"></i>
+<h3>Emergency Help</h3>
+<p>Quick access to nearby hospitals, police and emergency contacts.</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- RECOMMENDATIONS -->
+
+<section id="discover" class="recommendations">
+
+<div class="section-header">
+
+<h2>Popular Destinations</h2>
+
+<a href="planner.html">Explore More →</a>
+
+</div>
+
+<div class="destination-grid">
+
+<div class="destination-card">
+
+<img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800" alt="Tokyo">
+
+<div class="destination-info">
+<h3>Tokyo</h3>
+<p>Japan</p>
+</div>
+
+</div>
+
+<div class="destination-card">
+
+<img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800" alt="Paris">
+
+<div class="destination-info">
+<h3>Paris</h3>
+<p>France</p>
+</div>
+
+</div>
+
+<div class="destination-card">
+
+<img src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=800" alt="Dubai">
+
+<div class="destination-info">
+<h3>Dubai</h3>
+<p>UAE</p>
+</div>
+
+</div>
+
+<div class="destination-card">
+
+<img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800" alt="Rome">
+
+<div class="destination-info">
+<h3>India</h3>
+<p>Agra</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ABOUT -->
+
+<section id="about" class="about">
+
+<h2>Why TravelMate?</h2>
+
+<p>
+TravelMate combines AI planning, multilingual communication,
+local recommendations and emergency support into one seamless
+travel experience.
+</p>
+
+</section>
 
 </body>
-
 </html>

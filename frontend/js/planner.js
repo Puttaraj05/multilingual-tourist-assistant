@@ -1,693 +1,240 @@
-/* =========================================================
-   TRAVELMATE — PLANNER
-   ========================================================= */
+const form = document.getElementById("plannerForm");
 
-document.addEventListener("DOMContentLoaded", () => {
+const durationInput = document.getElementById("duration");
+const decreaseButton = document.getElementById("decreaseDays");
+const increaseButton = document.getElementById("increaseDays");
 
-    console.log("=================================");
-    console.log("PLANNER JS LOADED");
-    console.log("=================================");
+// =============================================
+// DURATION BUTTONS
+// =============================================
+
+decreaseButton.addEventListener("click", () => {
+    let days = parseInt(durationInput.value);
+
+    if (days > 1) {
+        durationInput.value = days - 1;
+    }
+});
+
+increaseButton.addEventListener("click", () => {
+    let days = parseInt(durationInput.value);
+
+    if (days < 30) {
+        durationInput.value = days + 1;
+    }
+});
 
 
-    /* =====================================================
-       ELEMENTS
-       ===================================================== */
+// =============================================
+// FORM SUBMIT
+// =============================================
 
-    const form =
-        document.getElementById("plannerForm");
+form.addEventListener("submit", async (e) => {
 
-    const durationInput =
-        document.getElementById("duration");
+    e.preventDefault();
 
-    const decreaseButton =
-        document.getElementById("decreaseDays");
+    const destination =
+        document.getElementById("destination").value.trim();
 
-    const increaseButton =
-        document.getElementById("increaseDays");
-
-    const destinationInput =
-        document.getElementById("destination");
-
-    const destinationError =
-        document.getElementById("destinationError");
+    const duration =
+        parseInt(durationInput.value);
 
     const travelDate =
-        document.getElementById("travelDate");
+        document.getElementById("travelDate").value;
 
-    const budgetInput =
-        document.getElementById("budget");
+    const budget =
+        Number(document.getElementById("budget").value);
 
-    const languageInput =
-        document.getElementById("language");
+    const currencySymbol =
+        document.getElementById("currency").value;
 
-    const currencyInput =
-        document.getElementById("currency");
+    const language =
+        document.getElementById("language").value.trim();
+
+    const travelType =
+        document.querySelector(
+            'input[name="travelType"]:checked'
+        )?.value || "Solo";
+
+    const tripStyle =
+        document.querySelector(
+            'input[name="tripStyle"]:checked'
+        )?.value || "Balanced";
+
+    const kidsUnder12 =
+        document.getElementById("kidsUnder12").checked;
+
+    const interests = [];
+
+    document
+        .querySelectorAll('input[name="interest"]:checked')
+        .forEach((item) => {
+            interests.push(item.value);
+        });
 
 
-    /* =====================================================
-       CHECK FORM
-       ===================================================== */
+    // =============================================
+    // VALIDATION
+    // =============================================
 
-    if (!form) {
+    if (!destination) {
+        alert("Please enter a destination.");
+        return;
+    }
 
-        console.error(
-            "ERROR: plannerForm was not found."
-        );
+    if (!travelDate) {
+        alert("Please select a travel date.");
+        return;
+    }
 
+    if (budget <= 0) {
+        alert("Please enter a valid budget.");
+        return;
+    }
+
+    if (interests.length === 0) {
+        alert("Please select at least one interest.");
         return;
     }
 
 
-    /* =====================================================
-       DURATION — DECREASE
-       ===================================================== */
+    // =============================================
+    // REQUEST DATA
+    // =============================================
 
-    decreaseButton?.addEventListener(
-        "click",
-        () => {
+    const tripData = {
+        destination: destination,
+        duration: duration,
+        travelDate: travelDate,
+        budget: budget,
+        currencySymbol: currencySymbol,
+        language: language,
+        travelType: travelType,
+        tripStyle: tripStyle,
+        kidsUnder12: kidsUnder12,
+        interests: interests
+    };
 
-            let value =
-                parseInt(
-                    durationInput?.value
-                ) || 1;
+
+    console.log("Sending itinerary request:", tripData);
 
 
-            if (value > 1) {
+    const button =
+        document.querySelector(".generate-button");
 
-                value--;
+    button.disabled = true;
+    button.textContent =
+        "Generating your itinerary...";
 
-                if (durationInput) {
 
-                    durationInput.value =
-                        value;
+    // =============================================
+    // CALL FASTAPI
+    // =============================================
 
-                }
+    try {
 
+        const response = await fetch(
+            "/api/itinerary",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(tripData)
             }
+        );
+
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            "Itinerary API response:",
+            result
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.detail ||
+                result.error ||
+                "Unable to generate itinerary."
+            );
 
         }
-    );
 
 
-    /* =====================================================
-       DURATION — INCREASE
-       ===================================================== */
+        // =============================================
+        // PRESERVE USER INPUTS
+        // =============================================
 
-    increaseButton?.addEventListener(
-        "click",
-        () => {
+        result.destination =
+            destination;
 
-            let value =
-                parseInt(
-                    durationInput?.value
-                ) || 1;
+        result.currencySymbol =
+            currencySymbol;
 
+        result.travelType =
+            travelType;
 
-            if (value < 30) {
+        result.tripStyle =
+            tripStyle;
 
-                value++;
+        result.kidsUnder12 =
+            kidsUnder12;
 
-                if (durationInput) {
+        result.interests =
+            interests;
 
-                    durationInput.value =
-                        value;
+        result.duration =
+            duration;
 
-                }
+        result.travel_date =
+            travelDate;
 
-            }
-
-        }
-    );
-
-
-    /* =====================================================
-       SET MINIMUM TRAVEL DATE
-       ===================================================== */
-
-    if (travelDate) {
-
-        const today =
-            new Date();
-
-        const year =
-            today.getFullYear();
-
-        const month =
-            String(
-                today.getMonth() + 1
-            ).padStart(2, "0");
-
-        const day =
-            String(
-                today.getDate()
-            ).padStart(2, "0");
+        result.budget =
+            result.budget || budget;
 
 
-        travelDate.min =
-            `${year}-${month}-${day}`;
+        // =============================================
+        // SAVE ITINERARY
+        // =============================================
+
+        localStorage.setItem(
+            "itinerary",
+            JSON.stringify(result)
+        );
+
+
+        // =============================================
+        // OPEN ITINERARY PAGE
+        // =============================================
+
+        window.location.href =
+            "/itinerary.html";
+
+
+    } catch (error) {
+
+        console.error(
+            "Itinerary error:",
+            error
+        );
+
+        alert(
+            error.message ||
+            "Unable to generate itinerary."
+        );
+
+        button.disabled = false;
+
+        button.textContent =
+            "Generate My Itinerary";
 
     }
-
-
-    /* =====================================================
-       FORM SUBMIT
-       ===================================================== */
-
-    form.addEventListener(
-        "submit",
-        async (event) => {
-
-            event.preventDefault();
-
-
-            console.log(
-                "Generate itinerary clicked."
-            );
-
-
-            /* =============================================
-               CLEAR OLD ERROR
-               ============================================= */
-
-            if (destinationError) {
-
-                destinationError.textContent =
-                    "";
-
-            }
-
-
-            /* =============================================
-               GET FORM VALUES
-               ============================================= */
-
-            const destination =
-                destinationInput?.value
-                    ?.trim() || "";
-
-
-            const duration =
-                parseInt(
-                    durationInput?.value
-                ) || 0;
-
-
-            const travelDateValue =
-                travelDate?.value || "";
-
-
-            const budget =
-                parseInt(
-                    budgetInput?.value
-                ) || 0;
-
-
-            const language =
-                languageInput?.value ||
-                "English";
-
-
-            const currency =
-                currencyInput?.value ||
-                "₹";
-
-
-            /* =============================================
-               TRAVEL TYPE
-               ============================================= */
-
-            const travelTypeElement =
-                document.querySelector(
-                    'input[name="travelType"]:checked'
-                );
-
-
-            const travelType =
-                travelTypeElement?.value ||
-                "Solo";
-
-
-            /* =============================================
-               TRIP STYLE
-               ============================================= */
-
-            const tripStyleElement =
-                document.querySelector(
-                    'input[name="tripStyle"]:checked'
-                );
-
-
-            const tripStyle =
-                tripStyleElement?.value ||
-                "Balanced";
-
-
-            /* =============================================
-               CHILDREN
-               ============================================= */
-
-            const kidsUnder12 =
-                document.getElementById(
-                    "kidsUnder12"
-                )?.checked || false;
-
-
-            /* =============================================
-               INTERESTS
-               ============================================= */
-
-            const interests =
-                Array.from(
-                    document.querySelectorAll(
-                        'input[name="interest"]:checked'
-                    )
-                ).map(
-                    checkbox =>
-                        checkbox.value
-                );
-
-
-            /* =============================================
-               VALIDATION — DESTINATION
-               ============================================= */
-
-            if (!destination) {
-
-                if (destinationError) {
-
-                    destinationError.textContent =
-                        "Please enter a destination.";
-
-                }
-
-                destinationInput?.focus();
-
-                return;
-            }
-
-
-            /* =============================================
-               VALIDATION — DURATION
-               ============================================= */
-
-            if (
-                duration < 1 ||
-                duration > 30
-            ) {
-
-                alert(
-                    "Trip duration must be between 1 and 30 days."
-                );
-
-                durationInput?.focus();
-
-                return;
-            }
-
-
-            /* =============================================
-               VALIDATION — DATE
-               ============================================= */
-
-            if (!travelDateValue) {
-
-                alert(
-                    "Please select your travel date."
-                );
-
-                travelDate?.focus();
-
-                return;
-            }
-
-
-            /* =============================================
-               VALIDATION — BUDGET
-               ============================================= */
-
-            if (
-                budget <= 0
-            ) {
-
-                alert(
-                    "Please enter a valid budget."
-                );
-
-                budgetInput?.focus();
-
-                return;
-            }
-
-
-            /* =============================================
-               SUBMIT BUTTON
-               ============================================= */
-
-            const submitButton =
-                form.querySelector(
-                    ".generate-button"
-                );
-
-
-            const originalText =
-                submitButton?.innerHTML;
-
-
-            if (submitButton) {
-
-                submitButton.disabled =
-                    true;
-
-                submitButton.innerHTML = `
-                    <span>
-                        Generating your itinerary...
-                    </span>
-                `;
-
-            }
-
-
-            /* =============================================
-               REQUEST DATA
-               ============================================= */
-
-            const requestData = {
-
-                destination:
-                    destination,
-
-                duration:
-                    duration,
-
-                travelDate:
-                    travelDateValue,
-
-                budget:
-                    budget,
-
-                currencySymbol:
-                    currency,
-
-                interests:
-                    interests,
-
-                language:
-                    language,
-
-                travelType:
-                    travelType,
-
-                tripStyle:
-                    tripStyle,
-
-                kidsUnder12:
-                    kidsUnder12
-
-            };
-
-
-            console.log(
-                "Sending itinerary request:"
-            );
-
-            console.log(
-                requestData
-            );
-
-
-            /* =============================================
-               SEND REQUEST
-               ============================================= */
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/itinerary",
-                        {
-
-                            method:
-                                "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Accept":
-                                    "application/json"
-
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    requestData
-                                )
-
-                        }
-                    );
-
-
-                console.log(
-                    "Backend response status:",
-                    response.status
-                );
-
-
-                /* =========================================
-                   READ RESPONSE
-                   ========================================= */
-
-                let data;
-
-
-                try {
-
-                    data =
-                        await response.json();
-
-                }
-
-                catch (jsonError) {
-
-                    console.error(
-                        "Could not parse backend response:",
-                        jsonError
-                    );
-
-                    throw new Error(
-                        "The server returned an invalid response."
-                    );
-
-                }
-
-
-                console.log(
-                    "Backend itinerary response:",
-                    data
-                );
-
-
-                /* =========================================
-                   BACKEND ERROR
-                   ========================================= */
-
-                if (!response.ok) {
-
-                    const message =
-                        data?.detail ||
-                        data?.message ||
-                        `Server error (${response.status})`;
-
-
-                    throw new Error(
-                        message
-                    );
-
-                }
-
-
-                /* =========================================
-                   VALIDATE ITINERARY
-                   ========================================= */
-
-                if (
-                    !data ||
-                    typeof data !== "object"
-                ) {
-
-                    throw new Error(
-                        "The server returned empty itinerary data."
-                    );
-
-                }
-
-
-                if (
-                    !Array.isArray(
-                        data.days
-                    )
-                ) {
-
-                    console.error(
-                        "Invalid itinerary:",
-                        data
-                    );
-
-                    throw new Error(
-                        "The generated itinerary has no day-by-day plan."
-                    );
-
-                }
-
-
-                if (
-                    data.days.length === 0
-                ) {
-
-                    throw new Error(
-                        "The generated itinerary contains no days."
-                    );
-
-                }
-
-
-                /* =========================================
-                   SAVE TO SESSION STORAGE
-                   ========================================= */
-
-                try {
-
-                    localStorage.setItem(
-                        "itinerary",
-                        JSON.stringify(data)
-                    );
-
-                }
-
-                catch (storageError) {
-
-                    console.error(
-                        "SessionStorage error:",
-                        storageError
-                    );
-
-                    throw new Error(
-                        "Unable to save your itinerary in the browser."
-                    );
-
-                }
-
-
-                /* =========================================
-                   VERIFY STORAGE
-                   ========================================= */
-
-                const saved =
-                    localStorage.getItem(
-                        "itinerary"
-                    );
-
-
-                if (!saved) {
-
-                    throw new Error(
-                        "Itinerary could not be saved."
-                    );
-
-                }
-
-
-                console.log(
-                    "================================="
-                );
-
-                console.log(
-                    "ITINERARY SAVED SUCCESSFULLY"
-                );
-
-                console.log(
-                    "Destination:",
-                    data.destination
-                );
-
-                console.log(
-                    "Days:",
-                    data.days.length
-                );
-
-                console.log(
-                    "================================="
-                );
-
-
-                /* =========================================
-                   REDIRECT
-                   ========================================= */
-
-                window.location.assign(
-                    "/itinerary.html"
-                );
-
-            }
-
-
-            /* =============================================
-               ERROR
-               ============================================= */
-
-            catch (error) {
-
-                console.error(
-                    "================================="
-                );
-
-                console.error(
-                    "ITINERARY GENERATION ERROR"
-                );
-
-                console.error(
-                    error
-                );
-
-                console.error(
-                    "================================="
-                );
-
-
-                alert(
-                    error?.message ||
-                    "Something went wrong while generating your itinerary."
-                );
-
-            }
-
-
-            /* =============================================
-               RESTORE BUTTON
-               ============================================= */
-
-            finally {
-
-                if (submitButton) {
-
-                    submitButton.disabled =
-                        false;
-
-
-                    submitButton.innerHTML =
-                        originalText ||
-                        `
-                        <span>
-                            Generate My Itinerary
-                        </span>
-                        `;
-
-                }
-
-            }
-
-        }
-    );
 
 });

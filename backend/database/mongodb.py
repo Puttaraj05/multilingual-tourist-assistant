@@ -1,30 +1,168 @@
+import os
+
+from dotenv import load_dotenv
 from pymongo import MongoClient
 
-from backend.config import DATABASE_NAME, MONGODB_URI
+load_dotenv()
 
 
-if not MONGODB_URI:
-    raise RuntimeError("MONGODB_URI is not configured")
+# =========================================================
+# MONGODB CONFIGURATION
+# =========================================================
 
+MONGODB_URI = os.getenv("MONGODB_URI")
 
-client = MongoClient(
-    MONGODB_URI,
-    tls=True,
-    tlsAllowInvalidCertificates=False,
-    serverSelectionTimeoutMS=10000,
-    connectTimeoutMS=10000,
-    socketTimeoutMS=20000,
+DATABASE_NAME = os.getenv(
+    "MONGODB_DATABASE",
+    "travelmate"
 )
 
-db = client[DATABASE_NAME]
+
+# =========================================================
+# FALLBACK DUMMY COLLECTION
+# =========================================================
+
+class DummyResult:
+    def __init__(self):
+        self.inserted_id = None
 
 
-conversations_collection = db["conversations"]
-messages_collection = db["messages"]
-itineraries_collection = db["itineraries"]
-translations_collection = db["translations"]
-recommendations_collection = db["recommendations"]
-emergency_contacts_collection = db["emergency_contacts"]
-incidents_collection = db["incidents"]
-sos_events_collection = db["sos_events"]
-locations_collection = db["shared_locations"]
+class DummyCollection:
+
+    def find(self, *args, **kwargs):
+        return []
+
+    def find_one(self, *args, **kwargs):
+        return None
+
+    def insert_one(self, *args, **kwargs):
+        return DummyResult()
+
+    def update_one(self, *args, **kwargs):
+        return DummyResult()
+
+    def delete_one(self, *args, **kwargs):
+        return DummyResult()
+
+    def aggregate(self, *args, **kwargs):
+        return []
+
+    def count_documents(self, *args, **kwargs):
+        return 0
+
+
+# =========================================================
+# DEFAULT COLLECTIONS
+# =========================================================
+
+messages_collection = DummyCollection()
+conversations_collection = DummyCollection()
+
+emergency_contacts_collection = DummyCollection()
+incidents_collection = DummyCollection()
+sos_events_collection = DummyCollection()
+locations_collection = DummyCollection()
+
+
+# =========================================================
+# CONNECT TO MONGODB
+# =========================================================
+
+client = None
+db = None
+
+
+if MONGODB_URI:
+
+    try:
+
+        print(
+            "Connecting to MongoDB...",
+            flush=True
+        )
+
+        client = MongoClient(
+            MONGODB_URI,
+            serverSelectionTimeoutMS=10000
+        )
+
+        # Force connection check
+        client.admin.command("ping")
+
+        db = client[DATABASE_NAME]
+
+        print(
+            "MongoDB connected successfully.",
+            flush=True
+        )
+
+        print(
+            f"MongoDB database: {DATABASE_NAME}",
+            flush=True
+        )
+
+
+        # =================================================
+        # CHAT
+        # =================================================
+
+        messages_collection = db[
+            "messages"
+        ]
+
+        conversations_collection = db[
+            "conversations"
+        ]
+
+
+        # =================================================
+        # EMERGENCY
+        # =================================================
+
+        emergency_contacts_collection = db[
+            "emergency_contacts"
+        ]
+
+        incidents_collection = db[
+            "incidents"
+        ]
+
+        sos_events_collection = db[
+            "sos_events"
+        ]
+
+        locations_collection = db[
+            "locations"
+        ]
+
+
+        print(
+            "MongoDB collections initialized.",
+            flush=True
+        )
+
+
+    except Exception as e:
+
+        print(
+            f"MongoDB connection failed: {e}",
+            flush=True
+        )
+
+        print(
+            "Using dummy collections.",
+            flush=True
+        )
+
+
+else:
+
+    print(
+        "WARNING: MONGODB_URI is not configured.",
+        flush=True
+    )
+
+    print(
+        "Using dummy collections.",
+        flush=True
+    )

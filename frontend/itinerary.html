@@ -2,86 +2,262 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Your Travel Itinerary | TravelMate</title>
 
-    <title>TravelMate | Your Itinerary</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 
     <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
         rel="stylesheet"
-        href="/static/css/itinerary.css"
     >
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
 </head>
 
-<body>
+<body class="itinerary-page">
 
-    <header class="itinerary-navbar">
+<header class="navbar">
 
-        <a
-            href="/"
-            class="itinerary-logo"
-        >
-            TravelMate
+    <div class="logo">
+
+        <div>
+            <h2>TravelMate</h2>
+            <p>Your Smart Travel Companion</p>
+        </div>
+
+    </div>
+
+    <nav>
+
+        <a href="/index.html">
+            Home
         </a>
 
-    </header>
+        <a href="/features.html">
+            Features
+        </a>
+
+        <a href="/planner.html">
+            Plan Again
+        </a>
+
+    </nav>
+
+</header>
 
 
-    <main class="itinerary-page">
+<main class="itinerary-container">
 
-        <div class="itinerary-container">
+    <!-- ================================================= -->
+    <!-- DESTINATION -->
+    <!-- ================================================= -->
 
-            <!-- LOADING -->
+    <section class="itinerary-hero">
 
-            <div
-                id="loading"
-                class="loading-screen"
-            >
+        <span class="itinerary-tag">
+            Your Personalized Trip
+        </span>
 
-                <div class="spinner"></div>
+        <h1 id="destinationTitle">
+            Your Destination
+        </h1>
 
-                <h2>
-                    Preparing your itinerary...
-                </h2>
+        <p id="destinationSubtitle">
+            Your AI-generated travel itinerary
+        </p>
 
-                <p>
-                    We're organizing your perfect trip.
-                </p>
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- TRIP SUMMARY -->
+    <!-- ================================================= -->
+
+    <section class="trip-summary">
+
+        <h2>Trip Summary</h2>
+
+        <div class="summary-grid">
+
+            <div class="summary-card">
+
+                <span>Destination</span>
+
+                <strong id="summaryDestination">
+                    -
+                </strong>
 
             </div>
 
 
-            <!-- ERROR -->
+            <div class="summary-card">
 
-            <div
-                id="error"
-                class="error-box hidden"
-            ></div>
+                <span>Duration</span>
+
+                <strong id="summaryDuration">
+                    -
+                </strong>
+
+            </div>
 
 
-            <!-- ITINERARY -->
+            <div class="summary-card">
 
-            <div
-                id="itineraryContainer"
-            ></div>
+                <span>Travel Date</span>
+
+                <strong id="summaryDate">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>Budget</span>
+
+                <strong id="summaryBudget">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>Travel Type</span>
+
+                <strong id="summaryTravelType">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>Trip Style</span>
+
+                <strong id="summaryTripStyle">
+                    -
+                </strong>
+
+            </div>
 
         </div>
 
-    </main>
+    </section>
 
 
-    <script
-        src="/js/itinerary.js?v=4"
-    ></script>
+    <!-- ================================================= -->
+    <!-- OVERVIEW -->
+    <!-- ================================================= -->
+
+    <section class="destination-overview">
+
+        <h2>Destination Overview</h2>
+
+        <p id="destinationOverview">
+            Loading destination overview...
+        </p>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- ITINERARY -->
+    <!-- ================================================= -->
+
+    <section class="daily-itinerary">
+
+        <div class="section-heading">
+
+            <h2>
+                Your Day-by-Day Itinerary
+            </h2>
+
+            <p>
+                Follow your personalized travel plan.
+            </p>
+
+        </div>
+
+
+        <div id="daysContainer">
+
+            <!-- Days will be inserted here -->
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- TOTAL COST -->
+    <!-- ================================================= -->
+
+    <section class="cost-summary">
+
+        <h2>
+            Estimated Trip Cost
+        </h2>
+
+        <div class="total-cost">
+
+            <span>
+                Estimated Total
+            </span>
+
+            <strong id="totalCost">
+                -
+            </strong>
+
+        </div>
+
+        <p>
+            Actual costs may vary depending on tickets,
+            food, transportation and personal spending.
+        </p>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- ACTIONS -->
+    <!-- ================================================= -->
+
+    <section class="itinerary-actions">
+
+        <button
+            id="saveButton"
+            type="button"
+        >
+            Save Itinerary
+        </button>
+
+        <button
+            type="button"
+            onclick="window.print()"
+        >
+            Print Itinerary
+        </button>
+
+        <button
+            type="button"
+            onclick="window.location.href='/planner.html'"
+        >
+            Plan Another Trip
+        </button>
+
+    </section>
+
+</main>
+
+
+<script src="/static/js/itinerary.js"></script>
 
 </body>
 

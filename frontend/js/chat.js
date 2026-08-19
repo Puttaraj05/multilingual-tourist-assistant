@@ -1,119 +1,172 @@
-/*
- * =========================================================
- * TRAVELAI — AI CHAT ASSISTANT
- * =========================================================
- *
- * Backend:
- *
- * POST /api/chat
- * GET  /api/chat/history/{session_id}
- *
- * The backend returns:
- *
- * {
- *   success,
- *   session_id,
- *   language,
- *   message,
- *   destination,
- *   attractions,
- *   food,
- *   transportation,
- *   tips,
- *   itinerary
- * }
- */
+/* =========================================================
+   TRAVELMATE AI CHAT
+   Updated for current FastAPI response structure
+========================================================= */
 
+const API_ENDPOINT = "/api/chat";
 
-const state = {
+let currentSessionId = null;
 
-    sessionId:
-        localStorage.getItem(
-            "travelaiChatSessionId"
-        ) || null,
-
-    language:
-        localStorage.getItem(
-            "travelaiChatLanguage"
-        ) || "English",
-
-    sending: false
-
+let currentChat = {
+    id: null,
+    title: "New Chat",
+    language: "English",
+    destination: "",
+    messages: []
 };
 
-
-const languageCodes = {
-
-    English: "en",
-
-    Hindi: "hi",
-
-    Telugu: "te",
-
-    Tamil: "ta"
-
-};
+let chatHistory = [];
 
 
-function $(id) {
-    return document.getElementById(id);
-}
-
+/* =========================================================
+   HTML ESCAPING
+========================================================= */
 
 function escapeHtml(value) {
-
     return String(value ?? "")
-        .replace(
-            /[&<>"']/g,
-            character => ({
-
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#039;"
-
-            })[character]
-        );
-
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
 /* =========================================================
-   SESSION
+   TEXT HELPER
 ========================================================= */
 
-function saveSessionId(sessionId) {
+function fieldText(item, keys) {
 
-    state.sessionId =
-        sessionId;
-
-    if (sessionId) {
-
-        localStorage.setItem(
-            "travelaiChatSessionId",
-            sessionId
-        );
-
+    if (item === null || item === undefined) {
+        return "";
     }
 
-    updateSessionDisplay();
+    if (
+        typeof item === "string" ||
+        typeof item === "number"
+    ) {
+        return String(item);
+    }
 
+    for (const key of keys) {
+
+        if (
+            item[key] !== undefined &&
+            item[key] !== null &&
+            item[key] !== ""
+        ) {
+
+            if (typeof item[key] === "object") {
+                return JSON.stringify(item[key]);
+            }
+
+            return String(item[key]);
+        }
+    }
+
+    return "";
 }
 
 
-function updateSessionDisplay() {
+/* =========================================================
+   ARRAY HELPER
+========================================================= */
 
-    const element =
-        $("sessionId");
+function asArray(value) {
 
-    if (!element) return;
+    if (Array.isArray(value)) {
+        return value;
+    }
 
-    element.textContent =
-        state.sessionId
-        ||
-        "New conversation";
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return [];
+    }
 
+    return [value];
+}
+
+
+/* =========================================================
+   IMAGES
+========================================================= */
+
+const CATEGORY_IMAGES = {
+
+    Historical:
+        "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=700&q=70",
+
+    Nature:
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=700&q=70",
+
+    Beach:
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=700&q=70",
+
+    Museum:
+        "https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=700&q=70",
+
+    Culture:
+        "https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?w=700&q=70",
+
+    Entertainment:
+        "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=700&q=70",
+
+    default:
+        "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=700&q=70"
+};
+
+
+const HERO_IMAGE =
+    "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1000&q=80";
+
+
+function imgForCategory(category) {
+
+    return CATEGORY_IMAGES[category] ||
+        CATEGORY_IMAGES.default;
+}
+
+
+/* =========================================================
+   CREATE SESSION
+========================================================= */
+
+function createNewSession() {
+
+    const sessionId =
+        "session-" +
+        Date.now() +
+        "-" +
+        Math.random()
+            .toString(36)
+            .substring(2, 8);
+
+    currentSessionId = sessionId;
+
+    const language =
+        document.getElementById("languageSelect")?.value ||
+        "English";
+
+    currentChat = {
+        id: sessionId,
+        title: "New Chat",
+        language: language,
+        destination: "",
+        messages: []
+    };
+
+    const resultArea =
+        document.getElementById("resultArea");
+
+    if (resultArea) {
+        resultArea.innerHTML = "";
+    }
+
+    renderRecentList();
 }
 
 
@@ -121,282 +174,305 @@ function updateSessionDisplay() {
    NEW CHAT
 ========================================================= */
 
-function newChat() {
+function startNewChat() {
 
-    state.sessionId = null;
+    saveCurrentChat();
 
-    localStorage.removeItem(
-        "travelaiChatSessionId"
-    );
+    createNewSession();
 
-    $("messages").innerHTML = `
-        ${welcomeMarkup()}
-    `;
+    showWelcomeScreen();
 
-    updateSessionDisplay();
-
-    bindSuggestionButtons();
-
-    $("messageInput").focus();
-
-}
-
-
-function welcomeMarkup() {
-
-    return `
-
-        <div class="welcome">
-
-            <div class="welcome-icon">
-                ✦
-            </div>
-
-            <h1>
-                Where do you want to go?
-            </h1>
-
-            <p>
-                Ask me anything about destinations, attractions,
-                food, transportation, itineraries and travel tips.
-            </p>
-
-            <div class="welcome-suggestions">
-
-                <button data-message="Plan a 3 day trip to Hyderabad">
-                    🗺️ Plan a 3-day Hyderabad trip
-                </button>
-
-                <button data-message="What food should I try in Hyderabad?">
-                    🍛 What food should I try?
-                </button>
-
-                <button data-message="What are the best places to visit in Hyderabad?">
-                    📍 Best places to visit
-                </button>
-
-            </div>
-
-        </div>
-
-    `;
-
+    document
+        .getElementById("chatInput")
+        ?.focus();
 }
 
 
 /* =========================================================
-   SEND MESSAGE
+   SAVE CHAT
 ========================================================= */
 
-async function sendMessage(message) {
+function saveCurrentChat() {
 
-    message =
-        String(message || "")
-            .trim();
-
-    if (!message || state.sending) {
+    if (
+        !currentChat ||
+        !currentChat.messages ||
+        currentChat.messages.length === 0
+    ) {
         return;
     }
 
-
-    const welcome =
-        document.querySelector(
-            ".welcome"
+    const existingIndex =
+        chatHistory.findIndex(
+            chat => chat.id === currentChat.id
         );
 
-    if (welcome) {
-        welcome.remove();
-    }
+    const chatObject = {
 
+        id: currentChat.id,
 
-    addUserMessage(
-        message
-    );
+        title:
+            currentChat.title ||
+            "Travel Chat",
 
+        language:
+            currentChat.language ||
+            "English",
 
-    $("messageInput").value = "";
+        destination:
+            currentChat.destination ||
+            "",
 
-    autoResizeTextarea();
+        messages:
+            currentChat.messages,
 
+        time: "Just now"
+    };
 
-    state.sending = true;
+    if (existingIndex >= 0) {
 
-    $("sendButton").disabled =
-        true;
+        chatHistory[existingIndex] =
+            chatObject;
 
-    showTyping();
+    } else {
 
-
-    try {
-
-        const payload = {
-
-            message:
-                message,
-
-            language:
-                state.language
-
-        };
-
-
-        if (state.sessionId) {
-
-            payload.session_id =
-                state.sessionId;
-
-        }
-
-
-        const response =
-            await fetch(
-                "/api/chat",
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify(
-                            payload
-                        )
-
-                }
-            );
-
-
-        if (!response.ok) {
-
-            let errorText =
-                `Chat request failed (${response.status})`;
-
-            try {
-
-                const errorData =
-                    await response.json();
-
-                errorText =
-                    errorData.detail
-                    ||
-                    errorText;
-
-            }
-
-            catch (_) {}
-
-            throw new Error(
-                errorText
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (data.session_id) {
-
-            saveSessionId(
-                data.session_id
-            );
-
-        }
-
-
-        addAssistantResponse(
-            data
+        chatHistory.unshift(
+            chatObject
         );
-
     }
 
-    catch (error) {
+    chatHistory =
+        chatHistory.slice(0, 15);
 
-        console.error(
-            "Chat error:",
-            error
-        );
-
-
-        addErrorMessage(
-            error.message
-        );
-
-    }
-
-    finally {
-
-        hideTyping();
-
-        state.sending =
-            false;
-
-        $("sendButton").disabled =
-            false;
-
-        $("messageInput").focus();
-
-    }
-
+    renderRecentList();
 }
 
 
 /* =========================================================
-   USER MESSAGE
+   RECENT CHATS
 ========================================================= */
 
-function addUserMessage(
-    message
-) {
+function renderRecentList() {
 
-    const container =
-        $("messages");
-
-
-    const row =
-        document.createElement(
-            "div"
+    const list =
+        document.getElementById(
+            "recentList"
         );
 
-    row.className =
-        "message-row user";
+    if (!list) return;
+
+    if (!chatHistory.length) {
+
+        list.innerHTML = `
+            <div class="empty-recent">
+                No chats yet
+            </div>
+        `;
+
+        return;
+    }
+
+    list.innerHTML =
+        chatHistory
+            .map(chat => {
+
+                const active =
+                    chat.id === currentSessionId
+                        ? "active"
+                        : "";
+
+                return `
+                    <button
+                        type="button"
+                        class="recent-item ${active}"
+                        data-chat-id="${escapeHtml(chat.id)}"
+                    >
+
+                        <span class="recent-dot"></span>
+
+                        <div class="recent-text">
+
+                            <strong>
+                                ${escapeHtml(
+                                    chat.title ||
+                                    "Travel Chat"
+                                )}
+                            </strong>
+
+                            <span>
+                                ${escapeHtml(
+                                    chat.language ||
+                                    "English"
+                                )}
+                                ·
+                                ${escapeHtml(
+                                    chat.time ||
+                                    "Recent"
+                                )}
+                            </span>
+
+                        </div>
+
+                    </button>
+                `;
+            })
+            .join("");
+
+    list
+        .querySelectorAll(".recent-item")
+        .forEach(item => {
+
+            item.addEventListener(
+                "click",
+                () => {
+                    openChat(
+                        item.dataset.chatId
+                    );
+                }
+            );
+
+        });
+}
 
 
-    row.innerHTML = `
+/* =========================================================
+   OPEN CHAT
+========================================================= */
 
-        <div class="message-content">
+function openChat(sessionId) {
 
-            <div class="message-bubble">
-                ${escapeHtml(message)}
+    const chat =
+        chatHistory.find(
+            item => item.id === sessionId
+        );
+
+    if (!chat) return;
+
+    currentSessionId =
+        chat.id;
+
+    currentChat = {
+        id: chat.id,
+
+        title:
+            chat.title ||
+            "Travel Chat",
+
+        language:
+            chat.language ||
+            "English",
+
+        destination:
+            chat.destination ||
+            "",
+
+        messages:
+            chat.messages ||
+            []
+    };
+
+    const languageSelect =
+        document.getElementById(
+            "languageSelect"
+        );
+
+    if (languageSelect) {
+        languageSelect.value =
+            currentChat.language;
+    }
+
+    renderConversation();
+
+    renderRecentList();
+}
+
+
+/* =========================================================
+   WELCOME
+========================================================= */
+
+function showWelcomeScreen() {
+
+    const area =
+        document.getElementById(
+            "resultArea"
+        );
+
+    if (!area) return;
+
+    area.innerHTML = `
+
+        <div class="welcome-screen">
+
+            <div class="welcome-icon">
+                🌍
             </div>
 
-            <div class="message-meta">
-                You
-            </div>
+            <h2>
+                Where do you want to go?
+            </h2>
 
-        </div>
+            <p>
+                Ask me about destinations,
+                detailed itineraries, local food,
+                transportation, budgets,
+                attractions, safety and travel tips.
+            </p>
 
-        <div class="avatar user-avatar">
-            You
         </div>
 
     `;
+}
 
 
-    container.appendChild(
-        row
+/* =========================================================
+   RENDER CONVERSATION
+========================================================= */
+
+function renderConversation() {
+
+    const area =
+        document.getElementById(
+            "resultArea"
+        );
+
+    if (!area) return;
+
+    area.innerHTML = "";
+
+    if (
+        !currentChat.messages ||
+        !currentChat.messages.length
+    ) {
+
+        showWelcomeScreen();
+
+        return;
+    }
+
+    currentChat.messages.forEach(
+        message => {
+
+            if (message.role === "user") {
+
+                appendUserMessage(
+                    message.content,
+                    false
+                );
+            }
+
+            if (message.role === "assistant") {
+
+                appendAssistantMessage(
+                    message.data,
+                    message.query,
+                    false
+                );
+            }
+        }
     );
 
-
-    scrollToBottom();
-
+    scrollChatToBottom(false);
 }
 
 
@@ -404,135 +480,392 @@ function addUserMessage(
    ASSISTANT RESPONSE
 ========================================================= */
 
-function addAssistantResponse(
-    data
+function renderAssistantResponse(
+    data,
+    userQuery
 ) {
 
-    const container =
-        $("messages");
+    if (!data) {
 
-
-    const row =
-        document.createElement(
-            "div"
-        );
-
-    row.className =
-        "message-row ai";
-
-
-    const content =
-        document.createElement(
-            "div"
-        );
-
-    content.className =
-        "message-content";
-
-
-    let html = "";
-
-
-    if (data.message) {
-
-        html += `
-
-            <div class="message-bubble">
-                ${formatText(data.message)}
+        return `
+            <div class="error-box">
+                No response received.
             </div>
-
         `;
-
     }
 
 
-    if (data.destination) {
+    /* =====================================================
+       BASIC DATA
+    ===================================================== */
 
-        html += `
+    const message =
+        data.message || "";
 
-            <div class="response-card">
+    let destination = "";
 
-                <div class="response-title">
-                    📍 ${escapeHtml(
-                        data.destination
-                    )}
+    if (typeof data.destination === "string") {
+
+        destination =
+            data.destination;
+
+    } else if (
+        data.destination &&
+        typeof data.destination === "object"
+    ) {
+
+        destination =
+            data.destination.name || "";
+    }
+
+    destination =
+        destination ||
+        currentChat.destination ||
+        "";
+
+    if (destination) {
+        currentChat.destination =
+            destination;
+    }
+
+
+    /* =====================================================
+       ARRAYS
+    ===================================================== */
+
+    const attractions =
+        asArray(data.attractions);
+
+    const food =
+        asArray(data.food);
+
+    const transportation =
+        asArray(data.transportation);
+
+    const tips =
+        asArray(data.tips);
+
+    const itinerary =
+        asArray(data.itinerary);
+
+
+    /* =====================================================
+       TRIP METADATA
+    ===================================================== */
+
+    const tripOverview =
+        data.trip_overview || "";
+
+    const tripDuration =
+        data.trip_duration || "";
+
+    const travelStyle =
+        data.travel_style || "";
+
+    const bestTime =
+        data.best_time_to_visit || "";
+
+    const budget =
+        data.estimated_budget || "";
+
+
+    /* =====================================================
+       CHECK CONTENT
+    ===================================================== */
+
+    const hasTripContent =
+        attractions.length > 0 ||
+        food.length > 0 ||
+        transportation.length > 0 ||
+        tips.length > 0 ||
+        itinerary.length > 0 ||
+        tripOverview ||
+        tripDuration ||
+        travelStyle ||
+        bestTime ||
+        budget;
+
+
+    /* =====================================================
+       SIMPLE RESPONSE
+    ===================================================== */
+
+    const messageHtml =
+        message
+            ? `
+                <div class="assistant-message">
+                    ${formatText(message)}
                 </div>
+            `
+            : "";
 
+
+    if (!hasTripContent) {
+
+        return `
+            <div class="assistant-card">
+                ${messageHtml}
             </div>
-
         `;
-
     }
 
 
-    html += renderAttractions(
-        data.attractions
-    );
+    /* =====================================================
+       HERO
+    ===================================================== */
+
+    const heroHtml =
+        destination
+            ? `
+                <div class="hero">
+
+                    <div class="hero-img">
+
+                        <img
+                            src="${HERO_IMAGE}"
+                            alt="${escapeHtml(destination)}"
+                        >
+
+                        ${
+                            itinerary.length
+                                ? `
+                                    <div class="badge">
+                                        📅
+                                        ${itinerary.length}
+                                        -Day Plan
+                                    </div>
+                                `
+                                : ""
+                        }
+
+                    </div>
+
+                    <div class="hero-body">
+
+                        <h2>
+                            ${escapeHtml(destination)}
+                            ✨
+                        </h2>
+
+                        <p class="tagline">
+                            Your AI Travel Plan
+                        </p>
+
+                        ${
+                            message
+                                ? `
+                                    <p class="hero-desc">
+                                        ${formatText(message)}
+                                    </p>
+                                `
+                                : ""
+                        }
+
+                        <div class="hero-tags">
+
+                            ${
+                                tripDuration
+                                    ? `
+                                        <span class="hero-tag">
+                                            📅
+                                            ${escapeHtml(
+                                                tripDuration
+                                            )}
+                                        </span>
+                                    `
+                                    : ""
+                            }
+
+                            ${
+                                travelStyle
+                                    ? `
+                                        <span class="hero-tag">
+                                            ✨
+                                            ${escapeHtml(
+                                                travelStyle
+                                            )}
+                                        </span>
+                                    `
+                                    : ""
+                            }
+
+                            ${
+                                data.language ||
+                                currentChat.language
+                                    ? `
+                                        <span class="hero-tag">
+                                            🌍
+                                            ${escapeHtml(
+                                                data.language ||
+                                                currentChat.language
+                                            )}
+                                        </span>
+                                    `
+                                    : ""
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `
+            : "";
 
 
-    html += renderFood(
-        data.food
-    );
+    /* =====================================================
+       TRIP OVERVIEW
+    ===================================================== */
+
+    const overviewHtml =
+        tripOverview ||
+        tripDuration ||
+        travelStyle ||
+        bestTime ||
+        budget
+            ? `
+                <div class="panel trip-overview">
+
+                    <h3>
+                        🧳 Trip Overview
+                    </h3>
+
+                    ${
+                        tripOverview
+                            ? `
+                                <p>
+                                    ${formatText(
+                                        tripOverview
+                                    )}
+                                </p>
+                            `
+                            : ""
+                    }
+
+                    <div class="overview-grid">
+
+                        ${
+                            tripDuration
+                                ? `
+                                    <div class="overview-item">
+                                        <span>📅 Duration</span>
+                                        <strong>
+                                            ${escapeHtml(
+                                                tripDuration
+                                            )}
+                                        </strong>
+                                    </div>
+                                `
+                                : ""
+                        }
+
+                        ${
+                            travelStyle
+                                ? `
+                                    <div class="overview-item">
+                                        <span>✨ Travel Style</span>
+                                        <strong>
+                                            ${escapeHtml(
+                                                travelStyle
+                                            )}
+                                        </strong>
+                                    </div>
+                                `
+                                : ""
+                        }
+
+                        ${
+                            bestTime
+                                ? `
+                                    <div class="overview-item">
+                                        <span>🌤️ Best Time</span>
+                                        <strong>
+                                            ${escapeHtml(
+                                                bestTime
+                                            )}
+                                        </strong>
+                                    </div>
+                                `
+                                : ""
+                        }
+
+                        ${
+                            budget
+                                ? `
+                                    <div class="overview-item">
+                                        <span>💰 Estimated Budget</span>
+                                        <strong>
+                                            ${escapeHtml(
+                                                budget
+                                            )}
+                                        </strong>
+                                    </div>
+                                `
+                                : ""
+                        }
+
+                    </div>
+
+                </div>
+            `
+            : "";
 
 
-    html += renderTransportation(
-        data.transportation
-    );
+    return `
 
+        ${heroHtml}
 
-    html += renderTips(
-        data.tips
-    );
+        ${overviewHtml}
 
+        ${
+            attractions.length
+                ? renderAttractions(attractions)
+                : ""
+        }
 
-    html += renderItinerary(
-        data.itinerary
-    );
+        ${
+            food.length
+                ? renderFood(food)
+                : ""
+        }
 
+        ${
+            transportation.length
+                ? renderTransportation(
+                    transportation
+                )
+                : ""
+        }
 
-    content.innerHTML =
-        html;
+        ${
+            tips.length
+                ? renderTips(tips)
+                : ""
+        }
 
-
-    row.innerHTML = `
-
-        <div class="avatar ai-avatar">
-            ✦
-        </div>
+        ${
+            itinerary.length
+                ? renderDetailedItinerary(
+                    itinerary
+                )
+                : ""
+        }
 
     `;
-
-    row.appendChild(
-        content
-    );
-
-
-    container.appendChild(
-        row
-    );
-
-
-    scrollToBottom();
-
 }
 
 
 /* =========================================================
-   TEXT
+   FORMAT TEXT
 ========================================================= */
 
-function formatText(
-    text
-) {
+function formatText(text) {
 
-    return escapeHtml(
-        text
-    )
-    .replace(
-        /\n/g,
-        "<br>"
-    );
+    if (!text) return "";
 
+    return escapeHtml(text)
+        .replace(/\n\n/g, "</p><p>")
+        .replace(/\n/g, "<br>");
 }
 
 
@@ -540,78 +873,138 @@ function formatText(
    ATTRACTIONS
 ========================================================= */
 
-function renderAttractions(
-    attractions
-) {
-
-    if (
-        !Array.isArray(attractions)
-        ||
-        attractions.length === 0
-    ) {
-
-        return "";
-
-    }
-
+function renderAttractions(attractions) {
 
     return `
-
-        <div class="response-card">
-
-            <div class="response-title">
-                📍 Attractions
-            </div>
-
-            <div class="response-items">
-
-                ${attractions
-                    .map(
-                        item => `
-
-                            <div class="response-item">
-
-                                <strong>
-                                    ${escapeHtml(
-                                        item.name
-                                    )}
-                                </strong>
-
-                                <p>
-                                    ${escapeHtml(
-                                        item.description
-                                    )}
-                                </p>
-
-                                ${
-                                    item.category
-                                    ?
-
-                                    `
-                                        <span class="badge">
-                                            ${escapeHtml(
-                                                item.category
-                                            )}
-                                        </span>
-                                    `
-
-                                    :
-
-                                    ""
-                                }
-
-                            </div>
-
-                        `
-                    )
-                    .join("")}
-
-            </div>
-
+        <div class="section-title">
+            🏛️ Top Attractions
         </div>
 
-    `;
+        <div class="attractions-grid">
 
+            ${
+                attractions
+                    .map(item => {
+
+                        const category =
+                            fieldText(
+                                item,
+                                ["category"]
+                            ) || "Nature";
+
+                        const name =
+                            fieldText(
+                                item,
+                                ["name", "title"]
+                            );
+
+                        const description =
+                            fieldText(
+                                item,
+                                [
+                                    "description",
+                                    "details"
+                                ]
+                            );
+
+                        const bestTime =
+                            fieldText(
+                                item,
+                                [
+                                    "best_time",
+                                    "bestTime"
+                                ]
+                            );
+
+                        const duration =
+                            fieldText(
+                                item,
+                                [
+                                    "estimated_time",
+                                    "duration"
+                                ]
+                            );
+
+                        const location =
+                            fieldText(
+                                item,
+                                ["location"]
+                            );
+
+                        return `
+                            <div class="attraction-card">
+
+                                <img
+                                    src="${imgForCategory(category)}"
+                                    alt="${escapeHtml(name)}"
+                                    loading="lazy"
+                                >
+
+                                <div class="attraction-body">
+
+                                    <h4>
+                                        ${escapeHtml(name)}
+                                    </h4>
+
+                                    <p>
+                                        ${escapeHtml(
+                                            description
+                                        )}
+                                    </p>
+
+                                    <span class="tag">
+                                        ${escapeHtml(category)}
+                                    </span>
+
+                                    ${
+                                        location
+                                            ? `
+                                                <div class="meta-line">
+                                                    📍
+                                                    ${escapeHtml(
+                                                        location
+                                                    )}
+                                                </div>
+                                            `
+                                            : ""
+                                    }
+
+                                    ${
+                                        bestTime
+                                            ? `
+                                                <div class="meta-line">
+                                                    🕐 Best:
+                                                    ${escapeHtml(
+                                                        bestTime
+                                                    )}
+                                                </div>
+                                            `
+                                            : ""
+                                    }
+
+                                    ${
+                                        duration
+                                            ? `
+                                                <div class="meta-line">
+                                                    ⏱️
+                                                    ${escapeHtml(
+                                                        duration
+                                                    )}
+                                                </div>
+                                            `
+                                            : ""
+                                    }
+
+                                </div>
+
+                            </div>
+                        `;
+                    })
+                    .join("")
+            }
+
+        </div>
+    `;
 }
 
 
@@ -619,78 +1012,122 @@ function renderAttractions(
    FOOD
 ========================================================= */
 
-function renderFood(
-    food
-) {
-
-    if (
-        !Array.isArray(food)
-        ||
-        food.length === 0
-    ) {
-
-        return "";
-
-    }
-
+function renderFood(food) {
 
     return `
+        <div class="panel">
 
-        <div class="response-card">
+            <h3>
+                🍽️ Food to Try
+            </h3>
 
-            <div class="response-title">
-                🍛 Food
-            </div>
+            ${
+                food
+                    .map(item => {
 
-            <div class="response-items">
+                        const name =
+                            fieldText(
+                                item,
+                                ["name", "title"]
+                            );
 
-                ${food
-                    .map(
-                        item => `
+                        const description =
+                            fieldText(
+                                item,
+                                [
+                                    "description",
+                                    "details"
+                                ]
+                            );
 
-                            <div class="response-item">
+                        const type =
+                            fieldText(
+                                item,
+                                [
+                                    "type",
+                                    "category"
+                                ]
+                            );
 
-                                <strong>
-                                    ${escapeHtml(
-                                        item.name
-                                    )}
-                                </strong>
+                        const mustTry =
+                            item.must_try === true;
 
-                                <p>
-                                    ${escapeHtml(
-                                        item.description
-                                    )}
-                                </p>
+                        const cost =
+                            fieldText(
+                                item,
+                                [
+                                    "approximate_cost",
+                                    "estimated_cost",
+                                    "cost"
+                                ]
+                            );
 
-                                ${
-                                    item.type
-                                    ?
+                        return `
+                            <div class="food-row">
 
-                                    `
-                                        <span class="badge">
-                                            ${escapeHtml(
-                                                item.type
-                                            )}
-                                        </span>
-                                    `
+                                <div class="thumb">
+                                    🍛
+                                </div>
 
-                                    :
+                                <div class="info">
 
-                                    ""
-                                }
+                                    <strong>
+                                        ${escapeHtml(name)}
+                                    </strong>
+
+                                    <span>
+                                        ${escapeHtml(
+                                            description
+                                        )}
+                                    </span>
+
+                                    ${
+                                        type
+                                            ? `
+                                                <span>
+                                                    ${escapeHtml(type)}
+                                                </span>
+                                            `
+                                            : ""
+                                    }
+
+                                    <div class="food-meta">
+
+                                        ${
+                                            mustTry
+                                                ? `
+                                                    <span class="must-try">
+                                                        ⭐ Must Try
+                                                    </span>
+                                                `
+                                                : ""
+                                        }
+
+                                        ${
+                                            cost
+                                                ? `
+                                                    <span>
+                                                        💰
+                                                        ${escapeHtml(
+                                                            cost
+                                                        )}
+                                                    </span>
+                                                `
+                                                : ""
+                                        }
+
+                                    </div>
+
+                                </div>
 
                             </div>
-
-                        `
-                    )
-                    .join("")}
-
-            </div>
+                        `;
+                    })
+                    .join("")
+            }
 
         </div>
-
     `;
-
 }
 
 
@@ -702,57 +1139,132 @@ function renderTransportation(
     transportation
 ) {
 
-    if (
-        !Array.isArray(transportation)
-        ||
-        transportation.length === 0
-    ) {
-
-        return "";
-
-    }
-
-
     return `
+        <div class="panel">
 
-        <div class="response-card">
+            <h3>
+                🚗 Transportation
+            </h3>
 
-            <div class="response-title">
-                🚕 Transportation
-            </div>
+            ${
+                transportation
+                    .map(item => {
 
-            <div class="response-items">
+                        const mode =
+                            fieldText(
+                                item,
+                                [
+                                    "mode",
+                                    "name",
+                                    "title"
+                                ]
+                            );
 
-                ${transportation
-                    .map(
-                        item => `
+                        const description =
+                            fieldText(
+                                item,
+                                [
+                                    "description",
+                                    "details"
+                                ]
+                            );
 
-                            <div class="response-item">
+                        const bestFor =
+                            fieldText(
+                                item,
+                                [
+                                    "best_for",
+                                    "bestFor"
+                                ]
+                            );
 
-                                <strong>
-                                    ${escapeHtml(
-                                        item.mode
-                                    )}
-                                </strong>
+                        const cost =
+                            fieldText(
+                                item,
+                                [
+                                    "approximate_cost",
+                                    "estimated_cost",
+                                    "cost"
+                                ]
+                            );
 
-                                <p>
-                                    ${escapeHtml(
-                                        item.description
-                                    )}
-                                </p>
+                        const travelTime =
+                            fieldText(
+                                item,
+                                [
+                                    "travel_time",
+                                    "travelTime"
+                                ]
+                            );
+
+                        return `
+                            <div class="transport-row">
+
+                                <div class="thumb">
+                                    🚕
+                                </div>
+
+                                <div class="info">
+
+                                    <strong>
+                                        ${escapeHtml(mode)}
+                                    </strong>
+
+                                    <span>
+                                        ${escapeHtml(
+                                            description
+                                        )}
+                                    </span>
+
+                                    ${
+                                        bestFor
+                                            ? `
+                                                <span>
+                                                    👥 Best for:
+                                                    ${escapeHtml(
+                                                        bestFor
+                                                    )}
+                                                </span>
+                                            `
+                                            : ""
+                                    }
+
+                                    ${
+                                        cost
+                                            ? `
+                                                <span>
+                                                    💰
+                                                    ${escapeHtml(
+                                                        cost
+                                                    )}
+                                                </span>
+                                            `
+                                            : ""
+                                    }
+
+                                    ${
+                                        travelTime
+                                            ? `
+                                                <span>
+                                                    ⏱️
+                                                    ${escapeHtml(
+                                                        travelTime
+                                                    )}
+                                                </span>
+                                            `
+                                            : ""
+                                    }
+
+                                </div>
 
                             </div>
-
-                        `
-                    )
-                    .join("")}
-
-            </div>
+                        `;
+                    })
+                    .join("")
+            }
 
         </div>
-
     `;
-
 }
 
 
@@ -760,229 +1272,961 @@ function renderTransportation(
    TIPS
 ========================================================= */
 
-function renderTips(
-    tips
-) {
-
-    if (
-        !Array.isArray(tips)
-        ||
-        tips.length === 0
-    ) {
-
-        return "";
-
-    }
-
+function renderTips(tips) {
 
     return `
+        <div class="panel">
 
-        <div class="response-card">
-
-            <div class="response-title">
+            <h3>
                 💡 Travel Tips
-            </div>
+            </h3>
 
-            <div class="response-items">
+            ${
+                tips
+                    .map(item => {
 
-                ${tips
-                    .map(
-                        item => `
+                        const title =
+                            fieldText(
+                                item,
+                                [
+                                    "title",
+                                    "name"
+                                ]
+                            );
 
-                            <div class="response-item">
+                        const description =
+                            fieldText(
+                                item,
+                                [
+                                    "description",
+                                    "details"
+                                ]
+                            );
 
-                                <strong>
-                                    ${escapeHtml(
-                                        item.title
-                                    )}
-                                </strong>
+                        return `
+                            <div class="tip-item">
 
-                                <p>
-                                    ${escapeHtml(
-                                        item.description
-                                    )}
-                                </p>
+                                <span class="check">
+                                    ✔
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        ${escapeHtml(title)}
+                                    </strong>
+
+                                    <span>
+                                        ${escapeHtml(
+                                            description
+                                        )}
+                                    </span>
+
+                                </div>
 
                             </div>
-
-                        `
-                    )
-                    .join("")}
-
-            </div>
+                        `;
+                    })
+                    .join("")
+            }
 
         </div>
-
     `;
-
 }
 
 
 /* =========================================================
-   ITINERARY
+   DETAILED ITINERARY
 ========================================================= */
 
-function renderItinerary(
+function renderDetailedItinerary(
     itinerary
 ) {
 
-    if (
-        !Array.isArray(itinerary)
-        ||
-        itinerary.length === 0
-    ) {
-
-        return "";
-
-    }
-
-
     return `
+        <div class="panel itinerary-panel">
 
-        <div class="itinerary">
+            <h3>
+                🗓️ Detailed Itinerary
+            </h3>
 
-            ${itinerary
-                .map(
-                    day => `
-
-                        <div class="day-card">
-
-                            <div class="day-header">
-
-                                <div class="day-number">
-                                    ${escapeHtml(
-                                        day.day
-                                    )}
-                                </div>
-
-                                <div class="day-title">
-                                    ${escapeHtml(
-                                        day.title
-                                    )}
-                                </div>
-
-                            </div>
-
-                            <ul class="activities">
-
-                                ${
-                                    Array.isArray(
-                                        day.activities
-                                    )
-
-                                    ?
-
-                                    day.activities
-                                        .map(
-                                            activity => `
-                                                <li>
-                                                    ${escapeHtml(
-                                                        activity
-                                                    )}
-                                                </li>
-                                            `
-                                        )
-                                        .join("")
-
-                                    :
-
-                                    ""
-                                }
-
-                            </ul>
-
-                        </div>
-
-                    `
-                )
-                .join("")}
+            ${
+                itinerary
+                    .map(day =>
+                        renderItineraryDay(day)
+                    )
+                    .join("")
+            }
 
         </div>
-
     `;
-
 }
 
 
 /* =========================================================
-   ERROR
+   ITINERARY DAY
 ========================================================= */
 
-function addErrorMessage(
-    message
+function renderItineraryDay(day) {
+
+    const dayNumber =
+        fieldText(
+            day,
+            ["day"]
+        );
+
+    const title =
+        fieldText(
+            day,
+            ["title", "name"]
+        );
+
+    const summary =
+        fieldText(
+            day,
+            ["summary", "description"]
+        );
+
+    const morning =
+        asArray(day.morning);
+
+    const afternoon =
+        asArray(day.afternoon);
+
+    const evening =
+        asArray(day.evening);
+
+    const night =
+        asArray(day.night);
+
+    const activities =
+        asArray(day.activities);
+
+    const meals =
+        asArray(day.meals);
+
+    const travelNotes =
+        fieldText(
+            day,
+            [
+                "travel_notes",
+                "travelNotes",
+                "transport"
+            ]
+        );
+
+    const estimatedCost =
+        fieldText(
+            day,
+            [
+                "estimated_cost",
+                "estimatedCost",
+                "cost"
+            ]
+        );
+
+    const distance =
+        fieldText(
+            day,
+            ["distance"]
+        );
+
+    const accommodation =
+        fieldText(
+            day,
+            ["accommodation"]
+        );
+
+    return `
+        <div class="itinerary-day">
+
+            <div class="day-label">
+
+                📌 Day
+                ${escapeHtml(dayNumber)}
+
+                ${
+                    title
+                        ? `
+                            — ${escapeHtml(title)}
+                        `
+                        : ""
+                }
+
+            </div>
+
+            ${
+                summary
+                    ? `
+                        <p class="day-summary">
+                            ${escapeHtml(summary)}
+                        </p>
+                    `
+                    : ""
+            }
+
+
+            ${renderTimeBlock(
+                "🌅 Morning",
+                morning
+            )}
+
+            ${renderTimeBlock(
+                "☀️ Afternoon",
+                afternoon
+            )}
+
+            ${renderTimeBlock(
+                "🌆 Evening",
+                evening
+            )}
+
+            ${renderTimeBlock(
+                "🌙 Night",
+                night
+            )}
+
+
+            ${
+                activities.length
+                    ? renderActivityList(
+                        "📍 Activities",
+                        activities
+                    )
+                    : ""
+            }
+
+
+            ${
+                meals.length
+                    ? renderActivityList(
+                        "🍽️ Meals",
+                        meals
+                    )
+                    : ""
+            }
+
+
+            ${
+                accommodation
+                    ? `
+                        <div class="travel-note">
+                            🏨
+                            <strong>Accommodation:</strong>
+                            ${escapeHtml(
+                                accommodation
+                            )}
+                        </div>
+                    `
+                    : ""
+            }
+
+
+            ${
+                travelNotes
+                    ? `
+                        <div class="travel-note">
+                            🚗
+                            <strong>Travel:</strong>
+                            ${escapeHtml(
+                                travelNotes
+                            )}
+                        </div>
+                    `
+                    : ""
+            }
+
+
+            <div class="day-footer">
+
+                ${
+                    estimatedCost
+                        ? `
+                            <div class="cost-line">
+                                💰
+                                ${escapeHtml(
+                                    estimatedCost
+                                )}
+                            </div>
+                        `
+                        : ""
+                }
+
+                ${
+                    distance
+                        ? `
+                            <div class="distance-line">
+                                📏
+                                ${escapeHtml(
+                                    distance
+                                )}
+                            </div>
+                        `
+                        : ""
+                }
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =========================================================
+   TIME BLOCK
+========================================================= */
+
+function renderTimeBlock(
+    title,
+    items
 ) {
 
-    const container =
-        $("messages");
+    if (!items.length) {
+        return "";
+    }
+
+    return `
+        <div class="time-block">
+
+            <div class="time-title">
+                ${title}
+            </div>
+
+            <div class="timeline">
+
+                ${
+                    items
+                        .map(
+                            item =>
+                                renderActivityItem(item)
+                        )
+                        .join("")
+                }
+
+            </div>
+
+        </div>
+    `;
+}
 
 
-    const row =
+/* =========================================================
+   ACTIVITY ITEM
+========================================================= */
+
+function renderActivityItem(activity) {
+
+    if (
+        activity === null ||
+        activity === undefined
+    ) {
+        return "";
+    }
+
+
+    /* Old backend/string compatibility */
+
+    if (
+        typeof activity === "string" ||
+        typeof activity === "number"
+    ) {
+
+        return `
+            <div class="timeline-item">
+
+                <div class="timeline-content">
+
+                    ${escapeHtml(activity)}
+
+                </div>
+
+            </div>
+        `;
+    }
+
+
+    const time =
+        fieldText(
+            activity,
+            ["time"]
+        );
+
+    const activityName =
+        fieldText(
+            activity,
+            [
+                "activity",
+                "name",
+                "title"
+            ]
+        );
+
+    const location =
+        fieldText(
+            activity,
+            ["location"]
+        );
+
+    const duration =
+        fieldText(
+            activity,
+            ["duration"]
+        );
+
+    const description =
+        fieldText(
+            activity,
+            ["description"]
+        );
+
+    const cost =
+        fieldText(
+            activity,
+            [
+                "estimated_cost",
+                "estimatedCost",
+                "cost"
+            ]
+        );
+
+
+    return `
+        <div class="timeline-item">
+
+            ${
+                time
+                    ? `
+                        <div class="activity-time">
+                            ${escapeHtml(time)}
+                        </div>
+                    `
+                    : ""
+            }
+
+            <div class="timeline-content">
+
+                <strong>
+                    ${escapeHtml(activityName)}
+                </strong>
+
+                ${
+                    location
+                        ? `
+                            <div class="activity-meta">
+                                📍
+                                ${escapeHtml(location)}
+                            </div>
+                        `
+                        : ""
+                }
+
+                ${
+                    duration
+                        ? `
+                            <div class="activity-meta">
+                                ⏱️
+                                ${escapeHtml(duration)}
+                            </div>
+                        `
+                        : ""
+                }
+
+                ${
+                    description
+                        ? `
+                            <p class="activity-description">
+                                ${escapeHtml(
+                                    description
+                                )}
+                            </p>
+                        `
+                        : ""
+                }
+
+                ${
+                    cost
+                        ? `
+                            <div class="activity-cost">
+                                💰
+                                ${escapeHtml(cost)}
+                            </div>
+                        `
+                        : ""
+                }
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =========================================================
+   ACTIVITY LIST
+========================================================= */
+
+function renderActivityList(
+    title,
+    items
+) {
+
+    return `
+        <div class="activity-list">
+
+            <div class="activity-title">
+                ${title}
+            </div>
+
+            <ul>
+
+                ${
+                    items
+                        .map(
+                            item => `
+                                <li>
+                                    ${escapeHtml(
+                                        activityText(item)
+                                    )}
+                                </li>
+                            `
+                        )
+                        .join("")
+                }
+
+            </ul>
+
+        </div>
+    `;
+}
+
+
+function activityText(activity) {
+
+    if (
+        activity === null ||
+        activity === undefined
+    ) {
+        return "";
+    }
+
+    if (
+        typeof activity === "string" ||
+        typeof activity === "number"
+    ) {
+        return String(activity);
+    }
+
+    const time =
+        fieldText(activity, ["time"]);
+
+    const name =
+        fieldText(
+            activity,
+            [
+                "activity",
+                "name",
+                "title"
+            ]
+        );
+
+    const location =
+        fieldText(
+            activity,
+            ["location"]
+        );
+
+    return [
+        time,
+        name,
+        location
+    ]
+        .filter(Boolean)
+        .join(" — ");
+}
+
+
+/* =========================================================
+   API REQUEST
+========================================================= */
+
+async function fetchTripPlan(
+    query,
+    language
+) {
+
+    const response =
+        await fetch(
+            API_ENDPOINT,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+                        message: query,
+                        language: language,
+                        session_id:
+                            currentSessionId
+                    })
+            }
+        );
+
+
+    if (!response.ok) {
+
+        let errorText =
+            `HTTP ${response.status}`;
+
+        try {
+
+            const errorData =
+                await response.json();
+
+            if (errorData.detail) {
+                errorText =
+                    errorData.detail;
+            }
+
+        } catch {
+            // Ignore JSON parsing error.
+        }
+
+        throw new Error(errorText);
+    }
+
+
+    const data =
+        await response.json();
+
+
+    if (data.session_id) {
+
+        currentSessionId =
+            data.session_id;
+
+        currentChat.id =
+            data.session_id;
+    }
+
+
+    return data;
+}
+
+
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
+
+async function sendMessage() {
+
+    const input =
+        document.getElementById(
+            "chatInput"
+        );
+
+    if (!input) return;
+
+    const query =
+        input.value.trim();
+
+    if (!query) return;
+
+
+    const language =
+        document.getElementById(
+            "languageSelect"
+        )?.value ||
+        "English";
+
+
+    if (!currentSessionId) {
+        createNewSession();
+    }
+
+
+    currentChat.language =
+        language;
+
+
+    if (
+        currentChat.messages.length === 0
+    ) {
+
+        currentChat.title =
+            createChatTitle(query);
+    }
+
+
+    /* USER */
+
+    currentChat.messages.push({
+
+        role: "user",
+
+        content: query,
+
+        timestamp:
+            new Date().toISOString()
+
+    });
+
+
+    appendUserMessage(
+        query,
+        true
+    );
+
+
+    input.value = "";
+
+    appendLoading();
+
+    scrollChatToBottom(true);
+
+
+    /* API */
+
+    let data;
+
+    try {
+
+        data =
+            await fetchTripPlan(
+                query,
+                language
+            );
+
+    } catch (error) {
+
+        console.error(
+            "TravelMate API error:",
+            error
+        );
+
+        removeLoading();
+
+        appendAssistantMessage(
+            {
+                message:
+                    "Sorry, TravelMate is temporarily unavailable. Please try again in a few seconds."
+            },
+            query,
+            true
+        );
+
+        input.focus();
+
+        return;
+    }
+
+
+    removeLoading();
+
+
+    /* ASSISTANT */
+
+    currentChat.messages.push({
+
+        role: "assistant",
+
+        content:
+            data.message || "",
+
+        data: data,
+
+        query: query,
+
+        timestamp:
+            new Date().toISOString()
+
+    });
+
+
+    /* Destination */
+
+    let destination = "";
+
+    if (
+        typeof data.destination ===
+        "string"
+    ) {
+
+        destination =
+            data.destination;
+
+    } else if (
+        data.destination &&
+        typeof data.destination ===
+        "object"
+    ) {
+
+        destination =
+            data.destination.name || "";
+    }
+
+
+    if (destination) {
+
+        currentChat.destination =
+            destination;
+    }
+
+
+    appendAssistantMessage(
+        data,
+        query,
+        true
+    );
+
+
+    saveCurrentChat();
+
+    scrollChatToBottom(true);
+
+    input.focus();
+}
+
+
+/* =========================================================
+   USER MESSAGE
+========================================================= */
+
+function appendUserMessage(
+    query,
+    shouldScroll = true
+) {
+
+    const area =
+        document.getElementById(
+            "resultArea"
+        );
+
+    if (!area) return;
+
+
+    const div =
         document.createElement(
             "div"
         );
 
-    row.className =
-        "message-row ai";
+
+    div.className =
+        "user-msg";
 
 
-    row.innerHTML = `
-
-        <div class="avatar ai-avatar">
-            ✦
-        </div>
-
-        <div class="message-content">
-
-            <div class="message-bubble">
-
-                ⚠️ Sorry, I couldn't process that request.
-
-                <br><br>
-
-                <small>
-                    ${escapeHtml(
-                        message
-                    )}
-                </small>
-
-            </div>
-
-        </div>
-
-    `;
+    div.innerHTML =
+        escapeHtml(query);
 
 
-    container.appendChild(
-        row
-    );
+    area.appendChild(div);
 
 
-    scrollToBottom();
-
+    if (shouldScroll) {
+        scrollChatToBottom();
+    }
 }
 
 
 /* =========================================================
-   TYPING
+   ASSISTANT MESSAGE
 ========================================================= */
 
-function showTyping() {
+function appendAssistantMessage(
+    data,
+    query,
+    shouldScroll = true
+) {
 
-    $("typing")
-        .classList
-        .remove("hidden");
+    const area =
+        document.getElementById(
+            "resultArea"
+        );
 
-    scrollToBottom();
+    if (!area) return;
 
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+
+    wrapper.className =
+        "assistant-response";
+
+
+    wrapper.innerHTML =
+        renderAssistantResponse(
+            data,
+            query
+        );
+
+
+    area.appendChild(wrapper);
+
+
+    if (shouldScroll) {
+        scrollChatToBottom();
+    }
 }
 
 
-function hideTyping() {
+/* =========================================================
+   LOADING
+========================================================= */
 
-    $("typing")
-        .classList
-        .add("hidden");
+function appendLoading() {
 
+    removeLoading();
+
+
+    const area =
+        document.getElementById(
+            "resultArea"
+        );
+
+    if (!area) return;
+
+
+    const loading =
+        document.createElement(
+            "div"
+        );
+
+
+    loading.id =
+        "chatLoading";
+
+
+    loading.className =
+        "loading";
+
+
+    loading.innerHTML = `
+        <div>
+            ✈️ Planning your trip...
+        </div>
+    `;
+
+
+    area.appendChild(loading);
+}
+
+
+function removeLoading() {
+
+    const loading =
+        document.getElementById(
+            "chatLoading"
+        );
+
+    if (loading) {
+        loading.remove();
+    }
 }
 
 
@@ -990,140 +2234,55 @@ function hideTyping() {
    SCROLL
 ========================================================= */
 
-function scrollToBottom() {
+function scrollChatToBottom(
+    smooth = true
+) {
 
-    const container =
-        $("messages");
+    const scrollArea =
+        document.getElementById(
+            "chatScrollArea"
+        );
+
+    if (!scrollArea) return;
 
 
-    requestAnimationFrame(
-        () => {
+    setTimeout(() => {
 
-            container.scrollTop =
-                container.scrollHeight;
+        scrollArea.scrollTo({
 
-        }
-    );
+            top:
+                scrollArea.scrollHeight,
 
+            behavior:
+                smooth
+                    ? "smooth"
+                    : "auto"
+
+        });
+
+    }, 50);
 }
 
 
 /* =========================================================
-   HISTORY
+   CHAT TITLE
 ========================================================= */
 
-async function loadHistory() {
+function createChatTitle(query) {
 
-    if (!state.sessionId) {
-        return;
+    let title =
+        query.trim();
+
+
+    if (title.length > 36) {
+
+        title =
+            title.substring(0, 36) +
+            "...";
     }
 
 
-    try {
-
-        const response =
-            await fetch(
-                `/api/chat/history/${encodeURIComponent(
-                    state.sessionId
-                )}`
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load chat history."
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !Array.isArray(
-                data.messages
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        const container =
-            $("messages");
-
-
-        container.innerHTML = "";
-
-
-        for (
-            const item of data.messages
-        ) {
-
-            if (
-                item.role === "user"
-            ) {
-
-                addUserMessage(
-                    item.content
-                );
-
-            }
-
-            else if (
-                item.role === "assistant"
-            ) {
-
-                let parsed;
-
-
-                try {
-
-                    parsed =
-                        JSON.parse(
-                            item.content
-                        );
-
-                }
-
-                catch (_) {
-
-                    parsed = {
-
-                        message:
-                            item.content
-
-                    };
-
-                }
-
-
-                addAssistantResponse(
-                    parsed
-                );
-
-            }
-
-        }
-
-
-        scrollToBottom();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "History error:",
-            error
-        );
-
-    }
-
+    return title;
 }
 
 
@@ -1131,159 +2290,114 @@ async function loadHistory() {
    LANGUAGE
 ========================================================= */
 
-function changeLanguage(
-    language
-) {
+function initializeLanguageListener() {
 
-    state.language =
-        language;
-
-    localStorage.setItem(
-        "travelaiChatLanguage",
-        language
-    );
-
-}
-
-
-/* =========================================================
-   TEXTAREA
-========================================================= */
-
-function autoResizeTextarea() {
-
-    const textarea =
-        $("messageInput");
-
-
-    textarea.style.height =
-        "auto";
-
-
-    textarea.style.height =
-        Math.min(
-            textarea.scrollHeight,
-            150
-        ) + "px";
-
-}
-
-
-/* =========================================================
-   SUGGESTIONS
-========================================================= */
-
-function bindSuggestionButtons() {
-
-    document
-        .querySelectorAll(
-            "[data-message]"
-        )
-        .forEach(
-            button => {
-
-                button.onclick =
-                    () => {
-
-                        sendMessage(
-                            button.dataset.message
-                        );
-
-                    };
-
-            }
+    const languageSelect =
+        document.getElementById(
+            "languageSelect"
         );
 
+
+    if (!languageSelect) return;
+
+
+    languageSelect.addEventListener(
+        "change",
+        function () {
+
+            currentChat.language =
+                this.value;
+
+            saveCurrentChat();
+
+        }
+    );
 }
 
 
 /* =========================================================
-   INITIALIZATION
+   ENTER KEY
+========================================================= */
+
+function initializeInputListener() {
+
+    const input =
+        document.getElementById(
+            "chatInput"
+        );
+
+
+    if (!input) return;
+
+
+    input.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                sendMessage();
+            }
+
+        }
+    );
+}
+
+
+/* =========================================================
+   NEW CHAT BUTTON
+========================================================= */
+
+function initializeNewChatButton() {
+
+    const button =
+        document.getElementById(
+            "newChatBtn"
+        );
+
+    if (!button) return;
+
+    button.addEventListener(
+        "click",
+        startNewChat
+    );
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+function initializeChat() {
+
+    createNewSession();
+
+    showWelcomeScreen();
+
+    renderRecentList();
+
+    initializeLanguageListener();
+
+    initializeInputListener();
+
+    initializeNewChatButton();
+
+    document
+        .getElementById("chatInput")
+        ?.focus();
+}
+
+
+/* =========================================================
+   START
 ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    async () => {
-
-        $("language").value =
-            state.language;
-
-
-        $("language")
-            .addEventListener(
-                "change",
-                event => {
-
-                    changeLanguage(
-                        event.target.value
-                    );
-
-                }
-            );
-
-
-        $("newChat")
-            .addEventListener(
-                "click",
-                newChat
-            );
-
-
-        $("chatForm")
-            .addEventListener(
-                "submit",
-                event => {
-
-                    event.preventDefault();
-
-                    sendMessage(
-                        $("messageInput").value
-                    );
-
-                }
-            );
-
-
-        $("messageInput")
-            .addEventListener(
-                "input",
-                autoResizeTextarea
-            );
-
-
-        $("messageInput")
-            .addEventListener(
-                "keydown",
-                event => {
-
-                    if (
-                        event.key === "Enter"
-                        &&
-                        !event.shiftKey
-                    ) {
-
-                        event.preventDefault();
-
-                        sendMessage(
-                            $("messageInput").value
-                        );
-
-                    }
-
-                }
-            );
-
-
-        bindSuggestionButtons();
-
-        updateSessionDisplay();
-
-
-        if (state.sessionId) {
-
-            await loadHistory();
-
-        }
-
-    }
+    initializeChat
 );

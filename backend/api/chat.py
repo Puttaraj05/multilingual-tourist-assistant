@@ -4,13 +4,22 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
 
-from backend.models.chat import ChatRequest, ChatResponse
-from backend.services.chat_service import generate_chat_response
-from backend.database.mongodb import messages_collection
+from backend.models.chat import (
+    ChatRequest,
+    ChatResponse,
+)
+
+from backend.services.gemini_service import (
+    generate_chat_response,
+)
+
+from backend.database.mongodb import (
+    messages_collection,
+)
 
 
 # =========================================================
-# Router
+# ROUTER
 # =========================================================
 
 router = APIRouter(
@@ -20,17 +29,18 @@ router = APIRouter(
 
 
 # =========================================================
-# Helper: Empty Response
+# EMPTY RESPONSE
 # =========================================================
 
-def empty_chat_response(message=""):
-    """
-    Return a safe empty chat response structure.
-    """
+def empty_chat_response(message: str = ""):
 
     return {
         "message": message,
         "destination": None,
+        "trip_duration": None,
+        "travel_style": None,
+        "best_time_to_visit": None,
+        "estimated_budget": None,
         "attractions": [],
         "food": [],
         "transportation": [],
@@ -40,70 +50,210 @@ def empty_chat_response(message=""):
 
 
 # =========================================================
-# Helper: Normalize AI Response
+# CLEAN JSON TEXT
+# =========================================================
+
+def clean_json_text(text: str) -> str:
+
+    if not text:
+        return ""
+
+    text = str(text).strip()
+
+    if text.startswith("```json"):
+        text = text[len("```json"):].strip()
+
+    elif text.startswith("```"):
+        text = text[len("```"):].strip()
+
+    if text.endswith("```"):
+        text = text[:-3].strip()
+
+    return text
+
+
+# =========================================================
+# NORMALIZE ITINERARY ACTIVITY
+# =========================================================
+
+def normalize_itinerary_activity(item):
+
+    # -----------------------------------------------------
+    # Gemini returned a string
+    # Example:
+    #
+    # "09:00 - Breakfast at a local cafe"
+    # -----------------------------------------------------
+
+    if isinstance(item, str):
+
+        text = item.strip()
+
+        if " - " in text:
+
+            time, activity = text.split(
+                " - ",
+                1
+            )
+
+            return {
+                "time": time.strip(),
+                "activity": activity.strip(),
+            }
+
+        # No time supplied
+        return {
+            "time": "",
+            "activity": text,
+        }
+
+    # -----------------------------------------------------
+    # Gemini returned an object
+    # -----------------------------------------------------
+
+    if isinstance(item, dict):
+
+        return {
+            "time": str(
+                item.get(
+                    "time",
+                    ""
+                )
+            ),
+
+            "activity": str(
+                item.get(
+                    "activity",
+                    item.get(
+                        "description",
+                        item.get(
+                            "name",
+                            ""
+                        )
+                    )
+                )
+            ),
+        }
+
+    # -----------------------------------------------------
+    # Unknown format
+    # -----------------------------------------------------
+
+    return {
+        "time": "",
+        "activity": str(item),
+    }
+
+
+# =========================================================
+# NORMALIZE ITINERARY
+# =========================================================
+
+def normalize_itinerary(itinerary):
+
+    if not isinstance(
+        itinerary,
+        list
+    ):
+        return []
+
+    normalized = []
+
+    for day in itinerary:
+
+        # -------------------------------------------------
+        # Skip invalid days
+        # -------------------------------------------------
+
+        if not isinstance(
+            day,
+            dict
+        ):
+            continue
+
+        new_day = {}
+
+        # -------------------------------------------------
+        # Normalize morning / afternoon / evening
+        # -------------------------------------------------
+
+        for period in [
+            "morning",
+            "afternoon",
+            "evening"
+        ]:
+
+            activities = day.get(
+                period,
+                []
+            )
+
+            if not isinstance(
+                activities,
+                list
+            ):
+                activities = []
+
+            new_day[period] = [
+
+                normalize_itinerary_activity(
+                    item
+                )
+
+                for item in activities
+
+            ]
+
+        # -------------------------------------------------
+        # Preserve other day-level fields
+        # -------------------------------------------------
+
+        for key, value in day.items():
+
+            if key not in [
+                "morning",
+                "afternoon",
+                "evening"
+            ]:
+
+                new_day[key] = value
+
+        normalized.append(
+            new_day
+        )
+
+    return normalized
+
+
+# =========================================================
+# NORMALIZE AI RESPONSE
 # =========================================================
 
 def normalize_chat_response(response):
-    """
-    Normalize the response returned by Gemini.
-
-    Handles:
-
-    1. Proper Python dictionary.
-
-    2. Entire response returned as JSON string.
-
-    3. Dictionary where the 'message' field contains
-       the actual JSON response as a string.
-
-    4. Markdown JSON code fences.
-
-    5. Plain text fallback.
-    """
 
     # =====================================================
-    # CASE 1: Entire response is a string
+    # CASE 1 — STRING RESPONSE
     # =====================================================
 
-    if isinstance(response, str):
+    if isinstance(
+        response,
+        str
+    ):
 
-        text = response.strip()
-
-        # -------------------------------------------------
-        # Remove accidental Markdown code fences
-        # -------------------------------------------------
-
-        if text.startswith("```"):
-
-            if text.startswith("```json"):
-
-                text = text[
-                    len("```json"):
-                ]
-
-            elif text.startswith("```"):
-
-                text = text[
-                    len("```"):
-                ]
-
-            if text.endswith("```"):
-
-                text = text[
-                    :-len("```")
-                ]
-
-            text = text.strip()
-
-        # -------------------------------------------------
-        # Try parsing JSON
-        # -------------------------------------------------
+        text = clean_json_text(
+            response
+        )
 
         try:
 
-            parsed = json.loads(text)
+            parsed = json.loads(
+                text
+            )
 
-            if isinstance(parsed, dict):
+            if isinstance(
+                parsed,
+                dict
+            ):
 
                 response = parsed
 
@@ -115,68 +265,44 @@ def normalize_chat_response(response):
 
         except json.JSONDecodeError:
 
-            # Gemini returned normal text.
             return empty_chat_response(
                 text
             )
 
-
     # =====================================================
-    # CASE 2: Unexpected response type
+    # CASE 2 — INVALID RESPONSE
     # =====================================================
 
-    if not isinstance(response, dict):
+    if not isinstance(
+        response,
+        dict
+    ):
 
         return empty_chat_response(
             str(response)
         )
 
-
     # =====================================================
-    # CASE 3: The "message" field contains JSON
+    # CASE 3 — NESTED JSON INSIDE MESSAGE
     # =====================================================
 
     message_value = response.get(
         "message"
     )
 
-    if isinstance(message_value, str):
+    if isinstance(
+        message_value,
+        str
+    ):
 
-        nested_text = message_value.strip()
-
-        # -------------------------------------------------
-        # Remove Markdown fences from nested JSON
-        # -------------------------------------------------
-
-        if nested_text.startswith("```"):
-
-            if nested_text.startswith("```json"):
-
-                nested_text = nested_text[
-                    len("```json"):
-                ]
-
-            elif nested_text.startswith("```"):
-
-                nested_text = nested_text[
-                    len("```"):
-                ]
-
-            if nested_text.endswith("```"):
-
-                nested_text = nested_text[
-                    :-len("```")
-                ]
-
-            nested_text = nested_text.strip()
-
-        # -------------------------------------------------
-        # Try nested JSON
-        # -------------------------------------------------
+        nested_text = clean_json_text(
+            message_value
+        )
 
         if (
             nested_text.startswith("{")
-            and nested_text.endswith("}")
+            and
+            nested_text.endswith("}")
         ):
 
             try:
@@ -185,7 +311,10 @@ def normalize_chat_response(response):
                     nested_text
                 )
 
-                if isinstance(nested, dict):
+                if isinstance(
+                    nested,
+                    dict
+                ):
 
                     response = nested
 
@@ -193,67 +322,127 @@ def normalize_chat_response(response):
 
                 pass
 
+    # =====================================================
+    # SAFE LIST
+    # =====================================================
+
+    def safe_list(value):
+
+        if isinstance(
+            value,
+            list
+        ):
+            return value
+
+        return []
 
     # =====================================================
-    # Normalize expected fields
+    # NORMALIZE ITINERARY
+    # =====================================================
+
+    itinerary = normalize_itinerary(
+        safe_list(
+            response.get(
+                "itinerary",
+                []
+            )
+        )
+    )
+
+    # =====================================================
+    # FINAL RESPONSE
     # =====================================================
 
     return {
-        "message": response.get(
-            "message",
-            "",
-        ),
 
-        "destination": response.get(
-            "destination"
-        ),
+        "message":
+            response.get(
+                "message",
+                ""
+            ),
 
-        "attractions": response.get(
-            "attractions",
-            [],
-        ),
+        "destination":
+            response.get(
+                "destination"
+            ),
 
-        "food": response.get(
-            "food",
-            [],
-        ),
+        "trip_duration":
+            response.get(
+                "trip_duration"
+            ),
 
-        "transportation": response.get(
-            "transportation",
-            [],
-        ),
+        "travel_style":
+            response.get(
+                "travel_style"
+            ),
 
-        "tips": response.get(
-            "tips",
-            [],
-        ),
+        "best_time_to_visit":
+            response.get(
+                "best_time_to_visit"
+            ),
 
-        "itinerary": response.get(
-            "itinerary",
-            [],
-        ),
+        "estimated_budget":
+            response.get(
+                "estimated_budget"
+            ),
+
+        "attractions":
+            safe_list(
+                response.get(
+                    "attractions",
+                    []
+                )
+            ),
+
+        "food":
+            safe_list(
+                response.get(
+                    "food",
+                    []
+                )
+            ),
+
+        "transportation":
+            safe_list(
+                response.get(
+                    "transportation",
+                    []
+                )
+            ),
+
+        "tips":
+            safe_list(
+                response.get(
+                    "tips",
+                    []
+                )
+            ),
+
+        "itinerary":
+            itinerary,
     }
 
 
 # =========================================================
-# CHAT
+# CHAT ENDPOINT
 # =========================================================
 
 @router.post(
     "",
-    response_model=ChatResponse,
+    response_model=ChatResponse
 )
-async def chat(request: ChatRequest):
+async def chat(
+    request: ChatRequest
+):
 
     # =====================================================
-    # 1. CREATE OR RESTORE SESSION
+    # 1. SESSION MANAGEMENT
     # =====================================================
 
     session_id = (
         request.session_id
         or str(uuid4())
     )
-
 
     # =====================================================
     # 2. LOAD CONVERSATION HISTORY
@@ -264,19 +453,22 @@ async def chat(request: ChatRequest):
     try:
 
         previous_messages = list(
+
             messages_collection
             .find(
                 {
-                    "session_id": session_id
+                    "session_id":
+                        session_id
                 },
                 {
                     "_id": 0
-                },
+                }
             )
             .sort(
                 "created_at",
-                1,
+                1
             )
+
         )
 
         pending_user_message = None
@@ -289,35 +481,37 @@ async def chat(request: ChatRequest):
 
             content = item.get(
                 "content",
-                "",
+                ""
             )
 
-            # -------------------------------------------------
-            # User message
-            # -------------------------------------------------
+            # =============================================
+            # USER
+            # =============================================
 
             if role == "user":
 
-                pending_user_message = content
+                pending_user_message = (
+                    content
+                )
 
-            # -------------------------------------------------
-            # Assistant message
-            # -------------------------------------------------
+            # =============================================
+            # ASSISTANT
+            # =============================================
 
             elif (
                 role == "assistant"
-                and pending_user_message is not None
+                and
+                pending_user_message
+                is not None
             ):
 
-                assistant_content = content
-
-                # -------------------------------------------------
-                # Stored assistant content is normally JSON
-                # -------------------------------------------------
+                assistant_content = (
+                    content
+                )
 
                 if isinstance(
                     assistant_content,
-                    str,
+                    str
                 ):
 
                     try:
@@ -328,33 +522,31 @@ async def chat(request: ChatRequest):
 
                     except (
                         json.JSONDecodeError,
-                        TypeError,
+                        TypeError
                     ):
 
                         pass
 
                 conversation_history.append({
 
-                    "user": pending_user_message,
+                    "user":
+                        pending_user_message,
 
-                    "assistant": assistant_content,
+                    "assistant":
+                        assistant_content,
 
                 })
 
                 pending_user_message = None
 
-
     except Exception as e:
-
-        # MongoDB failure should NOT stop chatbot.
 
         print(
             f"MongoDB history unavailable: {e}",
-            flush=True,
+            flush=True
         )
 
         conversation_history = []
-
 
     # =====================================================
     # 3. GENERATE AI RESPONSE
@@ -368,7 +560,8 @@ async def chat(request: ChatRequest):
 
             language=request.language,
 
-            conversation_history=conversation_history,
+            conversation_history=
+                conversation_history,
 
         )
 
@@ -376,57 +569,57 @@ async def chat(request: ChatRequest):
 
         error_message = str(e)
 
-        # -------------------------------------------------
-        # Gemini quota / rate limit
-        # -------------------------------------------------
+        # =================================================
+        # GEMINI QUOTA / RATE LIMIT
+        # =================================================
 
         if (
-            "quota" in error_message.lower()
-            or "resource_exhausted"
+            "quota"
             in error_message.lower()
-            or "429" in error_message
+
+            or
+
+            "resource_exhausted"
+            in error_message.lower()
+
+            or
+
+            "429"
+            in error_message
         ):
 
             raise HTTPException(
                 status_code=429,
-                detail=error_message,
+                detail=error_message
             )
-
-        # -------------------------------------------------
-        # Other Gemini runtime errors
-        # -------------------------------------------------
 
         raise HTTPException(
             status_code=500,
-            detail=error_message,
+            detail=error_message
         )
 
     except Exception as e:
 
         print(
             f"Chat generation error: {e}",
-            flush=True,
+            flush=True
         )
 
         raise HTTPException(
             status_code=500,
-            detail=(
-                f"Chat service error: {str(e)}"
-            ),
+            detail=f"Chat service error: {str(e)}"
         )
 
-
     # =====================================================
-    # 4. NORMALIZE AI RESPONSE
+    # 4. NORMALIZE RESPONSE
     # =====================================================
 
     response = normalize_chat_response(
         raw_response
     )
 
-
     # =====================================================
-    # 5. SAVE CONVERSATION TO MONGODB
+    # 5. SAVE TO MONGODB
     # =====================================================
 
     try:
@@ -436,57 +629,62 @@ async def chat(request: ChatRequest):
         )
 
         # -------------------------------------------------
-        # Save user message
+        # USER MESSAGE
         # -------------------------------------------------
 
         messages_collection.insert_one({
 
-            "session_id": session_id,
+            "session_id":
+                session_id,
 
-            "role": "user",
+            "role":
+                "user",
 
-            "content": request.message,
+            "content":
+                request.message,
 
-            "language": request.language,
+            "language":
+                request.language,
 
-            "created_at": now,
+            "created_at":
+                now,
 
         })
 
         # -------------------------------------------------
-        # Save assistant response
+        # ASSISTANT RESPONSE
         # -------------------------------------------------
 
         messages_collection.insert_one({
 
-            "session_id": session_id,
+            "session_id":
+                session_id,
 
-            "role": "assistant",
+            "role":
+                "assistant",
 
-            "content": json.dumps(
-                response,
-                ensure_ascii=False,
-            ),
+            "content":
+                json.dumps(
+                    response,
+                    ensure_ascii=False
+                ),
 
-            "language": request.language,
+            "language":
+                request.language,
 
-            "created_at": datetime.now(
-                timezone.utc
-            ),
+            "created_at":
+                datetime.now(
+                    timezone.utc
+                ),
 
         })
-
 
     except Exception as e:
 
-        # MongoDB failure should NOT affect
-        # chatbot response.
-
         print(
             f"MongoDB save failed: {e}",
-            flush=True,
+            flush=True
         )
-
 
     # =====================================================
     # 6. RETURN STRUCTURED RESPONSE
@@ -496,42 +694,110 @@ async def chat(request: ChatRequest):
 
         success=True,
 
-        session_id=session_id,
+        # -------------------------------------------------
+        # Session
+        # -------------------------------------------------
 
-        language=request.language,
+        session_id=
+            session_id,
 
-        message=response.get(
-            "message",
-            "",
-        ),
+        # -------------------------------------------------
+        # Language
+        # -------------------------------------------------
 
-        destination=response.get(
-            "destination"
-        ),
+        language=
+            request.language,
 
-        attractions=response.get(
-            "attractions",
-            [],
-        ),
+        # -------------------------------------------------
+        # Main response
+        # -------------------------------------------------
 
-        food=response.get(
-            "food",
-            [],
-        ),
+        message=
+            response.get(
+                "message",
+                ""
+            ),
 
-        transportation=response.get(
-            "transportation",
-            [],
-        ),
+        # -------------------------------------------------
+        # Destination
+        # -------------------------------------------------
 
-        tips=response.get(
-            "tips",
-            [],
-        ),
+        destination=
+            response.get(
+                "destination"
+            ),
 
-        itinerary=response.get(
-            "itinerary",
-            [],
-        ),
+        # -------------------------------------------------
+        # Trip information
+        # -------------------------------------------------
 
+        trip_duration=
+            response.get(
+                "trip_duration"
+            ),
+
+        travel_style=
+            response.get(
+                "travel_style"
+            ),
+
+        best_time_to_visit=
+            response.get(
+                "best_time_to_visit"
+            ),
+
+        estimated_budget=
+            response.get(
+                "estimated_budget"
+            ),
+
+        # -------------------------------------------------
+        # Attractions
+        # -------------------------------------------------
+
+        attractions=
+            response.get(
+                "attractions",
+                []
+            ),
+
+        # -------------------------------------------------
+        # Food
+        # -------------------------------------------------
+
+        food=
+            response.get(
+                "food",
+                []
+            ),
+
+        # -------------------------------------------------
+        # Transportation
+        # -------------------------------------------------
+
+        transportation=
+            response.get(
+                "transportation",
+                []
+            ),
+
+        # -------------------------------------------------
+        # Travel tips
+        # -------------------------------------------------
+
+        tips=
+            response.get(
+                "tips",
+                []
+            ),
+
+        # -------------------------------------------------
+        # Detailed itinerary
+        # -------------------------------------------------
+
+        itinerary=
+            response.get(
+                "itinerary",
+                []
+            ),
     )

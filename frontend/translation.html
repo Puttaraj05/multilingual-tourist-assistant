@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Multilingual Translator | TravelMate</title>
+
+    <!-- Main CSS -->
+    <link
+        rel="stylesheet"
+        href="/static/css/style.css"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    >
+
+    <!-- Google Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+</head>
+
+
+<body class="translation-page">
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<header class="planner-navbar">
+
+    <a
+        href="/index.html"
+        class="planner-logo"
+    >
+        TravelMate
+    </a>
+
+
+    <nav class="planner-links">
+
+        <a href="/index.html">
+            Home
+        </a>
+
+        <a href="/features.html">
+            Features
+        </a>
+
+        <a
+            href="/translation.html"
+            class="active"
+        >
+            Translator
+        </a>
+
+    </nav>
+
+</header>
+
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="translation-container">
+
+
+    <!-- =================================================
+         HERO
+    ================================================== -->
+
+    <section class="translation-hero">
+
+        <span class="planner-tag">
+            Multilingual Assistant
+        </span>
+
+
+        <h1>
+            Translate Without Barriers
+        </h1>
+
+
+        <p>
+            Translate text, signs and conversations instantly.
+            Communicate confidently wherever your journey takes you.
+        </p>
+
+    </section>
+
+
+
+    <!-- =================================================
+         TEXT TRANSLATION
+    ================================================== -->
+
+    <section class="translation-card">
+
+        <div class="card-header">
+
+            <h2>
+                <i class="fa-solid fa-language"></i>
+                Text Translation
+            </h2>
+
+            <p>
+                Translate messages, conversations, signs and
+                travel information.
+            </p>
+
+        </div>
+
+
+        <!-- LANGUAGE SELECTORS -->
+
+        <div class="language-row">
+
+            <!-- SOURCE -->
+
+            <select
+                id="sourceLanguage"
+                aria-label="Source language"
+            >
+
+                <option value="auto" selected>
+                    Auto Detect
+                </option>
+
+                <option value="English">English</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Telugu">Telugu</option>
+                <option value="Tamil">Tamil</option>
+                <option value="Kannada">Kannada</option>
+                <option value="Malayalam">Malayalam</option>
+                <option value="Bengali">Bengali</option>
+                <option value="Marathi">Marathi</option>
+                <option value="Gujarati">Gujarati</option>
+                <option value="Punjabi">Punjabi</option>
+                <option value="Spanish">Spanish</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+                <option value="Italian">Italian</option>
+                <option value="Japanese">Japanese</option>
+                <option value="Korean">Korean</option>
+                <option value="Arabic">Arabic</option>
+                <option value="Chinese">Chinese</option>
+                <option value="Russian">Russian</option>
+
+            </select>
+
+
+            <!-- SWAP -->
+
+            <button
+                type="button"
+                class="swap-btn"
+                id="swapLanguages"
+                title="Swap languages"
+            >
+                ⇄
+            </button>
+
+
+            <!-- TARGET -->
+
+            <select
+                id="targetLanguage"
+                aria-label="Target language"
+            >
+
+                <option value="English">
+                    English
+                </option>
+
+                <option value="Hindi">
+                    Hindi
+                </option>
+
+                <option value="Telugu" selected>
+                    Telugu
+                </option>
+
+                <option value="Tamil">
+                    Tamil
+                </option>
+
+                <option value="Kannada">
+                    Kannada
+                </option>
+
+                <option value="Malayalam">
+                    Malayalam
+                </option>
+
+                <option value="Bengali">
+                    Bengali
+                </option>
+
+                <option value="Marathi">
+                    Marathi
+                </option>
+
+                <option value="Gujarati">
+                    Gujarati
+                </option>
+
+                <option value="Punjabi">
+                    Punjabi
+                </option>
+
+                <option value="Spanish">
+                    Spanish
+                </option>
+
+                <option value="French">
+                    French
+                </option>
+
+                <option value="German">
+                    German
+                </option>
+
+                <option value="Italian">
+                    Italian
+                </option>
+
+                <option value="Japanese">
+                    Japanese
+                </option>
+
+                <option value="Korean">
+                    Korean
+                </option>
+
+                <option value="Arabic">
+                    Arabic
+                </option>
+
+                <option value="Chinese">
+                    Chinese
+                </option>
+
+                <option value="Russian">
+                    Russian
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- DETECTED LANGUAGE -->
+
+        <div
+            id="detectedLanguage"
+            class="detected-language"
+            style="display:none;"
+        ></div>
+
+
+        <!-- TEXT BOXES -->
+
+        <div class="translate-grid">
+
+            <!-- INPUT -->
+
+            <div class="translate-box">
+
+                <label for="inputText">
+                    Your Text
+                </label>
+
+                <textarea
+                    id="inputText"
+                    placeholder="Type something here..."
+                    maxlength="5000"
+                ></textarea>
+
+                <div class="text-counter">
+
+                    <span id="inputCounter">
+                        0 / 5000
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- OUTPUT -->
+
+            <div class="translate-box">
+
+                <label for="translatedText">
+                    Translation
+                </label>
+
+                <textarea
+                    id="translatedText"
+                    placeholder="Your translated text will appear here..."
+                    readonly
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <!-- TRANSLATE BUTTON -->
+
+        <button
+            id="translateTextBtn"
+            class="primary-action"
+            type="button"
+        >
+            <i class="fa-solid fa-language"></i>
+            Translate Text
+        </button>
+
+
+        <!-- STATUS -->
+
+        <div
+            id="translationStatus"
+            class="translation-status"
+        ></div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         IMAGE TRANSLATION
+    ================================================== -->
+
+    <section class="translation-card">
+
+        <div class="card-header">
+
+            <h2>
+                <i class="fa-solid fa-image"></i>
+                Image Translation
+            </h2>
+
+            <p>
+                Upload a menu, sign, ticket or document
+                containing text.
+            </p>
+
+        </div>
+
+
+        <!-- IMAGE UPLOAD -->
+
+        <div class="upload-box">
+
+            <input
+                type="file"
+                id="imageInput"
+                accept="image/png,image/jpeg,image/webp"
+            >
+
+            <label
+                for="imageInput"
+                class="upload-label"
+            >
+
+                <span class="upload-title">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    Drop an image here or click to upload
+                </span>
+
+                <span class="upload-subtitle">
+                    JPG, PNG or WEBP • Maximum 10 MB
+                </span>
+
+            </label>
+
+        </div>
+
+
+        <!-- IMAGE PREVIEW -->
+
+        <div
+            id="imagePreviewContainer"
+            class="preview-card"
+            style="display:none;"
+        >
+
+            <img
+                id="imagePreview"
+                alt="Selected image preview"
+            >
+
+        </div>
+
+
+        <!-- DETECTED TEXT -->
+
+        <div class="translate-box image-result">
+
+            <label for="originalImageText">
+                <i class="fa-solid fa-file-lines"></i>
+                Detected Text
+            </label>
+
+            <textarea
+                id="originalImageText"
+                placeholder="Text detected from the image will appear here..."
+                readonly
+            ></textarea>
+
+        </div>
+
+
+        <!-- TRANSLATED TEXT -->
+
+        <div class="translate-box image-result">
+
+            <label for="imageTranslation">
+                <i class="fa-solid fa-language"></i>
+                Translated Text
+            </label>
+
+            <textarea
+                id="imageTranslation"
+                placeholder="The translated text will appear here..."
+                readonly
+            ></textarea>
+
+        </div>
+
+
+        <!-- IMAGE BUTTON -->
+
+        <button
+            id="translateImageBtn"
+            class="primary-action"
+            type="button"
+        >
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            Translate Image
+        </button>
+
+
+        <!-- IMAGE STATUS -->
+
+        <div
+            id="imageTranslationStatus"
+            class="translation-status"
+        ></div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         VOICE TRANSLATION
+    ================================================== -->
+
+    <section class="translation-card">
+
+        <div class="card-header">
+
+            <h2>
+                <i class="fa-solid fa-microphone"></i>
+                Voice Translation
+            </h2>
+
+            <p>
+                Speak naturally in your language and hear
+                the translated result.
+            </p>
+
+        </div>
+
+
+        <!-- VOICE LANGUAGE SELECTORS -->
+
+        <div class="language-row">
+
+            <!-- VOICE SOURCE -->
+
+            <select
+                id="voiceSourceLanguage"
+                aria-label="Voice source language"
+            >
+
+                <option value="auto" selected>
+                    Auto Detect
+                </option>
+
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="te">Telugu</option>
+                <option value="ta">Tamil</option>
+                <option value="kn">Kannada</option>
+                <option value="ml">Malayalam</option>
+                <option value="bn">Bengali</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="pa">Punjabi</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="ar">Arabic</option>
+                <option value="zh-CN">Chinese</option>
+                <option value="ru">Russian</option>
+
+            </select>
+
+
+            <span
+                class="swap-btn"
+                aria-hidden="true"
+            >
+                →
+            </span>
+
+
+            <!-- VOICE TARGET -->
+
+            <select
+                id="voiceTargetLanguage"
+                aria-label="Voice target language"
+            >
+
+                <option value="en" selected>
+                    English
+                </option>
+
+                <option value="hi">Hindi</option>
+                <option value="te">Telugu</option>
+                <option value="ta">Tamil</option>
+                <option value="kn">Kannada</option>
+                <option value="ml">Malayalam</option>
+                <option value="bn">Bengali</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="pa">Punjabi</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="ar">Arabic</option>
+                <option value="zh-CN">Chinese</option>
+                <option value="ru">Russian</option>
+
+            </select>
+
+        </div>
+
+
+        <!-- RECORDING AREA -->
+
+        <div class="voice-preview">
+
+            <div
+                class="voice-circle"
+                id="voiceCircle"
+            >
+
+                <div class="pulse-ring"></div>
+
+                <i class="fa-solid fa-microphone"></i>
+
+            </div>
+
+
+            <h3 id="voiceTitle">
+                Speak Naturally
+            </h3>
+
+
+            <p id="voiceStatus">
+                Press the button and start speaking.
+            </p>
+
+
+            <button
+                id="recordVoiceBtn"
+                class="voice-btn"
+                type="button"
+            >
+
+                <i class="fa-solid fa-microphone"></i>
+
+                Start Recording
+
+            </button>
+
+        </div>
+
+
+        <!-- RECORDING TIMER -->
+
+        <div
+            id="recordingTimer"
+            class="translation-status"
+            style="display:none;"
+        >
+            Recording: 00:00
+        </div>
+
+
+        <!-- VOICE RESULTS -->
+
+        <div class="translate-grid">
+
+            <!-- ORIGINAL SPEECH -->
+
+            <div class="translate-box">
+
+                <label for="voiceOriginalText">
+
+                    <i class="fa-solid fa-comment-dots"></i>
+
+                    Your Speech
+
+                </label>
+
+                <textarea
+                    id="voiceOriginalText"
+                    placeholder="Your spoken text will appear here..."
+                    readonly
+                ></textarea>
+
+            </div>
+
+
+            <!-- TRANSLATION -->
+
+            <div class="translate-box">
+
+                <label for="voiceTranslatedText">
+
+                    <i class="fa-solid fa-language"></i>
+
+                    Translation
+
+                </label>
+
+                <textarea
+                    id="voiceTranslatedText"
+                    placeholder="Translated speech will appear here..."
+                    readonly
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <!-- PLAY TRANSLATION -->
+
+        <div class="voice-result-actions">
+
+            <button
+                id="playTranslationBtn"
+                class="primary-action"
+                type="button"
+                disabled
+            >
+
+                <i class="fa-solid fa-volume-high"></i>
+
+                Play Translation
+
+            </button>
+
+        </div>
+
+
+        <!-- VOICE STATUS -->
+
+        <div
+            id="voiceTranslationStatus"
+            class="translation-status"
+        ></div>
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script src="/static/js/translation.js"></script>
+
+</body>
+
+</html>

@@ -1,200 +1,328 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta name="theme-color" content="#5b43e8">
+    <meta charset="UTF-8">
 
-    <title>TravelAI — AI Travel Assistant</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="/static/chat.css">
+    <meta
+        name="theme-color"
+        content="#5b43e8"
+    >
+
+    <title>
+        TravelMate · AI Travel Assistant
+    </title>
+
+    <link
+    rel="icon"
+    type="image/webp"
+    href="/static/images/logo.webp"
+    >
+
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/static/css/chat.css"
+    >
+
 </head>
+
 
 <body>
 
-<header class="topbar">
+<div class="chat-app">
+
+
+    <!-- =====================================================
+         TOP NAVBAR
+    ====================================================== -->
+
+   <header class="top-navbar">
 
     <a href="/" class="brand">
-        ✦ TravelAI
+
+        <div class="brand-icon">
+            <i class="fa-solid fa-plane"></i>
+        </div>
+
+        <div class="brand-text">
+            <div class="brand-name">TravelMate</div>
+            <div class="brand-sub">Your AI Travel Assistant</div>
+        </div>
+
     </a>
 
-    <div class="top-actions">
 
-        <a href="/" class="back-link">
-            ← Home
+    <nav class="nav-links">
+
+        <a href="/" class="nav-link">
+            Home
         </a>
 
-        <select id="language" class="language-select">
-            <option value="English">🌐 English</option>
-            <option value="Hindi">🌐 हिन्दी</option>
-            <option value="Telugu">🌐 తెలుగు</option>
-            <option value="Tamil">🌐 தமிழ்</option>
-        </select>
+        <a href="/planner.html" class="nav-link">
+            Planner
+        </a>
 
-        <button id="newChat" class="new-chat">
-            + New Chat
-        </button>
+        <a href="/translation.html" class="nav-link">
+            Translator
+        </a>
 
-    </div>
+        <a href="/chat.html" class="nav-link active">
+            AI Assistant
+        </a>
+
+        <a href="/emergency.html" class="nav-link">
+            Emergency
+        </a>
+
+        <a href="/planner.html" class="nav-btn">
+            Plan a Trip
+        </a>
+
+    </nav>
 
 </header>
 
 
-<main class="chat-page">
 
-    <!-- SIDEBAR -->
+    <!-- =====================================================
+         MAIN CHAT APPLICATION
+    ====================================================== -->
 
-    <aside class="sidebar">
-
-        <div class="sidebar-title">
-            <span>✦</span>
-            <div>
-                <strong>TravelAI</strong>
-                <small>AI Travel Assistant</small>
-            </div>
-        </div>
-
-        <button class="suggestion" data-message="Plan a 3 day trip to Hyderabad">
-            <span>🗺️</span>
-            <div>
-                <b>Plan a trip</b>
-                <small>Get a complete itinerary</small>
-            </div>
-        </button>
-
-        <button class="suggestion" data-message="What food should I try there?">
-            <span>🍛</span>
-            <div>
-                <b>Local food</b>
-                <small>Discover what to eat</small>
-            </div>
-        </button>
-
-        <button class="suggestion" data-message="What are the best attractions to visit there?">
-            <span>📍</span>
-            <div>
-                <b>Places to visit</b>
-                <small>Explore attractions</small>
-            </div>
-        </button>
-
-        <button class="suggestion" data-message="How should I get around there?">
-            <span>🚕</span>
-            <div>
-                <b>Transportation</b>
-                <small>Find the best ways to travel</small>
-            </div>
-        </button>
-
-        <div class="sidebar-bottom">
-            <div class="session-label">
-                SESSION
-            </div>
-
-            <div id="sessionId" class="session-id">
-                New conversation
-            </div>
-        </div>
-
-    </aside>
+    <div class="chat-layout">
 
 
-    <!-- CHAT -->
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
 
-    <section class="chat-container">
+        <aside class="sidebar">
 
-        <div id="messages" class="messages">
-
-            <div class="welcome">
-
-                <div class="welcome-icon">
-                    ✦
-                </div>
-
-                <h1>
-                    Where do you want to go?
-                </h1>
-
-                <p>
-                    Ask me anything about destinations, attractions,
-                    food, transportation, itineraries and travel tips.
-                </p>
-
-                <div class="welcome-suggestions">
-
-                    <button data-message="Plan a 3 day trip to Hyderabad">
-                        🗺️ Plan a 3-day Hyderabad trip
-                    </button>
-
-                    <button data-message="What food should I try in Hyderabad?">
-                        🍛 What food should I try?
-                    </button>
-
-                    <button data-message="What are the best places to visit in Hyderabad?">
-                        📍 Best places to visit
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
+            <div class="sidebar-content">
 
 
-        <!-- TYPING -->
-
-        <div id="typing" class="typing hidden">
-
-            <div class="typing-avatar">
-                ✦
-            </div>
-
-            <div class="typing-bubble">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-
-        </div>
-
-
-        <!-- INPUT -->
-
-        <div class="composer-wrapper">
-
-            <form id="chatForm" class="composer">
-
-                <textarea
-                    id="messageInput"
-                    rows="1"
-                    placeholder="Ask TravelAI anything..."
-                    autocomplete="off"
-                ></textarea>
+                <!-- NEW CHAT -->
 
                 <button
-                    id="sendButton"
-                    type="submit"
-                    aria-label="Send message"
+                    type="button"
+                    class="new-chat-btn"
+                    id="newChatBtn"
                 >
-                    ↑
+
+                    <span class="new-chat-icon">
+                        ＋
+                    </span>
+
+                    <span>
+                        New Chat
+                    </span>
+
                 </button>
 
-            </form>
-
-            <small class="composer-note">
-                TravelAI can help with destinations, food, attractions,
-                transportation and travel planning.
-            </small>
-
-        </div>
-
-    </section>
-
-</main>
 
 
-<script src="/static/chat.js"></script>
+                <!-- RECENT CHAT LABEL -->
+
+                <div class="section-label">
+
+                    Recent Chats
+
+                </div>
+
+
+
+                <!-- RECENT CHAT LIST -->
+
+                <div
+                    class="recent-chats"
+                    id="recentList"
+                    aria-label="Recent chats"
+                >
+
+                    <div class="empty-recent">
+                        No chats yet
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 LANGUAGE
+            ================================================== -->
+
+            <div class="sidebar-footer">
+
+                <div class="language-picker">
+
+                    <span
+                        class="language-icon"
+                        aria-hidden="true"
+                    >
+                        🌐
+                    </span>
+
+                    <label
+                        for="languageSelect"
+                        class="sr-only"
+                    >
+                        Select language
+                    </label>
+
+                    <select
+                        id="languageSelect"
+                        name="language"
+                    >
+
+                        <option value="English">
+                            English
+                        </option>
+
+                        <option value="Hindi">
+                            Hindi
+                        </option>
+
+                        <option value="Kannada">
+                            Kannada
+                        </option>
+
+                        <option value="Telugu">
+                            Telugu
+                        </option>
+
+                        <option value="Tamil">
+                            Tamil
+                        </option>
+
+                        <option value="Malayalam">
+                            Malayalam
+                        </option>
+
+                        <option value="Marathi">
+                            Marathi
+                        </option>
+
+                        <option value="Bengali">
+                            Bengali
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+
+        <!-- =================================================
+             MAIN CHAT AREA
+        ================================================== -->
+
+        <main class="chat-main">
+
+
+            <!-- =================================================
+                 CHAT SCROLL AREA
+            ================================================== -->
+
+            <div
+                class="chat-scroll-area"
+                id="chatScrollArea"
+            >
+
+                <div
+                    id="resultArea"
+                    class="result-area"
+                    aria-live="polite"
+                >
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 MESSAGE COMPOSER
+            ================================================== -->
+
+            <div class="composer-container">
+
+                <form
+                    class="composer"
+                    id="chatForm"
+                >
+
+                    <label
+                        for="chatInput"
+                        class="sr-only"
+                    >
+                        Ask TravelMate
+                    </label>
+
+                    <input
+                        id="chatInput"
+                        name="message"
+                        type="text"
+                        autocomplete="off"
+                        maxlength="2000"
+                        placeholder="Ask about a destination..."
+                        aria-label="Ask about a destination"
+                    >
+
+                    <button
+                        type="submit"
+                        class="send-btn"
+                        id="sendBtn"
+                        aria-label="Send message"
+                    >
+
+                        <span>
+                            ➤
+                        </span>
+
+                    </button>
+
+                </form>
+
+
+                <div class="composer-hint">
+
+                    Ask about destinations,
+                    itineraries, food,
+                    transport and travel tips
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script src="/static/js/chat.js"></script>
 
 </body>
+
 </html>

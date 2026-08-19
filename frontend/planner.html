@@ -1,725 +1,300 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan Your Journey | TravelMate</title>
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Plan Your Journey | TravelMate</title>
-
-    <!-- Common CSS -->
-    <link
-        rel="stylesheet"
-        href="/static/css/style.css?v=1"
-    >
-
-    <!-- Planner CSS -->
-    <link
-        rel="stylesheet"
-        href="/static/css/planner.css?v=4"
-    >
-
-    <!-- Google Font -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
+<link rel="stylesheet" href="/static/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 
 <body class="planner-page">
 
-
-<!-- =====================================================
-     NAVBAR
-     ===================================================== -->
-
 <header class="planner-navbar">
 
-    <a
-        href="/"
-        class="planner-logo"
-    >
-        TravelMate
-    </a>
+    <a href="/" class="planner-logo">TravelMate</a>
+
+<nav class="planner-links">
+    <a href="/">Home</a>
+    <a href="/features.html">Features</a>
+</nav>
 
 </header>
 
+<main class="planner-layout">
 
-<!-- =====================================================
-     MAIN
-     ===================================================== -->
+    <!-- LEFT INFORMATION PANEL -->
 
-<main class="planner-container">
+    <section class="planner-info">
 
+        <span class="planner-tag">Personalized Travel Planner</span>
 
-    <!-- =================================================
-         HEADER
-         ================================================= -->
+        <h1>Plan Your Journey</h1>
 
-    <section class="planner-header">
-
-        <h1 data-key="title">
-            PLAN YOUR JOURNEY
-        </h1>
-
-        <p data-key="subtitle">
-            Tell us a little about your trip
+        <p class="intro">
+            Build a personalized day-by-day travel plan that matches your
+            destination, budget, travel style and interests. From local food
+            spots to must-visit attractions, we'll help you organize your trip
+            before you even pack your bags.
         </p>
+
+        <div class="info-section">
+
+            <h3>What You'll Get</h3>
+
+            <div class="highlight-box">
+                <h4>Destination-based plans</h4>
+                <p>Choose any city or country and receive realistic travel suggestions.</p>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Budget-friendly planning</h4>
+                <p>Activities and food recommendations stay within your selected budget.</p>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Personalized experiences</h4>
+                <p>Whether you're traveling solo, with friends or family, the schedule adapts to your trip.</p>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Smart recommendations</h4>
+                <p>Discover local restaurants, sightseeing spots, hidden gems and practical travel tips.</p>
+            </div>
+
+        </div>
+
+        <div class="info-footer">
+
+            <h3>Before You Begin</h3>
+
+            <ul>
+                <li>Choose your destination.</li>
+                <li>Select your travel dates.</li>
+                <li>Set your budget.</li>
+                <li>Pick your interests.</li>
+                <li>Choose your travel style.</li>
+            </ul>
+
+        </div>
 
     </section>
 
+    <!-- RIGHT FORM -->
 
-    <!-- =================================================
-         FORM
-         ================================================= -->
+    <section class="planner-card">
 
-    <form
-        id="plannerForm"
-        class="planner-form"
-        novalidate
+        <form id="plannerForm">
+
+            <div class="form-group">
+                <label>Language</label>
+
+                <input
+                    id="language"
+                    list="languageList"
+                    value="English"
+                    autocomplete="off"
+                    required>
+
+                <datalist id="languageList">
+                    <option value="English">
+                    <option value="Hindi">
+                    <option value="Telugu">
+                    <option value="Tamil">
+                    <option value="Kannada">
+                    <option value="Malayalam">
+                    <option value="Marathi">
+                    <option value="Bengali">
+                    <option value="Gujarati">
+                    <option value="Punjabi">
+                    <option value="Urdu">
+                    <option value="Japanese">
+                    <option value="Chinese">
+                    <option value="Korean">
+                    <option value="French">
+                    <option value="Spanish">
+                    <option value="Italian">
+                    <option value="German">
+                    <option value="Portuguese">
+                    <option value="Russian">
+                    <option value="Arabic">
+                    <option value="Thai">
+                    <option value="Turkish">
+                    <option value="Vietnamese">
+                    <option value="Dutch">
+                    <option value="Greek">
+                    <option value="Swahili">
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <label>Destination</label>
+                <input type="text" id="destination" placeholder="Country or city..." required>
+            </div>
+
+            <div class="grid-2">
+
+                <div class="form-group">
+                    <label>Trip Duration</label>
+
+                    <div class="duration-box">
+                        <button type="button" id="decreaseDays">−</button>
+                        <input type="number" id="duration" value="3" readonly>
+                        <button type="button" id="increaseDays">+</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Travel Date</label>
+                    <input type="date" id="travelDate" required>
+                </div>
+
+            </div>
+
+            <div class="grid-2">
+  <div class="form-group">
+    <label data-key="currency">Currency</label>
+    <select id="currency">
+      <option value="₹" selected>INR (₹)</option>
+      <option value="$">USD ($)</option>
+      <option value="€">EUR (€)</option>
+      <option value="£">GBP (£)</option>
+      <option value="¥">JPY (¥)</option>
+      <option value="₩">KRW (₩)</option>
+      <option value="AED">AED</option>
+      <option value="CAD">CAD</option>
+      <option value="AUD">AUD</option>
+      <option value="SGD">SGD</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label data-key="budget">Budget</label>
+    <input
+      type="number"
+      id="budget"
+      placeholder="Enter amount"
+      required
     >
+  </div>
+</div>
 
+            <div class="form-group">
 
-        <!-- =================================================
-             LANGUAGE
-             ================================================= -->
+                <label>Interests</label>
 
-        <div class="form-group">
+                <div class="interest-grid">
 
-            <label
-                for="language"
-                data-key="languageLabel"
-            >
-                Language
-            </label>
+                    <label class="interest-chip"><input type="checkbox" name="interest" value="Food"> Food</label>
+                    <label class="interest-chip"><input type="checkbox" name="interest" value="History"> History</label>
+                    <label class="interest-chip"><input type="checkbox" name="interest" value="Culture"> Culture</label>
+                    <label class="interest-chip"><input type="checkbox" name="interest" value="Shopping"> Shopping</label>
+                    <label class="interest-chip"><input type="checkbox" name="interest" value="Nature"> Nature</label>
+                    <label class="interest-chip"><input type="checkbox" name="interest" value="Adventure"> Adventure</label>
+                    <label class="interest-chip"><input type="checkbox" name="interest" value="Nightlife"> Nightlife</label>
+                    <label class="interest-chip"><input type="checkbox" name="interest" value="Photography"> Photography</label>
 
-            <input
-                type="text"
-                id="language"
-                name="language"
-                list="languageList"
-                value="English"
-                placeholder="Search your language..."
-                autocomplete="off"
-                required
-            >
-
-            <datalist id="languageList">
-
-                <option value="English"></option>
-                <option value="Hindi"></option>
-                <option value="Telugu"></option>
-                <option value="Tamil"></option>
-                <option value="Kannada"></option>
-                <option value="Malayalam"></option>
-                <option value="Marathi"></option>
-                <option value="Bengali"></option>
-                <option value="Gujarati"></option>
-                <option value="Punjabi"></option>
-                <option value="Urdu"></option>
-
-                <option value="Japanese"></option>
-                <option value="Chinese"></option>
-                <option value="Korean"></option>
-
-                <option value="French"></option>
-                <option value="Spanish"></option>
-                <option value="Italian"></option>
-                <option value="German"></option>
-                <option value="Portuguese"></option>
-                <option value="Russian"></option>
-                <option value="Arabic"></option>
-                <option value="Thai"></option>
-                <option value="Turkish"></option>
-                <option value="Vietnamese"></option>
-                <option value="Dutch"></option>
-                <option value="Greek"></option>
-                <option value="Swahili"></option>
-
-            </datalist>
-
-        </div>
-
-
-        <!-- =================================================
-             DESTINATION
-             ================================================= -->
-
-        <div class="form-group">
-
-            <label
-                for="destination"
-                data-key="destination"
-            >
-                Destination
-            </label>
-
-            <input
-                type="text"
-                id="destination"
-                name="destination"
-                placeholder="Country or city..."
-                required
-            >
-
-            <p
-                id="destinationError"
-                class="input-error"
-                aria-live="polite"
-            ></p>
-
-        </div>
-
-
-        <!-- =================================================
-             DURATION
-             ================================================= -->
-
-        <div class="form-group">
-
-            <label
-                for="duration"
-                data-key="duration"
-            >
-                Trip Duration
-            </label>
-
-            <div class="duration-box">
-
-                <button
-                    type="button"
-                    id="decreaseDays"
-                    aria-label="Decrease duration"
-                >
-                    −
-                </button>
-
-                <input
-                    type="number"
-                    id="duration"
-                    name="duration"
-                    value="3"
-                    min="1"
-                    max="30"
-                    readonly
-                >
-
-                <button
-                    type="button"
-                    id="increaseDays"
-                    aria-label="Increase duration"
-                >
-                    +
-                </button>
+                </div>
 
             </div>
 
-        </div>
+            <!-- Travel Type -->
 
+            <div class="form-group">
 
-        <!-- =================================================
-             TRAVEL DATE
-             ================================================= -->
+                <label>Who's Traveling?</label>
 
-        <div class="form-group">
+                <div class="option-grid">
 
-            <label
-                for="travelDate"
-                data-key="date"
-            >
-                Travel Date
-            </label>
+                    <label class="option-chip">
+                        <input type="radio" name="travelType" value="Solo" checked>
+                        <span>Solo</span>
+                    </label>
 
-            <input
-                type="date"
-                id="travelDate"
-                name="travelDate"
-                required
-            >
+                    <label class="option-chip">
+                        <input type="radio" name="travelType" value="Couple">
+                        <span>Couple</span>
+                    </label>
 
-        </div>
+                    <label class="option-chip">
+                        <input type="radio" name="travelType" value="Friends">
+                        <span>Friends</span>
+                    </label>
 
+                    <label class="option-chip">
+                        <input type="radio" name="travelType" value="Family">
+                        <span>Family</span>
+                    </label>
 
-        <!-- =================================================
-             BUDGET
-             ================================================= -->
-
-        <div class="form-group">
-
-            <label
-                for="budget"
-                data-key="budget"
-            >
-                Budget
-            </label>
-
-            <div class="budget-row">
-
-                <select
-                    id="currency"
-                    name="currency"
-                    class="currency-select"
-                    aria-label="Currency"
-                >
-
-                    <option value="₹">
-                        INR (₹)
-                    </option>
-
-                    <option value="$">
-                        USD ($)
-                    </option>
-
-                    <option value="€">
-                        EUR (€)
-                    </option>
-
-                    <option value="¥">
-                        JPY (¥)
-                    </option>
-
-                    <option value="£">
-                        GBP (£)
-                    </option>
-
-                    <option value="₩">
-                        KRW (₩)
-                    </option>
-
-                    <option value="฿">
-                        THB (฿)
-                    </option>
-
-                    <option value="₺">
-                        TRY (₺)
-                    </option>
-
-                    <option value="د.إ">
-                        AED (د.إ)
-                    </option>
-
-                    <option value="C$">
-                        CAD (C$)
-                    </option>
-
-                    <option value="A$">
-                        AUD (A$)
-                    </option>
-
-                    <option value="CHF">
-                        CHF
-                    </option>
-
-                </select>
-
-
-                <input
-                    type="number"
-                    id="budget"
-                    name="budget"
-                    placeholder="Enter amount"
-                    min="1"
-                    required
-                >
+                </div>
 
             </div>
 
-        </div>
+            <!-- Trip Style -->
+<div class="form-group">
+  <label>Trip Style</label>
 
+  <div class="option-grid">
 
-        <!-- =================================================
-             WHO'S TRAVELLING
-             ================================================= -->
+    <label class="option-card">
+      <input type="radio" name="tripStyle" value="Relaxed">
+      <div>
+        <strong>Relaxed</strong>
+        <p>3 activities with plenty of breaks.</p>
+      </div>
+    </label>
 
-        <div class="form-group">
+    <label class="option-card">
+      <input type="radio" name="tripStyle" value="Balanced" checked>
+      <div>
+        <strong>Balanced</strong>
+        <p>4 activities with a comfortable pace.</p>
+      </div>
+    </label>
 
-            <label data-key="travelType">
-                Who's Travelling?
-            </label>
+    <label class="option-card">
+      <input type="radio" name="tripStyle" value="Packed">
+      <div>
+        <strong>Packed</strong>
+        <p>5–6 activities for a busy day.</p>
+      </div>
+    </label>
 
-            <div class="travel-type-grid">
+  </div>
+</div>
 
+            <!-- Kids -->
 
-                <!-- SOLO -->
+            <div class="toggle-card">
 
-                <label class="travel-card">
-
-                    <input
-                        type="radio"
-                        name="travelType"
-                        value="Solo"
-                        checked
-                    >
-
-                    <span data-key="solo">
-                        Solo
-                    </span>
-
-                </label>
-
-
-                <!-- COUPLE -->
-
-                <label class="travel-card">
-
-                    <input
-                        type="radio"
-                        name="travelType"
-                        value="Couple"
-                    >
-
-                    <span data-key="couple">
-                        Couple
-                    </span>
-
-                </label>
-
-
-                <!-- FAMILY -->
-
-                <label class="travel-card">
-
-                    <input
-                        type="radio"
-                        name="travelType"
-                        value="Family"
-                    >
-
-                    <span data-key="family">
-                        Family
-                    </span>
-
-                </label>
-
-
-                <!-- FRIENDS -->
-
-                <label class="travel-card">
-
-                    <input
-                        type="radio"
-                        name="travelType"
-                        value="Friends"
-                    >
-
-                    <span data-key="friends">
-                        Friends
-                    </span>
-
-                </label>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             CHILD
-             ================================================= -->
-
-        <div class="form-group">
-
-            <label
-                for="kidsUnder12"
-                class="form-label"
-                data-key="child"
-            >
-                Travelling with a Child Under 12?
-            </label>
-
-            <div class="toggle-row">
+                <div>
+                    <strong>Traveling with a child under 12?</strong>
+                    <p>Add kid-friendly attractions and easier schedules.</p>
+                </div>
 
                 <label class="switch">
 
-                    <input
-                        type="checkbox"
-                        id="kidsUnder12"
-                        name="kidsUnder12"
-                    >
+                    <input type="checkbox" id="kidsUnder12">
 
                     <span class="slider"></span>
 
                 </label>
 
-                <span
-                    class="toggle-label"
-                    data-key="yes"
-                >
-                    Yes
-                </span>
-
             </div>
 
-        </div>
-
-
-        <!-- =================================================
-             TRIP STYLE
-             ================================================= -->
-
-        <div class="form-group">
-
-            <label data-key="tripStyle">
-                Trip Style
-            </label>
-
-            <div class="trip-style-grid">
-
-
-                <!-- RELAXED -->
-
-                <label class="travel-card">
-
-                    <input
-                        type="radio"
-                        name="tripStyle"
-                        value="Relaxed"
-                    >
-
-                    <span>
-
-                        <strong data-key="relaxed">
-                            Relaxed
-                        </strong>
-
-                        <small data-key="relaxedDescription">
-                            Fewer places with more time at each stop.
-                        </small>
-
-                    </span>
-
-                </label>
-
-
-                <!-- BALANCED -->
-
-                <label class="travel-card">
-
-                    <input
-                        type="radio"
-                        name="tripStyle"
-                        value="Balanced"
-                        checked
-                    >
-
-                    <span>
-
-                        <strong data-key="balanced">
-                            Balanced
-                        </strong>
-
-                        <small data-key="balancedDescription">
-                            A mix of sightseeing and breaks.
-                        </small>
-
-                    </span>
-
-                </label>
-
-
-                <!-- PACKED -->
-
-                <label class="travel-card">
-
-                    <input
-                        type="radio"
-                        name="tripStyle"
-                        value="Packed"
-                    >
-
-                    <span>
-
-                        <strong data-key="packed">
-                            Packed
-                        </strong>
-
-                        <small data-key="packedDescription">
-                            Fit in as many attractions as possible.
-                        </small>
-
-                    </span>
-
-                </label>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             INTERESTS
-             ================================================= -->
-
-        <div class="form-group">
-
-            <label data-key="interests">
-                Interests
-            </label>
-
-            <div class="interest-grid">
-
-
-                <label class="interest-chip">
-
-                    <input
-                        type="checkbox"
-                        name="interest"
-                        value="Food"
-                    >
-
-                    <span data-key="food">
-                        Food
-                    </span>
-
-                </label>
-
-
-                <label class="interest-chip">
-
-                    <input
-                        type="checkbox"
-                        name="interest"
-                        value="History"
-                    >
-
-                    <span data-key="history">
-                        History
-                    </span>
-
-                </label>
-
-
-                <label class="interest-chip">
-
-                    <input
-                        type="checkbox"
-                        name="interest"
-                        value="Culture"
-                    >
-
-                    <span data-key="culture">
-                        Culture
-                    </span>
-
-                </label>
-
-
-                <label class="interest-chip">
-
-                    <input
-                        type="checkbox"
-                        name="interest"
-                        value="Shopping"
-                    >
-
-                    <span data-key="shopping">
-                        Shopping
-                    </span>
-
-                </label>
-
-
-                <label class="interest-chip">
-
-                    <input
-                        type="checkbox"
-                        name="interest"
-                        value="Nature"
-                    >
-
-                    <span data-key="nature">
-                        Nature
-                    </span>
-
-                </label>
-
-
-                <label class="interest-chip">
-
-                    <input
-                        type="checkbox"
-                        name="interest"
-                        value="Adventure"
-                    >
-
-                    <span data-key="adventure">
-                        Adventure
-                    </span>
-
-                </label>
-
-
-                <label class="interest-chip">
-
-                    <input
-                        type="checkbox"
-                        name="interest"
-                        value="Nightlife"
-                    >
-
-                    <span data-key="nightlife">
-                        Nightlife
-                    </span>
-
-                </label>
-
-
-                <label class="interest-chip">
-
-                    <input
-                        type="checkbox"
-                        name="interest"
-                        value="Photography"
-                    >
-
-                    <span data-key="photography">
-                        Photography
-                    </span>
-
-                </label>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             SUBMIT
-             ================================================= -->
-
-        <button
-            class="generate-button"
-            id="generateButton"
-            type="submit"
-        >
-
-            <span data-key="continue">
+            <button class="generate-button" type="submit">
                 Generate My Itinerary
-            </span>
+            </button>
 
-        </button>
+        </form>
 
-
-    </form>
+    </section>
 
 </main>
 
-
-<!-- =====================================================
-     JAVASCRIPT
-     ===================================================== -->
-
-<script src="/static/js/planner-language.js?v=5"></script>
-<script src="/static/js/planner.js?v=5"></script>
-
+<script src="/static/js/planner-language.js"></script>
+<script src="/static/js/planner.js"></script>
 
 </body>
-
 </html>

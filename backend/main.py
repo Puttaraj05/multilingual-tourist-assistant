@@ -27,7 +27,7 @@ else:
 # =========================================================
 
 app = FastAPI(
-    title="TravelMate",
+    title="Multilingual Tourist Assistant",
     version="1.0.0",
 )
 
@@ -36,10 +36,25 @@ app = FastAPI(
 # DIRECTORIES
 # =========================================================
 
+# Project root
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Frontend directory
 FRONTEND_DIR = BASE_DIR / "frontend"
-ROOT_JS_DIR = BASE_DIR / "js"
+
+# Frontend assets
+CSS_DIR = FRONTEND_DIR / "css"
+JS_DIR = FRONTEND_DIR / "js"
+
+
+print("========================================")
+print("TravelMate Directories")
+print("========================================")
+print("Project:", BASE_DIR)
+print("Frontend:", FRONTEND_DIR)
+print("CSS:", CSS_DIR)
+print("JS:", JS_DIR)
+print("========================================")
 
 
 # =========================================================
@@ -76,74 +91,116 @@ app.include_router(itinerary_router)
 
 
 # =========================================================
-# FRONTEND PAGES
-# =========================================================
-
-@app.get("/")
-async def home():
-    return FileResponse(FRONTEND_DIR / "index.html")
-
-
-@app.get("/planner.html")
-async def planner():
-    return FileResponse(FRONTEND_DIR / "planner.html")
-
-
-@app.get("/itinerary.html")
-async def itinerary():
-    return FileResponse(FRONTEND_DIR / "itinerary.html")
-
-
-@app.get("/translator")
-async def translator():
-    return FileResponse(FRONTEND_DIR / "index.html")
-
-
-@app.get("/chat.html")
-async def chat_page():
-    return FileResponse(FRONTEND_DIR / "chat.html")
-
-
-@app.get("/speech.html")
-async def speech_page():
-    return FileResponse(FRONTEND_DIR / "speech.html")
-
-
-# =========================================================
 # STATIC FILES
 # =========================================================
 
-# Frontend assets:
+# Everything inside frontend is available through /static
 #
-# /static/css/...
-# /static/js/...
+# frontend/css/style.css
+#        ↓
+# /static/css/style.css
 #
+# frontend/js/chat.js
+#        ↓
+# /static/js/chat.js
 
 if FRONTEND_DIR.exists():
+
     app.mount(
         "/static",
-        StaticFiles(directory=str(FRONTEND_DIR)),
+        StaticFiles(
+            directory=str(FRONTEND_DIR)
+        ),
         name="static",
     )
 
 
 # =========================================================
-# ROOT JS
+# FRONTEND PAGE HELPER
 # =========================================================
 
-# Shared JavaScript:
-#
-# /js/planner.js
-# /js/itinerary.js
-# /js/planner-language.js
-#
+def frontend_file(filename: str):
 
-if ROOT_JS_DIR.exists():
-    app.mount(
-        "/js",
-        StaticFiles(directory=str(ROOT_JS_DIR)),
-        name="root-js",
-    )
+    file_path = FRONTEND_DIR / filename
+
+    if not file_path.exists():
+
+        return {
+            "success": False,
+            "error": f"Page not found: {filename}",
+        }
+
+    return FileResponse(file_path)
+
+
+# =========================================================
+# FRONTEND PAGES
+# =========================================================
+
+@app.get("/")
+async def home():
+
+    return frontend_file("index.html")
+
+
+@app.get("/index.html")
+async def index_page():
+
+    return frontend_file("index.html")
+
+
+@app.get("/about.html")
+async def about_page():
+
+    return frontend_file("about.html")
+
+
+@app.get("/auth.html")
+async def auth_page():
+
+    return frontend_file("auth.html")
+
+
+@app.get("/chat.html")
+async def chat_page():
+
+    return frontend_file("chat.html")
+
+
+@app.get("/emergency.html")
+async def emergency_page():
+
+    return frontend_file("emergency.html")
+
+
+@app.get("/features.html")
+async def features_page():
+
+    return frontend_file("features.html")
+
+
+@app.get("/planner.html")
+async def planner_page():
+
+    return frontend_file("planner.html")
+
+
+@app.get("/itinerary.html")
+async def itinerary_page():
+
+    return frontend_file("itinerary.html")
+
+
+@app.get("/recommendations.html")
+async def recommendations_page():
+
+    return frontend_file("recommendations.html")
+
+
+@app.get("/translation.html")
+async def translation_page():
+
+    return frontend_file("translation.html")
 
 
 # =========================================================
@@ -152,6 +209,7 @@ if ROOT_JS_DIR.exists():
 
 @app.get("/api/health")
 async def health():
+
     return {
         "success": True,
         "message": "TravelMate API is running.",

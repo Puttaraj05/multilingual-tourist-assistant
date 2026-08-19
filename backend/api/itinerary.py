@@ -394,7 +394,7 @@ If Child Under 12 is Yes:
                 f"Sending request to Gemini "
                 f"(attempt {attempt}/{max_attempts})"
             )
-            print("Model: gemini-3.6-flash")
+            print("Model: gemini-2.5-flash")
             print("----------------------------------------")
 
             response = client.models.generate_content(
