@@ -103,6 +103,41 @@ if FRONTEND_DIR.exists():
         name="static",
     )
 
+else:
+
+    print(
+        f"WARNING: Frontend directory not found: {FRONTEND_DIR}"
+    )
+
+
+# =========================================================
+# FAVICON
+# =========================================================
+
+@app.get(
+    "/favicon.ico",
+    include_in_schema=False
+)
+async def favicon():
+
+    favicon_path = (
+        FRONTEND_DIR
+        / "images"
+        / "logo.webp"
+    )
+
+    if favicon_path.exists():
+
+        return FileResponse(
+            favicon_path,
+            media_type="image/webp"
+        )
+
+    return {
+        "success": False,
+        "error": "Favicon not found"
+    }
+
 
 # =========================================================
 # FRONTEND PAGE HELPER
@@ -183,13 +218,17 @@ async def itinerary_page():
 @app.get("/recommendations.html")
 async def recommendations_page():
 
-    return frontend_file("recommendations.html")
+    return frontend_file(
+        "recommendations.html"
+    )
 
 
 @app.get("/translation.html")
 async def translation_page():
 
-    return frontend_file("translation.html")
+    return frontend_file(
+        "translation.html"
+    )
 
 
 # =========================================================

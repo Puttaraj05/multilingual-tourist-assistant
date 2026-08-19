@@ -10,7 +10,10 @@ from backend.models.chat import (
 )
 
 from backend.database.mongodb import (
-    messages_collection,
+    get_chat_messages,
+    save_chat_message,
+    ensure_conversation,
+    update_conversation_timestamp,
 )
 
 from backend.services.gemini_service import (
@@ -182,22 +185,8 @@ async def chat(
 
     try:
 
-        previous_messages = list(
-
-            messages_collection
-            .find(
-                {
-                    "session_id":
-                        session_id
-                },
-                {
-                    "_id": 0
-                }
-            )
-            .sort(
-                "created_at",
-                1
-            )
+        previous_messages = get_chat_messages(
+            session_id
         )
 
         pending_user_message = None
@@ -339,26 +328,12 @@ async def chat(
 
     try:
 
-        messages_collection.insert_one({
-
-            "session_id":
-                session_id,
-
-            "role":
-                "user",
-
-            "content":
-                request.message,
-
-            "language":
-                request.language,
-
-            "created_at":
-                datetime.now(
-                    timezone.utc
-                ),
-
-        })
+        save_chat_message(
+            session_id=session_id,
+            role="user",
+            content=request.message,
+            language=request.language,
+        )
 
     except Exception as e:
 
@@ -373,29 +348,15 @@ async def chat(
 
     try:
 
-        messages_collection.insert_one({
-
-            "session_id":
-                session_id,
-
-            "role":
-                "assistant",
-
-            "content":
-                json.dumps(
-                    response,
-                    ensure_ascii=False
-                ),
-
-            "language":
-                request.language,
-
-            "created_at":
-                datetime.now(
-                    timezone.utc
-                ),
-
-        })
+        save_chat_message(
+            session_id=session_id,
+            role="assistant",
+            content=json.dumps(
+                response,
+                ensure_ascii=False
+            ),
+            language=request.language,
+        )
 
     except Exception as e:
 

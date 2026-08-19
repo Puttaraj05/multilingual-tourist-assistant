@@ -36,7 +36,13 @@ align-items:center;
 
 box-shadow:0 12px 35px rgba(0,0,0,.08);
 }
-
+.logo img{
+    width:44px;
+    height:44px;
+    object-fit:contain;
+    display:block;
+    border-radius:30px;
+}
 .logo{
 display:flex;
 align-items:center;
@@ -2141,199 +2147,660 @@ font-size:42px;
    Recommendations Page
 =========================== */
 
-.recommend-page{
-background:#f6f2ec;
-font-family:Poppins,sans-serif;
-color:#13235b;
+/* =====================================================
+   RECOMMENDATIONS PAGE
+===================================================== */
+
+.recommend-page {
+    background: #f6f2ec;
+    font-family: "Poppins", sans-serif;
+    color: #13235b;
+    min-height: 100vh;
 }
 
-.recommend-hero{
-max-width:900px;
-margin:60px auto 40px;
-text-align:center;
-padding:0 20px;
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.recommend-hero {
+    max-width: 900px;
+    margin: 55px auto 35px;
+    padding: 0 20px;
+    text-align: center;
 }
 
-.recommend-hero .badge{
-display:inline-block;
-padding:8px 18px;
-background:#e7ecff;
-border-radius:30px;
-font-size:.9rem;
-margin-bottom:18px;
-color:#295df3;
-font-weight:600;
+.recommend-hero .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 9px 18px;
+
+    background: #e8efff;
+    color: #295df3;
+
+    border-radius: 999px;
+
+    font-size: 14px;
+    font-weight: 600;
 }
 
-.recommend-hero h1{
-font-size:3.2rem;
-line-height:1.1;
-margin-bottom:18px;
-font-weight:800;
+.recommend-hero h1 {
+    margin: 20px 0 15px;
+
+    font-size: 52px;
+    line-height: 1.1;
+    font-weight: 800;
+
+    color: #13235b;
 }
 
-.recommend-hero p{
-max-width:620px;
-margin:auto;
-color:#5d6a8b;
-line-height:1.8;
+.recommend-hero p {
+    max-width: 650px;
+    margin: auto;
+
+    color: #66738f;
+
+    line-height: 1.8;
+    font-size: 16px;
 }
 
-.recommend-search{
-max-width:1100px;
-margin:auto;
-padding:20px;
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.recommend-search {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-.search-box{
-display:flex;
-gap:14px;
-margin-bottom:18px;
+.search-box {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 18px;
 }
 
-.search-box input{
-flex:1;
-padding:18px 22px;
-border:1px solid #dfe4f5;
-border-radius:18px;
-font-size:16px;
-background:white;
+.search-box input {
+    flex: 1;
+
+    padding: 17px 20px;
+
+    border: 1px solid #dfe4f5;
+    border-radius: 17px;
+
+    background: white;
+
+    font-family: "Poppins";
+    font-size: 15px;
+
+    outline: none;
+
+    box-shadow: 0 6px 20px rgba(0,0,0,.03);
 }
 
-.search-box button{
-padding:18px 24px;
-border:none;
-background:#295df3;
-color:white;
-border-radius:18px;
-cursor:pointer;
-font-weight:600;
+.search-box input:focus {
+    border-color: #295df3;
+
+    box-shadow:
+        0 0 0 4px rgba(41,93,243,.08);
 }
 
-.filters{
-display:flex;
-gap:15px;
-flex-wrap:wrap;
+.search-box button {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 17px 24px;
+
+    border: none;
+    border-radius: 17px;
+
+    background: #295df3;
+    color: white;
+
+    font-family: "Poppins";
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: .25s;
+}
+
+.search-box button:hover {
+    background: #1e4fd8;
+    transform: translateY(-2px);
+}
+
+
+/* =====================================================
+   FILTERS
+===================================================== */
+
+.filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .filters select,
-.filters button{
-padding:16px 20px;
-border-radius:16px;
-border:1px solid #dfe4f5;
-background:white;
-font-size:15px;
+.filters button {
+    padding: 14px 18px;
+
+    border: 1px solid #dfe4f5;
+    border-radius: 15px;
+
+    background: white;
+
+    color: #13235b;
+
+    font-family: "Poppins";
+    font-size: 14px;
+
+    cursor: pointer;
 }
 
-.filters button{
-background:#13235b;
-color:white;
-border:none;
-cursor:pointer;
+.filters button {
+    background: #13235b;
+    color: white;
+
+    border: none;
 }
 
-.recommend-results{
-max-width:1100px;
-margin:40px auto 80px;
-padding:0 20px;
+.filters button:hover {
+    background: #243b78;
 }
 
-.result-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:25px;
-flex-wrap:wrap;
-gap:10px;
+
+/* =====================================================
+   RESULTS
+===================================================== */
+
+.recommend-results {
+    max-width: 1100px;
+
+    margin: 35px auto 80px;
+
+    padding: 0 20px;
 }
 
-.recommend-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:22px;
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 24px;
+
+    gap: 15px;
 }
 
-.place-card{
-background:white;
-border-radius:26px;
-padding:24px;
-box-shadow:0 10px 30px rgba(0,0,0,.05);
-transition:.25s;
+.result-header h2 {
+    margin: 0;
+
+    font-size: 27px;
+    color: #13235b;
 }
 
-.place-card:hover{
-transform:translateY(-6px);
+.result-header span {
+    color: #66738f;
+    font-size: 14px;
 }
 
-.place-top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:14px;
+
+/* =====================================================
+   CARD GRID
+===================================================== */
+
+.recommend-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
 }
 
-.place-icon{
-width:54px;
-height:54px;
-border-radius:18px;
-display:flex;
-justify-content:center;
-align-items:center;
-font-size:22px;
-background:#edf3ff;
-color:#295df3;
+
+/* =====================================================
+   RECOMMENDATION CARD
+===================================================== */
+
+.recommend-card {
+    position: relative;
+
+    background: white;
+
+    border-radius: 24px;
+
+    padding: 22px;
+
+    border: 1px solid #edf0f7;
+
+    box-shadow:
+        0 10px 30px rgba(19,35,91,.06);
+
+    overflow: hidden;
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        border-color .25s ease;
 }
 
-.place-rating{
-background:#eef7e9;
-padding:6px 12px;
-border-radius:999px;
-font-size:14px;
-font-weight:600;
-color:#18803a;
+.recommend-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 4px;
+
+    background: #295df3;
 }
 
-.place-card h3{
-margin-bottom:10px;
-font-size:1.2rem;
+.recommend-card:hover {
+    transform: translateY(-7px);
+
+    border-color: #dce5ff;
+
+    box-shadow:
+        0 18px 40px rgba(41,93,243,.13);
 }
 
-.place-card p{
-color:#67748f;
-line-height:1.6;
-font-size:.95rem;
+
+/* =====================================================
+   CARD TOP
+===================================================== */
+
+.recommend-card-top {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
 }
 
-.place-meta{
-display:flex;
-justify-content:space-between;
-margin:18px 0;
-font-size:14px;
-color:#5b6888;
+.recommend-icon {
+    width: 58px;
+    height: 58px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 18px;
+
+    background: #edf3ff;
+
+    color: #295df3;
+
+    font-size: 23px;
 }
 
-.place-actions{
-display:flex;
-gap:12px;
+.recommend-category {
+    padding: 6px 11px;
+
+    background: #f3f5fa;
+
+    color: #53617f;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
 }
 
-.place-actions a{
-flex:1;
-text-align:center;
-padding:12px;
-border-radius:14px;
-text-decoration:none;
-font-weight:600;
+.recommend-rating {
+    margin-left: auto;
+
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 7px 11px;
+
+    border-radius: 999px;
+
+    background: #fff7df;
+
+    color: #c58a00;
+
+    font-size: 13px;
+
+    font-weight: 700;
 }
 
-.map-btn{
-background:#295df3;
-color:white;
+.recommend-rating i {
+    font-size: 12px;
 }
 
-.dir-btn{
-border:1px solid #dfe4f5;
-color:#13235b;
+
+/* =====================================================
+   CARD CONTENT
+===================================================== */
+
+.recommend-card-content h3 {
+    margin: 0 0 10px;
+
+    font-size: 21px;
+
+    line-height: 1.3;
+
+    color: #13235b;
+}
+
+.recommend-location {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 8px;
+
+    margin-bottom: 12px;
+
+    color: #66738f;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.recommend-location i {
+    margin-top: 3px;
+
+    color: #295df3;
+}
+
+.recommend-description {
+    margin: 0;
+
+    color: #7a859b;
+
+    font-size: 13px;
+
+    line-height: 1.65;
+}
+
+
+/* =====================================================
+   META
+===================================================== */
+
+.recommend-meta {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-top: 18px;
+
+    padding-top: 15px;
+
+    border-top: 1px solid #edf0f5;
+
+    color: #66738f;
+
+    font-size: 13px;
+}
+
+.recommend-meta span {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+.recommend-meta i {
+    color: #295df3;
+}
+
+
+/* =====================================================
+   MAP BUTTON
+===================================================== */
+
+.recommend-actions {
+    margin-top: 18px;
+}
+
+.recommend-map-btn {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    padding: 13px 18px;
+
+    border-radius: 14px;
+
+    background: #295df3;
+
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    transition: .25s;
+}
+
+.recommend-map-btn:hover {
+    background: #1e4fd8;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(41,93,243,.22);
+}
+
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.recommend-empty {
+    grid-column: 1 / -1;
+
+    text-align: center;
+
+    background: white;
+
+    padding: 60px 30px;
+
+    border-radius: 25px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.05);
+}
+
+.empty-icon {
+    width: 70px;
+    height: 70px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 22px;
+
+    background: #edf3ff;
+
+    color: #295df3;
+
+    font-size: 28px;
+}
+
+.recommend-empty h3 {
+    margin-bottom: 10px;
+
+    color: #13235b;
+}
+
+.recommend-empty p {
+    color: #66738f;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.recommend-loading {
+    grid-column: 1 / -1;
+
+    text-align: center;
+
+    padding: 60px;
+
+    background: white;
+
+    border-radius: 25px;
+
+    color: #66738f;
+}
+
+.recommend-loading i {
+    font-size: 30px;
+
+    color: #295df3;
+
+    margin-bottom: 15px;
+}
+
+.recommend-loading p {
+    margin: 0;
+}
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.recommend-error {
+    grid-column: 1 / -1;
+
+    text-align: center;
+
+    padding: 50px 25px;
+
+    background: white;
+
+    border-radius: 25px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.05);
+}
+
+.recommend-error > i {
+    font-size: 35px;
+
+    color: #dc2626;
+
+    margin-bottom: 15px;
+}
+
+.recommend-error h3 {
+    margin-bottom: 8px;
+}
+
+.recommend-error p {
+    color: #66738f;
+
+    margin-bottom: 20px;
+}
+
+.recommend-error button {
+    border: none;
+
+    padding: 12px 20px;
+
+    border-radius: 13px;
+
+    background: #295df3;
+
+    color: white;
+
+    font-family: "Poppins";
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 800px) {
+
+    .recommend-hero h1 {
+        font-size: 40px;
+    }
+
+    .recommend-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+
+    .search-box button {
+        justify-content: center;
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .recommend-hero {
+        margin-top: 35px;
+    }
+
+    .recommend-hero h1 {
+        font-size: 34px;
+    }
+
+    .recommend-card {
+        padding: 18px;
+    }
+
+    .recommend-card-top {
+        flex-wrap: wrap;
+    }
+
+    .recommend-rating {
+        margin-left: 0;
+    }
+
+    .result-header h2 {
+        font-size: 22px;
+    }
+
 }
 /* ===========================
    About Page
@@ -3031,6 +3498,253 @@ margin:auto;
 
     .activities-container {
         padding: 20px;
+    }
+
+}
+/* TravelMate Navbar Logo */
+.navbar-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    display: block;
+    border-radius: 12px;
+}
+
+
+/* =========================================================
+   COMMON TRAVELMATE NAVBAR LOGO
+   ========================================================= */
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar .navbar-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    display: block;
+}
+
+.navbar .logo h2 {
+    margin: 0;
+}
+
+
+/* =========================================================
+   FINAL COMMON TRAVELMATE NAVBAR
+   Used by: Chat, Emergency, Itinerary, Translation
+   ========================================================= */
+
+.navbar {
+    width: 96%;
+    max-width: 1400px;
+    margin: 28px auto 20px;
+    padding: 20px 34px;
+
+    background: #ffffff;
+
+    border-radius: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+
+    position: relative;
+    z-index: 100;
+}
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.navbar .navbar-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    display: block;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.navbar .logo h2 {
+    margin: 0;
+    color: #162554;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.navbar .logo p {
+    margin: 2px 0 0;
+    color: #64748B;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.navbar nav {
+    display: flex;
+    align-items: center;
+    gap: 38px;
+}
+
+.navbar nav a {
+    position: relative;
+    color: #162554;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.25s ease;
+}
+
+.navbar nav a:hover {
+    color: #2563EB;
+}
+
+.navbar nav a.active {
+    color: #2563EB;
+}
+
+.navbar nav a.active::after,
+.navbar nav a:hover::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -8px;
+    height: 2px;
+    background: #2563EB;
+    border-radius: 2px;
+}
+
+@media (max-width: 900px) {
+
+    .navbar {
+        width: 92%;
+        padding: 18px 24px;
+    }
+
+    .navbar nav {
+        gap: 20px;
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    .navbar {
+        flex-direction: column;
+        gap: 18px;
+        text-align: center;
+    }
+
+    .navbar .logo {
+        justify-content: center;
+    }
+
+    .navbar .logo h2 {
+        font-size: 24px;
+    }
+
+    .navbar nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px 22px;
+    }
+
+}
+
+/* FINAL LOGO SIZE */
+.navbar .navbar-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+}
+
+.navbar .logo {
+    gap: 14px;
+}
+
+.navbar .logo h2 {
+    font-size: 30px;
+}
+
+/* =========================================================
+   LARGE TRAVELMATE NAVBAR LOGO
+   ========================================================= */
+
+.navbar .navbar-logo {
+    width: 72px !important;
+    height: 72px !important;
+    min-width: 72px;
+    min-height: 72px;
+    object-fit: contain;
+    display: block;
+}
+
+.navbar .logo {
+    gap: 16px;
+}
+
+.navbar .logo h2 {
+    font-size: 32px;
+}
+
+.navbar .logo p {
+    font-size: 14px;
+}
+
+@media (max-width: 650px) {
+
+    .navbar .navbar-logo {
+        width: 60px !important;
+        height: 60px !important;
+        min-width: 60px;
+        min-height: 60px;
+    }
+
+    .navbar .logo h2 {
+        font-size: 26px;
+    }
+
+}
+
+/* FINAL TRAVELMATE LOGO SIZE */
+.navbar .navbar-logo {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px;
+    min-height: 64px;
+    object-fit: contain;
+    display: block;
+}
+
+.navbar .logo {
+    gap: 14px;
+}
+
+.navbar .logo h2 {
+    font-size: 30px;
+}
+
+.navbar .logo p {
+    font-size: 13px;
+}
+
+@media (max-width: 650px) {
+
+    .navbar .navbar-logo {
+        width: 56px !important;
+        height: 56px !important;
+        min-width: 56px;
+        min-height: 56px;
     }
 
 }

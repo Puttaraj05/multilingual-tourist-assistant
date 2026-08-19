@@ -19,9 +19,10 @@ async def get_recommendations(
 
     search_location = None
 
-    # -------------------------
+    # =====================================================
     # OPTION 1: NEAR ME
-    # -------------------------
+    # =====================================================
+
     if latitude is not None and longitude is not None:
 
         search_latitude = latitude
@@ -29,33 +30,38 @@ async def get_recommendations(
 
         search_location = "Near Me"
 
-    # -------------------------
-    # OPTION 2: SEARCH NEAR PLACE
-    # -------------------------
+    # =====================================================
+    # OPTION 2: SEARCH NEAR LOCATION
+    # =====================================================
+
     else:
 
         location_data = await geocode_location(
             location
         )
 
-        search_latitude = (
-            location_data["latitude"]
-        )
+        search_latitude = location_data["latitude"]
+        search_longitude = location_data["longitude"]
 
-        search_longitude = (
-            location_data["longitude"]
-        )
+        search_location = location_data["display_name"]
 
-        search_location = (
-            location_data["display_name"]
-        )
+    # =====================================================
+    # CATEGORY
+    # =====================================================
 
-    normalized_category = normalize_category(
-        category
+    normalized_category = None
+
+    if category and category.lower() != "all":
+        normalized_category = normalize_category(category)
+
+    # =====================================================
+    # FETCH PLACES
+    # =====================================================
+
+    fetch_limit = max(
+        max_results * 4,
+        20
     )
-
-    # Get extra results before filtering/sorting
-    fetch_limit = max(max_results * 4, 20)
 
     places = await get_nearby_places(
         latitude=search_latitude,
@@ -67,6 +73,10 @@ async def get_recommendations(
 
     recommendations = []
 
+    # =====================================================
+    # BUILD RESULTS
+    # =====================================================
+
     for place in places:
 
         distance_km = calculate_distance(
@@ -76,7 +86,6 @@ async def get_recommendations(
             place["longitude"]
         )
 
-        # REC-03
         if distance_km > radius:
             continue
 
@@ -89,27 +98,29 @@ async def get_recommendations(
                 "longitude": place["longitude"],
 
                 "rating": place.get("rating"),
+
                 "opening_time": place.get(
                     "opening_time"
                 ),
+
                 "closing_time": place.get(
                     "closing_time"
                 ),
 
-                "address": place.get("address"),
+                "address": place.get(
+                    "address"
+                ),
 
                 "distance_km": round(
                     distance_km,
                     2
                 ),
 
-                "navigation_url": (
-                    create_navigation_url(
-                        search_latitude,
-                        search_longitude,
-                        place["latitude"],
-                        place["longitude"]
-                    )
+                "navigation_url": create_navigation_url(
+                    search_latitude,
+                    search_longitude,
+                    place["latitude"],
+                    place["longitude"]
                 ),
 
                 "source_url": place.get(
@@ -118,12 +129,14 @@ async def get_recommendations(
             }
         )
 
-    # Sort nearest first
+    # =====================================================
+    # SORT
+    # =====================================================
+
     recommendations.sort(
         key=lambda item: item["distance_km"]
     )
 
-    # REC-04
     recommendations = recommendations[
         :max_results
     ]

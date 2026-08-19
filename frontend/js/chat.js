@@ -1,9 +1,10 @@
 /* =========================================================
    TRAVELMATE AI CHAT
-   Updated for current FastAPI response structure
+   Persistent MongoDB Chat History
 ========================================================= */
 
 const API_ENDPOINT = "/api/chat";
+const SESSION_STORAGE_KEY = "travelmate_session_id";
 
 let currentSessionId = null;
 
@@ -23,6 +24,7 @@ let chatHistory = [];
 ========================================================= */
 
 function escapeHtml(value) {
+
     return String(value ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -38,7 +40,10 @@ function escapeHtml(value) {
 
 function fieldText(item, keys) {
 
-    if (item === null || item === undefined) {
+    if (
+        item === null ||
+        item === undefined
+    ) {
         return "";
     }
 
@@ -57,8 +62,12 @@ function fieldText(item, keys) {
             item[key] !== ""
         ) {
 
-            if (typeof item[key] === "object") {
-                return JSON.stringify(item[key]);
+            if (
+                typeof item[key] === "object"
+            ) {
+                return JSON.stringify(
+                    item[key]
+                );
             }
 
             return String(item[key]);
@@ -126,41 +135,71 @@ const HERO_IMAGE =
 
 function imgForCategory(category) {
 
-    return CATEGORY_IMAGES[category] ||
-        CATEGORY_IMAGES.default;
+    return (
+        CATEGORY_IMAGES[category] ||
+        CATEGORY_IMAGES.default
+    );
 }
 
 
 /* =========================================================
-   CREATE SESSION
+   SESSION ID
 ========================================================= */
 
-function createNewSession() {
+function generateSessionId() {
 
-    const sessionId =
+    return (
         "session-" +
         Date.now() +
         "-" +
         Math.random()
             .toString(36)
-            .substring(2, 8);
+            .substring(2, 8)
+    );
+}
 
-    currentSessionId = sessionId;
+
+/* =========================================================
+   CREATE NEW SESSION
+   ONLY USED WHEN USER CLICKS "NEW CHAT"
+========================================================= */
+
+function createNewSession() {
+
+    const sessionId =
+        generateSessionId();
+
+    currentSessionId =
+        sessionId;
+
+    localStorage.setItem(
+        SESSION_STORAGE_KEY,
+        sessionId
+    );
 
     const language =
-        document.getElementById("languageSelect")?.value ||
+        document.getElementById(
+            "languageSelect"
+        )?.value ||
         "English";
 
     currentChat = {
+
         id: sessionId,
+
         title: "New Chat",
+
         language: language,
+
         destination: "",
+
         messages: []
     };
 
     const resultArea =
-        document.getElementById("resultArea");
+        document.getElementById(
+            "resultArea"
+        );
 
     if (resultArea) {
         resultArea.innerHTML = "";
@@ -171,49 +210,339 @@ function createNewSession() {
 
 
 /* =========================================================
-   NEW CHAT
+   LOAD SAVED CHAT FROM MONGODB
 ========================================================= */
 
-function startNewChat() {
+async function loadChatHistoryFromServer(
+    sessionId
+) {
 
-    saveCurrentChat();
+    if (!sessionId) {
+        return false;
+    }
 
-    createNewSession();
+    try {
 
-    showWelcomeScreen();
+        console.log(
+            "Loading MongoDB history:",
+            sessionId
+        );
 
-    document
-        .getElementById("chatInput")
-        ?.focus();
+        const response =
+            await fetch(
+                `${API_ENDPOINT}/history/${encodeURIComponent(sessionId)}`
+            );
+
+        if (!response.ok) {
+
+            console.error(
+                "History request failed:",
+                response.status
+            );
+
+            return false;
+        }
+
+        const data =
+            await response.json();
+
+        if (
+            !data.success ||
+            !Array.isArray(data.messages)
+        ) {
+
+            console.log(
+                "No MongoDB history found."
+            );
+
+            return false;
+        }
+
+        const messages =
+            data.messages;
+
+        if (!messages.length) {
+
+            console.log(
+                "Session exists but contains no messages."
+            );
+
+            return false;
+        }
+
+
+        /* =================================================
+           RESTORE SESSION
+        ================================================= */
+
+        currentSessionId =
+            sessionId;
+
+        localStorage.setItem(
+            SESSION_STORAGE_KEY,
+            sessionId
+        );
+
+
+        /* =================================================
+           FIND LANGUAGE
+        ================================================= */
+
+        const firstLanguage =
+            messages.find(
+                message =>
+                    message &&
+                    message.language
+            )?.language ||
+            "English";
+
+
+        currentChat = {
+
+            id: sessionId,
+
+            title: "Travel Chat",
+
+            language: firstLanguage,
+
+            destination: "",
+
+            messages: []
+        };
+
+
+        /* =================================================
+           CONVERT MONGODB MESSAGES
+        ================================================= */
+
+        for (
+            const message of messages
+        ) {
+
+            if (
+                !message ||
+                !message.role
+            ) {
+                continue;
+            }
+
+
+            /* =============================================
+               USER
+            ============================================= */
+
+            if (
+                message.role === "user"
+            ) {
+
+                currentChat.messages.push({
+
+                    role: "user",
+
+                    content:
+                        message.content ||
+                        "",
+
+                    language:
+                        message.language ||
+                        "English",
+
+                    timestamp:
+                        message.created_at ||
+                        message.timestamp ||
+                        null
+                });
+
+                continue;
+            }
+
+
+            /* =============================================
+               ASSISTANT
+            ============================================= */
+
+            if (
+                message.role === "assistant"
+            ) {
+
+                let content =
+                    message.content ||
+                    "";
+
+                let parsedContent =
+                    null;
+
+
+                /* -----------------------------------------
+                   MongoDB stores assistant response as JSON
+                   ----------------------------------------- */
+
+                if (
+                    typeof content ===
+                    "string"
+                ) {
+
+                    try {
+
+                        parsedContent =
+                            JSON.parse(
+                                content
+                            );
+
+                    } catch {
+
+                        parsedContent =
+                            content;
+                    }
+
+                } else {
+
+                    parsedContent =
+                        content;
+                }
+
+
+                currentChat.messages.push({
+
+                    role: "assistant",
+
+                    content:
+                        typeof parsedContent ===
+                        "object"
+                            ? (
+                                parsedContent.message ||
+                                ""
+                            )
+                            : String(
+                                parsedContent ||
+                                ""
+                            ),
+
+                    data:
+                        typeof parsedContent ===
+                        "object"
+                            ? parsedContent
+                            : {
+                                message:
+                                    String(
+                                        parsedContent ||
+                                        ""
+                                    )
+                            },
+
+                    query: "",
+
+                    language:
+                        message.language ||
+                        "English",
+
+                    timestamp:
+                        message.created_at ||
+                        message.timestamp ||
+                        null
+                });
+            }
+        }
+
+
+        /* =================================================
+           RESTORE CHAT TITLE
+        ================================================= */
+
+        const firstUserMessage =
+            currentChat.messages.find(
+                message =>
+                    message.role === "user"
+            );
+
+        if (firstUserMessage?.content) {
+
+            currentChat.title =
+                createChatTitle(
+                    firstUserMessage.content
+                );
+        }
+
+
+        /* =================================================
+           SAVE INTO FRONTEND RECENT LIST
+        ================================================= */
+
+        updateChatHistory();
+
+
+        /* =================================================
+           DISPLAY RESTORED CHAT
+        ================================================= */
+
+        renderConversation();
+
+
+        console.log(
+            "MongoDB chat restored successfully:",
+            currentChat.messages.length,
+            "messages"
+        );
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load MongoDB chat history:",
+            error
+        );
+
+        return false;
+    }
 }
 
 
 /* =========================================================
-   SAVE CHAT
+   UPDATE FRONTEND RECENT CHAT LIST
 ========================================================= */
 
-function saveCurrentChat() {
+function updateChatHistory() {
 
     if (
         !currentChat ||
+        !currentChat.id ||
         !currentChat.messages ||
-        currentChat.messages.length === 0
+        !currentChat.messages.length
     ) {
         return;
     }
 
+
     const existingIndex =
         chatHistory.findIndex(
-            chat => chat.id === currentChat.id
+            chat =>
+                chat.id ===
+                currentChat.id
         );
+
+
+    const firstUserMessage =
+        currentChat.messages.find(
+            message =>
+                message.role === "user"
+        );
+
 
     const chatObject = {
 
-        id: currentChat.id,
+        id:
+            currentChat.id,
 
         title:
             currentChat.title ||
-            "Travel Chat",
+            (
+                firstUserMessage
+                    ? createChatTitle(
+                        firstUserMessage.content
+                    )
+                    : "Travel Chat"
+            ),
 
         language:
             currentChat.language ||
@@ -226,13 +555,16 @@ function saveCurrentChat() {
         messages:
             currentChat.messages,
 
-        time: "Just now"
+        time:
+            "Saved"
     };
+
 
     if (existingIndex >= 0) {
 
-        chatHistory[existingIndex] =
-            chatObject;
+        chatHistory[
+            existingIndex
+        ] = chatObject;
 
     } else {
 
@@ -241,10 +573,48 @@ function saveCurrentChat() {
         );
     }
 
+
     chatHistory =
-        chatHistory.slice(0, 15);
+        chatHistory.slice(
+            0,
+            15
+        );
+
 
     renderRecentList();
+}
+
+
+/* =========================================================
+   NEW CHAT
+========================================================= */
+
+function startNewChat() {
+
+    /*
+     * Do NOT reuse the old session.
+     */
+
+    createNewSession();
+
+    showWelcomeScreen();
+
+    document
+        .getElementById(
+            "chatInput"
+        )
+        ?.focus();
+}
+
+
+/* =========================================================
+   SAVE CURRENT CHAT TO FRONTEND STATE
+   MongoDB saving happens on the backend.
+========================================================= */
+
+function saveCurrentChat() {
+
+    updateChatHistory();
 }
 
 
@@ -259,7 +629,10 @@ function renderRecentList() {
             "recentList"
         );
 
-    if (!list) return;
+    if (!list) {
+        return;
+    }
+
 
     if (!chatHistory.length) {
 
@@ -272,66 +645,80 @@ function renderRecentList() {
         return;
     }
 
+
     list.innerHTML =
         chatHistory
-            .map(chat => {
+            .map(
+                chat => {
 
-                const active =
-                    chat.id === currentSessionId
-                        ? "active"
-                        : "";
+                    const active =
+                        chat.id ===
+                        currentSessionId
+                            ? "active"
+                            : "";
 
-                return `
-                    <button
-                        type="button"
-                        class="recent-item ${active}"
-                        data-chat-id="${escapeHtml(chat.id)}"
-                    >
 
-                        <span class="recent-dot"></span>
+                    return `
+                        <button
+                            type="button"
+                            class="recent-item ${active}"
+                            data-chat-id="${escapeHtml(
+                                chat.id
+                            )}"
+                        >
 
-                        <div class="recent-text">
+                            <span class="recent-dot"></span>
 
-                            <strong>
-                                ${escapeHtml(
-                                    chat.title ||
-                                    "Travel Chat"
-                                )}
-                            </strong>
+                            <div class="recent-text">
 
-                            <span>
-                                ${escapeHtml(
-                                    chat.language ||
-                                    "English"
-                                )}
-                                ·
-                                ${escapeHtml(
-                                    chat.time ||
-                                    "Recent"
-                                )}
-                            </span>
+                                <strong>
+                                    ${escapeHtml(
+                                        chat.title ||
+                                        "Travel Chat"
+                                    )}
+                                </strong>
 
-                        </div>
+                                <span>
+                                    ${escapeHtml(
+                                        chat.language ||
+                                        "English"
+                                    )}
+                                    ·
+                                    ${escapeHtml(
+                                        chat.time ||
+                                        "Saved"
+                                    )}
+                                </span>
 
-                    </button>
-                `;
-            })
+                            </div>
+
+                        </button>
+                    `;
+                }
+            )
             .join("");
 
+
     list
-        .querySelectorAll(".recent-item")
-        .forEach(item => {
+        .querySelectorAll(
+            ".recent-item"
+        )
+        .forEach(
+            item => {
 
-            item.addEventListener(
-                "click",
-                () => {
-                    openChat(
-                        item.dataset.chatId
-                    );
-                }
-            );
+                item.addEventListener(
+                    "click",
+                    async () => {
 
-        });
+                        await openChat(
+                            item.dataset.chatId
+                        );
+
+                    }
+                );
+
+            }
+        );
 }
 
 
@@ -339,51 +726,84 @@ function renderRecentList() {
    OPEN CHAT
 ========================================================= */
 
-function openChat(sessionId) {
+async function openChat(
+    sessionId
+) {
 
-    const chat =
-        chatHistory.find(
-            item => item.id === sessionId
-        );
-
-    if (!chat) return;
-
-    currentSessionId =
-        chat.id;
-
-    currentChat = {
-        id: chat.id,
-
-        title:
-            chat.title ||
-            "Travel Chat",
-
-        language:
-            chat.language ||
-            "English",
-
-        destination:
-            chat.destination ||
-            "",
-
-        messages:
-            chat.messages ||
-            []
-    };
-
-    const languageSelect =
-        document.getElementById(
-            "languageSelect"
-        );
-
-    if (languageSelect) {
-        languageSelect.value =
-            currentChat.language;
+    if (!sessionId) {
+        return;
     }
 
-    renderConversation();
 
-    renderRecentList();
+    /* First check current frontend memory */
+
+    const localChat =
+        chatHistory.find(
+            item =>
+                item.id ===
+                sessionId
+        );
+
+
+    if (localChat) {
+
+        currentSessionId =
+            sessionId;
+
+        localStorage.setItem(
+            SESSION_STORAGE_KEY,
+            sessionId
+        );
+
+        currentChat = {
+
+            id:
+                localChat.id,
+
+            title:
+                localChat.title ||
+                "Travel Chat",
+
+            language:
+                localChat.language ||
+                "English",
+
+            destination:
+                localChat.destination ||
+                "",
+
+            messages:
+                localChat.messages ||
+                []
+        };
+
+
+        const languageSelect =
+            document.getElementById(
+                "languageSelect"
+            );
+
+        if (languageSelect) {
+
+            languageSelect.value =
+                currentChat.language;
+        }
+
+
+        renderConversation();
+
+        renderRecentList();
+
+        return;
+    }
+
+
+    /* If not in frontend memory,
+       load directly from MongoDB */
+
+    await loadChatHistoryFromServer(
+        sessionId
+    );
 }
 
 
@@ -398,7 +818,10 @@ function showWelcomeScreen() {
             "resultArea"
         );
 
-    if (!area) return;
+    if (!area) {
+        return;
+    }
+
 
     area.innerHTML = `
 
@@ -436,9 +859,13 @@ function renderConversation() {
             "resultArea"
         );
 
-    if (!area) return;
+    if (!area) {
+        return;
+    }
+
 
     area.innerHTML = "";
+
 
     if (
         !currentChat.messages ||
@@ -450,27 +877,51 @@ function renderConversation() {
         return;
     }
 
+
     currentChat.messages.forEach(
         message => {
 
-            if (message.role === "user") {
+            if (
+                message.role === "user"
+            ) {
 
                 appendUserMessage(
                     message.content,
                     false
                 );
+
+                return;
             }
 
-            if (message.role === "assistant") {
+
+            if (
+                message.role === "assistant"
+            ) {
+
+                /*
+                 * IMPORTANT:
+                 * Restored messages use message.data.
+                 */
+
+                const assistantData =
+                    message.data ||
+                    {
+                        message:
+                            message.content ||
+                            ""
+                    };
+
 
                 appendAssistantMessage(
-                    message.data,
-                    message.query,
+                    assistantData,
+                    message.query || "",
                     false
                 );
             }
+
         }
     );
+
 
     scrollChatToBottom(false);
 }
@@ -495,83 +946,92 @@ function renderAssistantResponse(
     }
 
 
-    /* =====================================================
-       BASIC DATA
-    ===================================================== */
-
     const message =
         data.message || "";
 
+
     let destination = "";
 
-    if (typeof data.destination === "string") {
+
+    if (
+        typeof data.destination ===
+        "string"
+    ) {
 
         destination =
             data.destination;
 
     } else if (
         data.destination &&
-        typeof data.destination === "object"
+        typeof data.destination ===
+        "object"
     ) {
 
         destination =
-            data.destination.name || "";
+            data.destination.name ||
+            "";
     }
+
 
     destination =
         destination ||
         currentChat.destination ||
         "";
 
+
     if (destination) {
+
         currentChat.destination =
             destination;
     }
 
 
-    /* =====================================================
-       ARRAYS
-    ===================================================== */
-
     const attractions =
-        asArray(data.attractions);
+        asArray(
+            data.attractions
+        );
 
     const food =
-        asArray(data.food);
+        asArray(
+            data.food
+        );
 
     const transportation =
-        asArray(data.transportation);
+        asArray(
+            data.transportation
+        );
 
     const tips =
-        asArray(data.tips);
+        asArray(
+            data.tips
+        );
 
     const itinerary =
-        asArray(data.itinerary);
+        asArray(
+            data.itinerary
+        );
 
-
-    /* =====================================================
-       TRIP METADATA
-    ===================================================== */
 
     const tripOverview =
-        data.trip_overview || "";
+        data.trip_overview ||
+        "";
 
     const tripDuration =
-        data.trip_duration || "";
+        data.trip_duration ||
+        "";
 
     const travelStyle =
-        data.travel_style || "";
+        data.travel_style ||
+        "";
 
     const bestTime =
-        data.best_time_to_visit || "";
+        data.best_time_to_visit ||
+        "";
 
     const budget =
-        data.estimated_budget || "";
+        data.estimated_budget ||
+        "";
 
-
-    /* =====================================================
-       CHECK CONTENT
-    ===================================================== */
 
     const hasTripContent =
         attractions.length > 0 ||
@@ -585,10 +1045,6 @@ function renderAssistantResponse(
         bestTime ||
         budget;
 
-
-    /* =====================================================
-       SIMPLE RESPONSE
-    ===================================================== */
 
     const messageHtml =
         message
@@ -610,10 +1066,6 @@ function renderAssistantResponse(
     }
 
 
-    /* =====================================================
-       HERO
-    ===================================================== */
-
     const heroHtml =
         destination
             ? `
@@ -623,7 +1075,9 @@ function renderAssistantResponse(
 
                         <img
                             src="${HERO_IMAGE}"
-                            alt="${escapeHtml(destination)}"
+                            alt="${escapeHtml(
+                                destination
+                            )}"
                         >
 
                         ${
@@ -643,7 +1097,9 @@ function renderAssistantResponse(
                     <div class="hero-body">
 
                         <h2>
-                            ${escapeHtml(destination)}
+                            ${escapeHtml(
+                                destination
+                            )}
                             ✨
                         </h2>
 
@@ -655,7 +1111,9 @@ function renderAssistantResponse(
                             message
                                 ? `
                                     <p class="hero-desc">
-                                        ${formatText(message)}
+                                        ${formatText(
+                                            message
+                                        )}
                                     </p>
                                 `
                                 : ""
@@ -713,10 +1171,6 @@ function renderAssistantResponse(
             : "";
 
 
-    /* =====================================================
-       TRIP OVERVIEW
-    ===================================================== */
-
     const overviewHtml =
         tripOverview ||
         tripDuration ||
@@ -748,7 +1202,9 @@ function renderAssistantResponse(
                             tripDuration
                                 ? `
                                     <div class="overview-item">
-                                        <span>📅 Duration</span>
+                                        <span>
+                                            📅 Duration
+                                        </span>
                                         <strong>
                                             ${escapeHtml(
                                                 tripDuration
@@ -763,7 +1219,9 @@ function renderAssistantResponse(
                             travelStyle
                                 ? `
                                     <div class="overview-item">
-                                        <span>✨ Travel Style</span>
+                                        <span>
+                                            ✨ Travel Style
+                                        </span>
                                         <strong>
                                             ${escapeHtml(
                                                 travelStyle
@@ -778,7 +1236,9 @@ function renderAssistantResponse(
                             bestTime
                                 ? `
                                     <div class="overview-item">
-                                        <span>🌤️ Best Time</span>
+                                        <span>
+                                            🌤️ Best Time
+                                        </span>
                                         <strong>
                                             ${escapeHtml(
                                                 bestTime
@@ -793,7 +1253,9 @@ function renderAssistantResponse(
                             budget
                                 ? `
                                     <div class="overview-item">
-                                        <span>💰 Estimated Budget</span>
+                                        <span>
+                                            💰 Estimated Budget
+                                        </span>
                                         <strong>
                                             ${escapeHtml(
                                                 budget
@@ -819,7 +1281,9 @@ function renderAssistantResponse(
 
         ${
             attractions.length
-                ? renderAttractions(attractions)
+                ? renderAttractions(
+                    attractions
+                )
                 : ""
         }
 
@@ -861,11 +1325,19 @@ function renderAssistantResponse(
 
 function formatText(text) {
 
-    if (!text) return "";
+    if (!text) {
+        return "";
+    }
 
     return escapeHtml(text)
-        .replace(/\n\n/g, "</p><p>")
-        .replace(/\n/g, "<br>");
+        .replace(
+            /\n\n/g,
+            "</p><p>"
+        )
+        .replace(
+            /\n/g,
+            "<br>"
+        );
 }
 
 
@@ -873,7 +1345,9 @@ function formatText(text) {
    ATTRACTIONS
 ========================================================= */
 
-function renderAttractions(attractions) {
+function renderAttractions(
+    attractions
+) {
 
     return `
         <div class="section-title">
@@ -890,12 +1364,16 @@ function renderAttractions(attractions) {
                             fieldText(
                                 item,
                                 ["category"]
-                            ) || "Nature";
+                            ) ||
+                            "Nature";
 
                         const name =
                             fieldText(
                                 item,
-                                ["name", "title"]
+                                [
+                                    "name",
+                                    "title"
+                                ]
                             );
 
                         const description =
@@ -931,19 +1409,26 @@ function renderAttractions(attractions) {
                                 ["location"]
                             );
 
+
                         return `
                             <div class="attraction-card">
 
                                 <img
-                                    src="${imgForCategory(category)}"
-                                    alt="${escapeHtml(name)}"
+                                    src="${imgForCategory(
+                                        category
+                                    )}"
+                                    alt="${escapeHtml(
+                                        name
+                                    )}"
                                     loading="lazy"
                                 >
 
                                 <div class="attraction-body">
 
                                     <h4>
-                                        ${escapeHtml(name)}
+                                        ${escapeHtml(
+                                            name
+                                        )}
                                     </h4>
 
                                     <p>
@@ -953,7 +1438,9 @@ function renderAttractions(attractions) {
                                     </p>
 
                                     <span class="tag">
-                                        ${escapeHtml(category)}
+                                        ${escapeHtml(
+                                            category
+                                        )}
                                     </span>
 
                                     ${
@@ -1028,7 +1515,10 @@ function renderFood(food) {
                         const name =
                             fieldText(
                                 item,
-                                ["name", "title"]
+                                [
+                                    "name",
+                                    "title"
+                                ]
                             );
 
                         const description =
@@ -1050,7 +1540,8 @@ function renderFood(food) {
                             );
 
                         const mustTry =
-                            item.must_try === true;
+                            item.must_try ===
+                            true;
 
                         const cost =
                             fieldText(
@@ -1062,6 +1553,7 @@ function renderFood(food) {
                                 ]
                             );
 
+
                         return `
                             <div class="food-row">
 
@@ -1072,7 +1564,9 @@ function renderFood(food) {
                                 <div class="info">
 
                                     <strong>
-                                        ${escapeHtml(name)}
+                                        ${escapeHtml(
+                                            name
+                                        )}
                                     </strong>
 
                                     <span>
@@ -1085,7 +1579,9 @@ function renderFood(food) {
                                         type
                                             ? `
                                                 <span>
-                                                    ${escapeHtml(type)}
+                                                    ${escapeHtml(
+                                                        type
+                                                    )}
                                                 </span>
                                             `
                                             : ""
@@ -1197,6 +1693,7 @@ function renderTransportation(
                                 ]
                             );
 
+
                         return `
                             <div class="transport-row">
 
@@ -1207,7 +1704,9 @@ function renderTransportation(
                                 <div class="info">
 
                                     <strong>
-                                        ${escapeHtml(mode)}
+                                        ${escapeHtml(
+                                            mode
+                                        )}
                                     </strong>
 
                                     <span>
@@ -1303,6 +1802,7 @@ function renderTips(tips) {
                                 ]
                             );
 
+
                         return `
                             <div class="tip-item">
 
@@ -1313,7 +1813,9 @@ function renderTips(tips) {
                                 <div>
 
                                     <strong>
-                                        ${escapeHtml(title)}
+                                        ${escapeHtml(
+                                            title
+                                        )}
                                     </strong>
 
                                     <span>
@@ -1352,8 +1854,11 @@ function renderDetailedItinerary(
 
             ${
                 itinerary
-                    .map(day =>
-                        renderItineraryDay(day)
+                    .map(
+                        day =>
+                            renderItineraryDay(
+                                day
+                            )
                     )
                     .join("")
             }
@@ -1378,32 +1883,50 @@ function renderItineraryDay(day) {
     const title =
         fieldText(
             day,
-            ["title", "name"]
+            [
+                "title",
+                "name"
+            ]
         );
 
     const summary =
         fieldText(
             day,
-            ["summary", "description"]
+            [
+                "summary",
+                "description"
+            ]
         );
 
     const morning =
-        asArray(day.morning);
+        asArray(
+            day.morning
+        );
 
     const afternoon =
-        asArray(day.afternoon);
+        asArray(
+            day.afternoon
+        );
 
     const evening =
-        asArray(day.evening);
+        asArray(
+            day.evening
+        );
 
     const night =
-        asArray(day.night);
+        asArray(
+            day.night
+        );
 
     const activities =
-        asArray(day.activities);
+        asArray(
+            day.activities
+        );
 
     const meals =
-        asArray(day.meals);
+        asArray(
+            day.meals
+        );
 
     const travelNotes =
         fieldText(
@@ -1437,18 +1960,23 @@ function renderItineraryDay(day) {
             ["accommodation"]
         );
 
+
     return `
         <div class="itinerary-day">
 
             <div class="day-label">
 
                 📌 Day
-                ${escapeHtml(dayNumber)}
+                ${escapeHtml(
+                    dayNumber
+                )}
 
                 ${
                     title
                         ? `
-                            — ${escapeHtml(title)}
+                            — ${escapeHtml(
+                                title
+                            )}
                         `
                         : ""
                 }
@@ -1459,12 +1987,13 @@ function renderItineraryDay(day) {
                 summary
                     ? `
                         <p class="day-summary">
-                            ${escapeHtml(summary)}
+                            ${escapeHtml(
+                                summary
+                            )}
                         </p>
                     `
                     : ""
             }
-
 
             ${renderTimeBlock(
                 "🌅 Morning",
@@ -1486,7 +2015,6 @@ function renderItineraryDay(day) {
                 night
             )}
 
-
             ${
                 activities.length
                     ? renderActivityList(
@@ -1495,7 +2023,6 @@ function renderItineraryDay(day) {
                     )
                     : ""
             }
-
 
             ${
                 meals.length
@@ -1506,13 +2033,14 @@ function renderItineraryDay(day) {
                     : ""
             }
 
-
             ${
                 accommodation
                     ? `
                         <div class="travel-note">
                             🏨
-                            <strong>Accommodation:</strong>
+                            <strong>
+                                Accommodation:
+                            </strong>
                             ${escapeHtml(
                                 accommodation
                             )}
@@ -1521,13 +2049,14 @@ function renderItineraryDay(day) {
                     : ""
             }
 
-
             ${
                 travelNotes
                     ? `
                         <div class="travel-note">
                             🚗
-                            <strong>Travel:</strong>
+                            <strong>
+                                Travel:
+                            </strong>
                             ${escapeHtml(
                                 travelNotes
                             )}
@@ -1535,7 +2064,6 @@ function renderItineraryDay(day) {
                     `
                     : ""
             }
-
 
             <div class="day-footer">
 
@@ -1598,7 +2126,9 @@ function renderTimeBlock(
                     items
                         .map(
                             item =>
-                                renderActivityItem(item)
+                                renderActivityItem(
+                                    item
+                                )
                         )
                         .join("")
                 }
@@ -1614,7 +2144,9 @@ function renderTimeBlock(
    ACTIVITY ITEM
 ========================================================= */
 
-function renderActivityItem(activity) {
+function renderActivityItem(
+    activity
+) {
 
     if (
         activity === null ||
@@ -1623,8 +2155,6 @@ function renderActivityItem(activity) {
         return "";
     }
 
-
-    /* Old backend/string compatibility */
 
     if (
         typeof activity === "string" ||
@@ -1635,9 +2165,9 @@ function renderActivityItem(activity) {
             <div class="timeline-item">
 
                 <div class="timeline-content">
-
-                    ${escapeHtml(activity)}
-
+                    ${escapeHtml(
+                        activity
+                    )}
                 </div>
 
             </div>
@@ -1697,7 +2227,9 @@ function renderActivityItem(activity) {
                 time
                     ? `
                         <div class="activity-time">
-                            ${escapeHtml(time)}
+                            ${escapeHtml(
+                                time
+                            )}
                         </div>
                     `
                     : ""
@@ -1706,7 +2238,9 @@ function renderActivityItem(activity) {
             <div class="timeline-content">
 
                 <strong>
-                    ${escapeHtml(activityName)}
+                    ${escapeHtml(
+                        activityName
+                    )}
                 </strong>
 
                 ${
@@ -1714,7 +2248,9 @@ function renderActivityItem(activity) {
                         ? `
                             <div class="activity-meta">
                                 📍
-                                ${escapeHtml(location)}
+                                ${escapeHtml(
+                                    location
+                                )}
                             </div>
                         `
                         : ""
@@ -1725,7 +2261,9 @@ function renderActivityItem(activity) {
                         ? `
                             <div class="activity-meta">
                                 ⏱️
-                                ${escapeHtml(duration)}
+                                ${escapeHtml(
+                                    duration
+                                )}
                             </div>
                         `
                         : ""
@@ -1748,7 +2286,9 @@ function renderActivityItem(activity) {
                         ? `
                             <div class="activity-cost">
                                 💰
-                                ${escapeHtml(cost)}
+                                ${escapeHtml(
+                                    cost
+                                )}
                             </div>
                         `
                         : ""
@@ -1785,7 +2325,9 @@ function renderActivityList(
                             item => `
                                 <li>
                                     ${escapeHtml(
-                                        activityText(item)
+                                        activityText(
+                                            item
+                                        )
                                     )}
                                 </li>
                             `
@@ -1800,7 +2342,9 @@ function renderActivityList(
 }
 
 
-function activityText(activity) {
+function activityText(
+    activity
+) {
 
     if (
         activity === null ||
@@ -1809,15 +2353,23 @@ function activityText(activity) {
         return "";
     }
 
+
     if (
         typeof activity === "string" ||
         typeof activity === "number"
     ) {
-        return String(activity);
+
+        return String(
+            activity
+        );
     }
 
+
     const time =
-        fieldText(activity, ["time"]);
+        fieldText(
+            activity,
+            ["time"]
+        );
 
     const name =
         fieldText(
@@ -1834,6 +2386,7 @@ function activityText(activity) {
             activity,
             ["location"]
         );
+
 
     return [
         time,
@@ -1867,8 +2420,13 @@ async function fetchTripPlan(
 
                 body:
                     JSON.stringify({
-                        message: query,
-                        language: language,
+
+                        message:
+                            query,
+
+                        language:
+                            language,
+
                         session_id:
                             currentSessionId
                     })
@@ -1881,27 +2439,36 @@ async function fetchTripPlan(
         let errorText =
             `HTTP ${response.status}`;
 
+
         try {
 
             const errorData =
                 await response.json();
 
             if (errorData.detail) {
+
                 errorText =
                     errorData.detail;
             }
 
         } catch {
-            // Ignore JSON parsing error.
+            // Ignore.
         }
 
-        throw new Error(errorText);
+
+        throw new Error(
+            errorText
+        );
     }
 
 
     const data =
         await response.json();
 
+
+    /*
+     * Backend may return the session ID.
+     */
 
     if (data.session_id) {
 
@@ -1910,6 +2477,12 @@ async function fetchTripPlan(
 
         currentChat.id =
             data.session_id;
+
+
+        localStorage.setItem(
+            SESSION_STORAGE_KEY,
+            data.session_id
+        );
     }
 
 
@@ -1928,12 +2501,18 @@ async function sendMessage() {
             "chatInput"
         );
 
-    if (!input) return;
+    if (!input) {
+        return;
+    }
+
 
     const query =
         input.value.trim();
 
-    if (!query) return;
+
+    if (!query) {
+        return;
+    }
 
 
     const language =
@@ -1943,7 +2522,13 @@ async function sendMessage() {
         "English";
 
 
+    /*
+     * Only create a session if there
+     * genuinely isn't one.
+     */
+
     if (!currentSessionId) {
+
         createNewSession();
     }
 
@@ -1953,25 +2538,33 @@ async function sendMessage() {
 
 
     if (
-        currentChat.messages.length === 0
+        currentChat.messages.length ===
+        0
     ) {
 
         currentChat.title =
-            createChatTitle(query);
+            createChatTitle(
+                query
+            );
     }
 
 
-    /* USER */
+    /* =====================================================
+       USER MESSAGE
+    ===================================================== */
 
     currentChat.messages.push({
 
         role: "user",
 
-        content: query,
+        content:
+            query,
+
+        language:
+            language,
 
         timestamp:
             new Date().toISOString()
-
     });
 
 
@@ -1983,14 +2576,20 @@ async function sendMessage() {
 
     input.value = "";
 
+
     appendLoading();
 
-    scrollChatToBottom(true);
+    scrollChatToBottom(
+        true
+    );
 
 
-    /* API */
+    /* =====================================================
+       API
+    ===================================================== */
 
     let data;
+
 
     try {
 
@@ -2007,7 +2606,9 @@ async function sendMessage() {
             error
         );
 
+
         removeLoading();
+
 
         appendAssistantMessage(
             {
@@ -2018,6 +2619,7 @@ async function sendMessage() {
             true
         );
 
+
         input.focus();
 
         return;
@@ -2027,28 +2629,39 @@ async function sendMessage() {
     removeLoading();
 
 
-    /* ASSISTANT */
+    /* =====================================================
+       ASSISTANT MESSAGE
+    ===================================================== */
 
     currentChat.messages.push({
 
-        role: "assistant",
+        role:
+            "assistant",
 
         content:
-            data.message || "",
+            data.message ||
+            "",
 
-        data: data,
+        data:
+            data,
 
-        query: query,
+        query:
+            query,
+
+        language:
+            language,
 
         timestamp:
             new Date().toISOString()
-
     });
 
 
-    /* Destination */
+    /* =====================================================
+       DESTINATION
+    ===================================================== */
 
     let destination = "";
+
 
     if (
         typeof data.destination ===
@@ -2065,7 +2678,8 @@ async function sendMessage() {
     ) {
 
         destination =
-            data.destination.name || "";
+            data.destination.name ||
+            "";
     }
 
 
@@ -2083,9 +2697,18 @@ async function sendMessage() {
     );
 
 
+    /*
+     * MongoDB saving is handled by FastAPI.
+     * This updates only the frontend recent list.
+     */
+
     saveCurrentChat();
 
-    scrollChatToBottom(true);
+
+    scrollChatToBottom(
+        true
+    );
+
 
     input.focus();
 }
@@ -2105,7 +2728,9 @@ function appendUserMessage(
             "resultArea"
         );
 
-    if (!area) return;
+    if (!area) {
+        return;
+    }
 
 
     const div =
@@ -2119,13 +2744,18 @@ function appendUserMessage(
 
 
     div.innerHTML =
-        escapeHtml(query);
+        escapeHtml(
+            query
+        );
 
 
-    area.appendChild(div);
+    area.appendChild(
+        div
+    );
 
 
     if (shouldScroll) {
+
         scrollChatToBottom();
     }
 }
@@ -2146,7 +2776,9 @@ function appendAssistantMessage(
             "resultArea"
         );
 
-    if (!area) return;
+    if (!area) {
+        return;
+    }
 
 
     const wrapper =
@@ -2166,10 +2798,13 @@ function appendAssistantMessage(
         );
 
 
-    area.appendChild(wrapper);
+    area.appendChild(
+        wrapper
+    );
 
 
     if (shouldScroll) {
+
         scrollChatToBottom();
     }
 }
@@ -2189,7 +2824,9 @@ function appendLoading() {
             "resultArea"
         );
 
-    if (!area) return;
+    if (!area) {
+        return;
+    }
 
 
     const loading =
@@ -2213,7 +2850,9 @@ function appendLoading() {
     `;
 
 
-    area.appendChild(loading);
+    area.appendChild(
+        loading
+    );
 }
 
 
@@ -2225,6 +2864,7 @@ function removeLoading() {
         );
 
     if (loading) {
+
         loading.remove();
     }
 }
@@ -2243,24 +2883,28 @@ function scrollChatToBottom(
             "chatScrollArea"
         );
 
-    if (!scrollArea) return;
+    if (!scrollArea) {
+        return;
+    }
 
 
-    setTimeout(() => {
+    setTimeout(
+        () => {
 
-        scrollArea.scrollTo({
+            scrollArea.scrollTo({
 
-            top:
-                scrollArea.scrollHeight,
+                top:
+                    scrollArea.scrollHeight,
 
-            behavior:
-                smooth
-                    ? "smooth"
-                    : "auto"
+                behavior:
+                    smooth
+                        ? "smooth"
+                        : "auto"
+            });
 
-        });
-
-    }, 50);
+        },
+        50
+    );
 }
 
 
@@ -2268,21 +2912,33 @@ function scrollChatToBottom(
    CHAT TITLE
 ========================================================= */
 
-function createChatTitle(query) {
+function createChatTitle(
+    query
+) {
 
     let title =
-        query.trim();
+        String(
+            query || ""
+        ).trim();
 
 
-    if (title.length > 36) {
+    if (
+        title.length > 36
+    ) {
 
         title =
-            title.substring(0, 36) +
+            title.substring(
+                0,
+                36
+            ) +
             "...";
     }
 
 
-    return title;
+    return (
+        title ||
+        "Travel Chat"
+    );
 }
 
 
@@ -2297,8 +2953,9 @@ function initializeLanguageListener() {
             "languageSelect"
         );
 
-
-    if (!languageSelect) return;
+    if (!languageSelect) {
+        return;
+    }
 
 
     languageSelect.addEventListener(
@@ -2309,7 +2966,6 @@ function initializeLanguageListener() {
                 this.value;
 
             saveCurrentChat();
-
         }
     );
 }
@@ -2326,8 +2982,9 @@ function initializeInputListener() {
             "chatInput"
         );
 
-
-    if (!input) return;
+    if (!input) {
+        return;
+    }
 
 
     input.addEventListener(
@@ -2360,7 +3017,10 @@ function initializeNewChatButton() {
             "newChatBtn"
         );
 
-    if (!button) return;
+    if (!button) {
+        return;
+    }
+
 
     button.addEventListener(
         "click",
@@ -2370,16 +3030,104 @@ function initializeNewChatButton() {
 
 
 /* =========================================================
-   INITIALIZE
+   INITIALIZE CHAT
 ========================================================= */
 
-function initializeChat() {
+async function initializeChat() {
 
-    createNewSession();
+    console.log(
+        "Initializing TravelMate chat..."
+    );
 
-    showWelcomeScreen();
 
-    renderRecentList();
+    /*
+     * IMPORTANT:
+     *
+     * DO NOT call createNewSession()
+     * immediately.
+     *
+     * First check whether the browser
+     * already has an active session.
+     */
+
+    const savedSessionId =
+        localStorage.getItem(
+            SESSION_STORAGE_KEY
+        );
+
+
+    if (savedSessionId) {
+
+        console.log(
+            "Found saved session:",
+            savedSessionId
+        );
+
+
+        const restored =
+            await loadChatHistoryFromServer(
+                savedSessionId
+            );
+
+
+        if (restored) {
+
+            console.log(
+                "Existing conversation restored."
+            );
+
+        } else {
+
+            /*
+             * Session ID exists locally but
+             * MongoDB has no messages.
+             *
+             * Reuse the ID instead of
+             * creating another one.
+             */
+
+            currentSessionId =
+                savedSessionId;
+
+
+            currentChat = {
+
+                id:
+                    savedSessionId,
+
+                title:
+                    "New Chat",
+
+                language:
+                    document.getElementById(
+                        "languageSelect"
+                    )?.value ||
+                    "English",
+
+                destination:
+                    "",
+
+                messages:
+                    []
+            };
+
+
+            showWelcomeScreen();
+
+            renderRecentList();
+        }
+
+    } else {
+
+        /*
+         * First-ever visit.
+         */
+
+        createNewSession();
+
+        showWelcomeScreen();
+    }
+
 
     initializeLanguageListener();
 
@@ -2387,8 +3135,18 @@ function initializeChat() {
 
     initializeNewChatButton();
 
+
+    /*
+     * Make sure recent list is visible.
+     */
+
+    renderRecentList();
+
+
     document
-        .getElementById("chatInput")
+        .getElementById(
+            "chatInput"
+        )
         ?.focus();
 }
 

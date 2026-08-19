@@ -25,7 +25,7 @@ class RecommendationRequest(BaseModel):
     )
 
     category: str = Field(
-        default="restaurant"
+        default="all"
     )
 
     radius: float = Field(

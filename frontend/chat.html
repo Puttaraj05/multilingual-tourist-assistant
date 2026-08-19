@@ -19,7 +19,12 @@
         TravelMate · AI Travel Assistant
     </title>
 
-    <link
+        <link
+        rel="stylesheet"
+        href="/static/css/style.css"
+    >
+
+<link
     rel="icon"
     type="image/webp"
     href="/static/images/logo.webp"
@@ -47,46 +52,47 @@
          TOP NAVBAR
     ====================================================== -->
 
-   <header class="top-navbar">
+   <header class="navbar">
 
-    <a href="/" class="brand">
+    <div class="logo">
 
-        <div class="brand-icon">
-            <i class="fa-solid fa-plane"></i>
+        <img
+            src="/static/images/logo.webp"
+            alt="TravelMate Logo"
+            class="navbar-logo"
+        >
+
+        <div>
+            <h2>TravelMate</h2>
+            <p>Your Smart Travel Companion</p>
         </div>
 
-        <div class="brand-text">
-            <div class="brand-name">TravelMate</div>
-            <div class="brand-sub">Your AI Travel Assistant</div>
-        </div>
+    </div>
 
-    </a>
+    <nav>
 
-
-    <nav class="nav-links">
-
-        <a href="/" class="nav-link">
+        <a href="/index.html">
             Home
         </a>
 
-        <a href="/planner.html" class="nav-link">
+        <a href="/features.html">
+            Features
+        </a>
+
+        <a href="/planner.html">
             Planner
         </a>
 
-        <a href="/translation.html" class="nav-link">
+        <a href="/translation.html">
             Translator
         </a>
 
-        <a href="/chat.html" class="nav-link active">
-            AI Assistant
+        <a href="/chat.html" class="active">
+            Chat
         </a>
 
-        <a href="/emergency.html" class="nav-link">
+        <a href="/emergency.html">
             Emergency
-        </a>
-
-        <a href="/planner.html" class="nav-btn">
-            Plan a Trip
         </a>
 
     </nav>
