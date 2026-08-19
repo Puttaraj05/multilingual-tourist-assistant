@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        TravelMate | Dashboard
+    </title>
+
+    <link
+        rel="icon"
+        type="image/webp"
+        href="/static/images/logo.webp"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/static/css/style.css"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<nav class="navbar">
+
+    <div class="logo">
+
+        <img
+            src="/static/images/logo.webp"
+            alt="TravelMate"
+            class="navbar-logo"
+        >
+
+        <div>
+
+            <a href="/">
+                <h2 >TravelMate</h2>
+            </a>
+
+            <p>
+                Your Smart Travel Companion
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="nav-actions">
+
+        <a href="/index.html">
+            Home
+        </a>
+
+        <button
+            id="logoutBtn"
+            class="logout-btn"
+        >
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </button>
+
+    </div>
+
+</nav>
+
+
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
+
+<main class="dashboard-container">
+
+
+    <section class="dashboard-header">
+
+        <div class="profile-circle">
+
+            <span id="userInitials">
+                TM
+            </span>
+
+        </div>
+
+
+        <div>
+
+            <h1>
+                Welcome back,
+                <span id="userName">
+                    Traveler
+                </span>! 👋
+            </h1>
+
+            <p id="userEmail">
+                Loading account...
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         QUICK STATS
+    ================================================= -->
+
+    <section class="dashboard-grid">
+
+
+        <a
+            href="/planner.html"
+            class="dashboard-card"
+        >
+
+            <div class="dashboard-icon">
+                🗺️
+            </div>
+
+            <h3>
+                Plan a Trip
+            </h3>
+
+            <p>
+                Create your next travel itinerary.
+            </p>
+
+        </a>
+
+
+        <a
+            href="/chat.html"
+            class="dashboard-card"
+        >
+
+            <div class="dashboard-icon">
+                💬
+            </div>
+
+            <h3>
+                AI Travel Assistant
+            </h3>
+
+            <p>
+                Chat with TravelMate AI.
+            </p>
+
+        </a>
+
+
+        <a
+            href="/recommendations.html"
+            class="dashboard-card"
+        >
+
+            <div class="dashboard-icon">
+                📍
+            </div>
+
+            <h3>
+                Recommendations
+            </h3>
+
+            <p>
+                Discover places, food and activities.
+            </p>
+
+        </a>
+
+
+        <a
+            href="/translation.html"
+            class="dashboard-card"
+        >
+
+            <div class="dashboard-icon">
+                🌍
+            </div>
+
+            <h3>
+                Translator
+            </h3>
+
+            <p>
+                Translate text while traveling.
+            </p>
+
+        </a>
+
+
+    </section>
+
+
+    <!-- =================================================
+         ACCOUNT
+    ================================================= -->
+
+    <section class="dashboard-section">
+
+        <h2>
+            Account
+        </h2>
+
+
+        <div class="account-card">
+
+            <div>
+
+                <strong>
+                    <i class="fa-solid fa-user"></i>
+                    Profile
+                </strong>
+
+                <p>
+                    Manage your TravelMate account.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="account-card">
+
+            <div>
+
+                <strong>
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Travel History
+                </strong>
+
+                <p>
+                    Your previous conversations
+                    and travel plans.
+                </p>
+
+            </div>
+
+            <a href="/chat.html">
+                View
+            </a>
+
+        </div>
+
+
+        <div class="account-card">
+
+            <div>
+
+                <strong>
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </strong>
+
+                <p>
+                    Sign out of your TravelMate account.
+                </p>
+
+            </div>
+
+            <button
+                id="logoutBtn"
+                type="button"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script src="/static/js/dashboard.js"></script>
+
+<script src="/static/js/auth-state.js"></script>
+</body>
+
+</html>

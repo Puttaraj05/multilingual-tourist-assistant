@@ -24,7 +24,9 @@
 <img src="/static/images/logo.webp" alt="TravelMate Logo" class="navbar-logo">
 
 <div>
-<h2>TravelMate</h2>
+<a href="/">
+                <h2 >TravelMate</h2>
+            </a>
 <p>Your Smart Travel Companion</p>
 </div>
 
@@ -32,13 +34,16 @@
 
 <nav>
 <a href="index.html">Home</a>
-<a href="features.html" class="active">Features</a>
+<a href="features.html" >Features</a>
 
 </nav>
 
-<a href="planner.html" class="nav-btn">
-Plan My Journey
-</a>
+<div
+        class="nav-actions"
+        id="authSection"
+    >
+        <!-- Filled by auth-state.js -->
+    </div>
 
 </header>
 
@@ -156,5 +161,6 @@ recommendations and emergency support into one seamless travel experience.
 
 </section>
 
+<script src="/static/js/auth-state.js"></script>
 </body>
 </html>

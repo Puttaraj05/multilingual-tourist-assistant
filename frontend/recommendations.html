@@ -37,41 +37,69 @@
      NAVBAR
 ===================================================== -->
 <header class="navbar">
-<div class="logo">
-    <img src="/static/images/logo.webp" alt="TravelMate Logo" class="navbar-logo">
-    <div>
-        <h2>
-            TravelMate
-        </h2>
-        <p>
-            Your Smart Travel Companion
-        </p>
+
+    <div class="logo">
+
+        <img
+            src="/static/images/logo.webp"
+            alt="TravelMate Logo"
+            class="navbar-logo"
+        >
+
+        <div>
+            <a href="/">
+                <h2 >TravelMate</h2>
+            </a>
+            <p>Your Smart Travel Companion</p>
+        </div>
+
     </div>
-</div>
-<nav>
-    <a href="index.html">
-        Home
-    </a>
-    <a href="features.html">
-        Features
-    </a>
-    <a
-        href="recommendations.html"
-        class="active"
+
+
+    <nav>
+
+        <a href="/">
+            Home
+        </a>
+
+    
+
+        <a href="/planner.html">
+            Planner
+        </a>
+
+        <a href="/translation.html">
+            Translator
+        </a>
+
+        <a href="/chat.html">
+            Chat
+        </a>
+
+        <a href="/recommendations.html" >
+            Recommendations
+        </a>
+
+        <a href="/emergency.html">
+            Emergency
+        </a>
+
+    </nav>
+
+
+    <div
+        class="nav-actions"
+        id="authSection"
     >
-        Recommendations
-    </a>
-</nav>
-<a
-    href="planner.html"
-    class="nav-btn"
->
-    Plan My Journey
-</a>
+        <!-- Filled by auth-state.js -->
+    </div>
+
 </header>
+
 <!-- =====================================================
      HERO
 ===================================================== -->
+
 <section class="recommend-hero">
 <span class="badge">
     Nearby Explorer
@@ -84,9 +112,13 @@
     shopping and other useful places near your destination.
 </p>
 </section>
+
+
 <!-- =====================================================
      SEARCH
 ===================================================== -->
+
+
 <section class="recommend-search">
 <div class="search-box">
     <input
@@ -192,5 +224,6 @@
      RECOMMENDATION JAVASCRIPT
 ===================================================== -->
 <script src="/static/js/recommendations.js"></script>
+<script src="/static/js/auth-state.js"></script>
 </body>
 </html>

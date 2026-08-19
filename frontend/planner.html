@@ -28,11 +28,14 @@
         >
 
         <div>
-            <h2>TravelMate</h2>
+            <a href="/">
+                <h2 >TravelMate</h2>
+            </a>
             <p>Your Smart Travel Companion</p>
         </div>
 
     </div>
+
 
     <nav>
 
@@ -40,11 +43,8 @@
             Home
         </a>
 
-        <a href="/features.html">
-            Features
-        </a>
 
-        <a href="/planner.html" class="active">
+        <a href="/planner.html">
             Planner
         </a>
 
@@ -56,11 +56,23 @@
             Chat
         </a>
 
+        <a href="/recommendations.html" >
+            Recommendations
+        </a>
+
         <a href="/emergency.html">
             Emergency
         </a>
 
     </nav>
+
+
+    <div
+        class="nav-actions"
+        id="authSection"
+    >
+        <!-- Filled by auth-state.js -->
+    </div>
 
 </header>
 
@@ -130,45 +142,44 @@
         <form id="plannerForm">
 
             <div class="form-group">
-                <label>Language</label>
 
-                <input
-                    id="language"
-                    list="languageList"
-                    value="English"
-                    autocomplete="off"
-                    required>
+    <label for="language">Language</label>
 
-                <datalist id="languageList">
-                    <option value="English">
-                    <option value="Hindi">
-                    <option value="Telugu">
-                    <option value="Tamil">
-                    <option value="Kannada">
-                    <option value="Malayalam">
-                    <option value="Marathi">
-                    <option value="Bengali">
-                    <option value="Gujarati">
-                    <option value="Punjabi">
-                    <option value="Urdu">
-                    <option value="Japanese">
-                    <option value="Chinese">
-                    <option value="Korean">
-                    <option value="French">
-                    <option value="Spanish">
-                    <option value="Italian">
-                    <option value="German">
-                    <option value="Portuguese">
-                    <option value="Russian">
-                    <option value="Arabic">
-                    <option value="Thai">
-                    <option value="Turkish">
-                    <option value="Vietnamese">
-                    <option value="Dutch">
-                    <option value="Greek">
-                    <option value="Swahili">
-                </datalist>
-            </div>
+    <select
+        id="language"
+        name="language"
+        required
+    >
+        <option value="English" selected>English</option>
+        <option value="Hindi">Hindi</option>
+        <option value="Telugu">Telugu</option>
+        <option value="Tamil">Tamil</option>
+        <option value="Kannada">Kannada</option>
+        <option value="Malayalam">Malayalam</option>
+        <option value="Marathi">Marathi</option>
+        <option value="Bengali">Bengali</option>
+        <option value="Gujarati">Gujarati</option>
+        <option value="Punjabi">Punjabi</option>
+        <option value="Urdu">Urdu</option>
+        <option value="Japanese">Japanese</option>
+        <option value="Chinese">Chinese</option>
+        <option value="Korean">Korean</option>
+        <option value="French">French</option>
+        <option value="Spanish">Spanish</option>
+        <option value="Italian">Italian</option>
+        <option value="German">German</option>
+        <option value="Portuguese">Portuguese</option>
+        <option value="Russian">Russian</option>
+        <option value="Arabic">Arabic</option>
+        <option value="Thai">Thai</option>
+        <option value="Turkish">Turkish</option>
+        <option value="Vietnamese">Vietnamese</option>
+        <option value="Dutch">Dutch</option>
+        <option value="Greek">Greek</option>
+        <option value="Swahili">Swahili</option>
+    </select>
+
+</div>
 
             <div class="form-group">
                 <label>Destination</label>
@@ -338,5 +349,6 @@
 <script src="/static/js/planner-language.js"></script>
 <script src="/static/js/planner.js"></script>
 
+<script src="/static/js/auth-state.js"></script>
 </body>
 </html>

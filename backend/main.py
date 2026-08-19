@@ -78,7 +78,7 @@ from backend.api.translator import router as translator_router
 from backend.api.speech_router import router as speech_router
 from backend.api.itinerary import router as itinerary_router
 from backend.api.recommendation import router as recommendation_router
-
+from backend.api.auth import router as auth_router
 
 app.include_router(chat_router)
 app.include_router(chat_history_router)
@@ -87,7 +87,7 @@ app.include_router(translator_router)
 app.include_router(speech_router)
 app.include_router(itinerary_router)
 app.include_router(recommendation_router)
-
+app.include_router(auth_router)
 
 # =========================================================
 # STATIC FILES
@@ -184,6 +184,9 @@ async def auth_page():
 
     return frontend_file("auth.html")
 
+@app.get("/dashboard.html")
+async def dashboard_page():
+    return frontend_file("dashboard.html")
 
 @app.get("/chat.html")
 async def chat_page():

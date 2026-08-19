@@ -39,21 +39,21 @@
         >
 
         <div>
-            <h2>TravelMate</h2>
+            <a href="/">
+                <h2 >TravelMate</h2>
+            </a>
             <p>Your Smart Travel Companion</p>
         </div>
 
     </div>
 
+
     <nav>
 
-        <a href="/index.html">
+        <a href="/">
             Home
         </a>
 
-        <a href="/features.html">
-            Features
-        </a>
 
         <a href="/planner.html">
             Planner
@@ -67,11 +67,23 @@
             Chat
         </a>
 
-        <a href="/emergency.html" class="active">
+        <a href="/recommendations.html" >
+            Recommendations
+        </a>
+
+        <a href="/emergency.html">
             Emergency
         </a>
 
     </nav>
+
+
+    <div
+        class="nav-actions"
+        id="authSection"
+    >
+        <!-- Filled by auth-state.js -->
+    </div>
 
 </header>
 
@@ -557,6 +569,7 @@
 
 <script src="/static/js/emergency.js"></script>
 
+<script src="/static/js/auth-state.js"></script>
 </body>
 
 </html>
