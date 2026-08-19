@@ -63,14 +63,22 @@ incidents_collection = DummyCollection()
 sos_events_collection = DummyCollection()
 locations_collection = DummyCollection()
 
+itineraries_collection = DummyCollection()
+translations_collection = DummyCollection()
+recommendations_collection = DummyCollection()
+
 
 # =========================================================
-# CONNECT TO MONGODB
+# MONGODB CLIENT
 # =========================================================
 
 client = None
 db = None
 
+
+# =========================================================
+# CONNECT TO MONGODB
+# =========================================================
 
 if MONGODB_URI:
 
@@ -133,6 +141,33 @@ if MONGODB_URI:
 
         locations_collection = db[
             "locations"
+        ]
+
+
+        # =================================================
+        # ITINERARY
+        # =================================================
+
+        itineraries_collection = db[
+            "itineraries"
+        ]
+
+
+        # =================================================
+        # TRANSLATION
+        # =================================================
+
+        translations_collection = db[
+            "translations"
+        ]
+
+
+        # =================================================
+        # RECOMMENDATIONS
+        # =================================================
+
+        recommendations_collection = db[
+            "recommendations"
         ]
 
 

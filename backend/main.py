@@ -36,13 +36,10 @@ app = FastAPI(
 # DIRECTORIES
 # =========================================================
 
-# Project root
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Frontend directory
 FRONTEND_DIR = BASE_DIR / "frontend"
 
-# Frontend assets
 CSS_DIR = FRONTEND_DIR / "css"
 JS_DIR = FRONTEND_DIR / "js"
 
@@ -80,6 +77,7 @@ from backend.api.emergency import router as emergency_router
 from backend.api.translator import router as translator_router
 from backend.api.speech_router import router as speech_router
 from backend.api.itinerary import router as itinerary_router
+from backend.api.recommendation import router as recommendation_router
 
 
 app.include_router(chat_router)
@@ -88,21 +86,12 @@ app.include_router(emergency_router)
 app.include_router(translator_router)
 app.include_router(speech_router)
 app.include_router(itinerary_router)
+app.include_router(recommendation_router)
 
 
 # =========================================================
 # STATIC FILES
 # =========================================================
-
-# Everything inside frontend is available through /static
-#
-# frontend/css/style.css
-#        ↓
-# /static/css/style.css
-#
-# frontend/js/chat.js
-#        ↓
-# /static/js/chat.js
 
 if FRONTEND_DIR.exists():
 
@@ -212,5 +201,5 @@ async def health():
 
     return {
         "success": True,
-        "message": "TravelMate API is running.",
+        "message": "TravelMate API is running",
     }
