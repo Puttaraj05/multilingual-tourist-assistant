@@ -4,28 +4,27 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 from pymongo import MongoClient, ASCENDING
 
+
+# Load environment variables from .env.
 load_dotenv()
 
 
-# Load MongoDB configuration.
-
+# Read MongoDB configuration.
 MONGODB_URI = os.getenv("MONGODB_URI")
-
 DATABASE_NAME = os.getenv(
     "MONGODB_DATABASE",
     "travelmate"
 )
 
 
-# Provide a safe fallback result when MongoDB is unavailable.
+# These fallback classes allow the application to continue
+# running when MongoDB is unavailable.
 
 class DummyResult:
 
     def __init__(self):
         self.inserted_id = None
 
-
-# Provide a cursor-like fallback for safe database operations.
 
 class DummyCursor:
 
@@ -41,21 +40,19 @@ class DummyCursor:
     def __iter__(self):
         return iter(self.documents)
 
-    def __next__(self):
-        return next(iter(self.documents))
-
-
-# Provide a fallback collection when MongoDB is unavailable.
 
 class DummyCollection:
 
     def find(self, *args, **kwargs):
-        return DummyCursor([])
+        return DummyCursor()
 
     def find_one(self, *args, **kwargs):
         return None
 
     def insert_one(self, *args, **kwargs):
+        return DummyResult()
+
+    def insert_many(self, *args, **kwargs):
         return DummyResult()
 
     def update_one(self, *args, **kwargs):
@@ -65,7 +62,7 @@ class DummyCollection:
         return DummyResult()
 
     def aggregate(self, *args, **kwargs):
-        return DummyCursor([])
+        return DummyCursor()
 
     def count_documents(self, *args, **kwargs):
         return 0
@@ -74,8 +71,12 @@ class DummyCollection:
         return None
 
 
-# Initialize fallback collections before connecting to MongoDB.
+# MongoDB client and database references.
+client = None
+db = None
 
+
+# Fallback collections used when MongoDB is unavailable.
 messages_collection = DummyCollection()
 conversations_collection = DummyCollection()
 
@@ -84,19 +85,207 @@ incidents_collection = DummyCollection()
 sos_events_collection = DummyCollection()
 locations_collection = DummyCollection()
 
-itineraries_collection = DummyCollection()
-translations_collection = DummyCollection()
-recommendations_collection = DummyCollection()
+
+# Connect application features to their MongoDB collections.
+def initialize_collections():
+
+    global messages_collection
+    global conversations_collection
+    global emergency_contacts_collection
+    global incidents_collection
+    global sos_events_collection
+    global locations_collection
+
+    messages_collection = db["messages"]
+
+    conversations_collection = db["conversations"]
+
+    emergency_contacts_collection = db[
+        "emergency_contacts"
+    ]
+
+    incidents_collection = db[
+        "incidents"
+    ]
+
+    sos_events_collection = db[
+        "sos_events"
+    ]
+
+    locations_collection = db[
+        "locations"
+    ]
 
 
-# Initialize MongoDB client and database references.
+# Create indexes for fields that are frequently queried.
+def initialize_indexes():
 
-client = None
-db = None
+    try:
+
+        # Find chat messages by session and creation time.
+        messages_collection.create_index(
+            [
+                ("session_id", ASCENDING),
+                ("created_at", ASCENDING)
+            ],
+            name="session_created_at_idx"
+        )
+
+        # Ensure every conversation session ID is unique.
+        conversations_collection.create_index(
+            [
+                ("session_id", ASCENDING)
+            ],
+            unique=True,
+            name="session_id_unique_idx"
+        )
+
+        # Speed up incident history queries.
+        incidents_collection.create_index(
+            [
+                ("created_at", ASCENDING)
+            ],
+            name="incident_created_at_idx"
+        )
+
+        # Speed up SOS event history queries.
+        sos_events_collection.create_index(
+            [
+                ("created_at", ASCENDING)
+            ],
+            name="sos_created_at_idx"
+        )
+
+        # Speed up location history queries.
+        locations_collection.create_index(
+            [
+                ("created_at", ASCENDING)
+            ],
+            name="location_created_at_idx"
+        )
+
+        print(
+            "MongoDB indexes ready.",
+            flush=True
+        )
+
+    except Exception as error:
+
+        print(
+            f"MongoDB index warning: {error}",
+            flush=True
+        )
 
 
-# Connect to MongoDB when a connection string is available.
+# Add default emergency contact numbers when the collection
+# is empty. This prevents duplicate seed data.
+def initialize_emergency_contacts():
 
+    contacts = [
+
+        {
+            "country_code": "IN",
+            "country_name": "India",
+            "service": "Unified Emergency",
+            "number": "112",
+            "description": "Pan-India emergency number."
+        },
+
+        {
+            "country_code": "IN",
+            "country_name": "India",
+            "service": "Police",
+            "number": "100",
+            "description": "Police emergency."
+        },
+
+        {
+            "country_code": "IN",
+            "country_name": "India",
+            "service": "Ambulance",
+            "number": "108",
+            "description": "Emergency medical response."
+        },
+
+        {
+            "country_code": "IN",
+            "country_name": "India",
+            "service": "Fire",
+            "number": "101",
+            "description": "Fire emergency."
+        },
+
+        {
+            "country_code": "AE",
+            "country_name": "United Arab Emirates",
+            "service": "Police",
+            "number": "999",
+            "description": "Police emergency."
+        },
+
+        {
+            "country_code": "AE",
+            "country_name": "United Arab Emirates",
+            "service": "Ambulance",
+            "number": "998",
+            "description": "Ambulance emergency."
+        },
+
+        {
+            "country_code": "AE",
+            "country_name": "United Arab Emirates",
+            "service": "Fire",
+            "number": "997",
+            "description": "Civil Defence / fire emergency."
+        },
+
+        {
+            "country_code": "US",
+            "country_name": "United States",
+            "service": "Unified Emergency",
+            "number": "911",
+            "description": "Police, fire and medical emergency."
+        },
+
+        {
+            "country_code": "GB",
+            "country_name": "United Kingdom",
+            "service": "Unified Emergency",
+            "number": "999",
+            "description": "Police, fire and ambulance emergency."
+        },
+
+        {
+            "country_code": "GB",
+            "country_name": "United Kingdom",
+            "service": "Alternative Emergency",
+            "number": "112",
+            "description": "Alternative emergency number."
+        }
+    ]
+
+    try:
+
+        if emergency_contacts_collection.count_documents({}) == 0:
+
+            emergency_contacts_collection.insert_many(
+                contacts
+            )
+
+            print(
+                "Emergency contacts initialized.",
+                flush=True
+            )
+
+    except Exception as error:
+
+        print(
+            f"Emergency contacts initialization warning: {error}",
+            flush=True
+        )
+
+
+# Connect to MongoDB when a connection URI is available.
 if MONGODB_URI:
 
     try:
@@ -106,13 +295,16 @@ if MONGODB_URI:
             flush=True
         )
 
+        # Create one MongoClient instance for the application.
         client = MongoClient(
             MONGODB_URI,
             serverSelectionTimeoutMS=10000
         )
 
+        # Check whether MongoDB is reachable.
         client.admin.command("ping")
 
+        # Select the TravelMate database.
         db = client[DATABASE_NAME]
 
         print(
@@ -125,99 +317,24 @@ if MONGODB_URI:
             flush=True
         )
 
+        # Initialize the collections used by TravelMate.
+        initialize_collections()
 
-        # Initialize chat collections.
+        # Create indexes for faster database queries.
+        initialize_indexes()
 
-        messages_collection = db["messages"]
-
-        conversations_collection = db["conversations"]
-
-
-        # Initialize emergency-related collections.
-
-        emergency_contacts_collection = db[
-            "emergency_contacts"
-        ]
-
-        incidents_collection = db[
-            "incidents"
-        ]
-
-        sos_events_collection = db[
-            "sos_events"
-        ]
-
-        locations_collection = db[
-            "locations"
-        ]
-
-
-        # Initialize itinerary collection.
-
-        itineraries_collection = db[
-            "itineraries"
-        ]
-
-
-        # Initialize translation collection.
-
-        translations_collection = db[
-            "translations"
-        ]
-
-
-        # Initialize recommendation collection.
-
-        recommendations_collection = db[
-            "recommendations"
-        ]
-
-
-        # Create indexes for faster chat history queries.
-
-        try:
-
-            messages_collection.create_index(
-                [
-                    ("session_id", ASCENDING),
-                    ("created_at", ASCENDING)
-                ],
-                name="session_created_at_idx"
-            )
-
-            conversations_collection.create_index(
-                [
-                    ("session_id", ASCENDING)
-                ],
-                unique=True,
-                name="session_id_unique_idx"
-            )
-
-            print(
-                "MongoDB chat indexes ready.",
-                flush=True
-            )
-
-        except Exception as index_error:
-
-            print(
-                f"MongoDB index warning: {index_error}",
-                flush=True
-            )
-
-
-        # Confirm that all MongoDB collections are ready.
+        # Add default emergency contact data.
+        initialize_emergency_contacts()
 
         print(
             "MongoDB collections initialized.",
             flush=True
         )
 
-
-    except Exception as e:
+    except Exception as error:
 
         print(
-            f"MongoDB connection failed: {e}",
+            f"MongoDB connection failed: {error}",
             flush=True
         )
 
@@ -225,7 +342,6 @@ if MONGODB_URI:
             "Using safe fallback collections.",
             flush=True
         )
-
 
 else:
 
@@ -240,86 +356,62 @@ else:
     )
 
 
-# Get chat messages in chronological order.
-
+# Retrieve chat messages for a specific session.
 def get_chat_messages(
     session_id: str,
     limit: int | None = None
 ):
-    """
-    Get all messages for a chat session in chronological order.
-
-    IMPORTANT:
-    All chat history retrieval should use this function.
-    """
 
     query = {
         "session_id": session_id
     }
 
-    projection = {
-        "_id": 0
-    }
-
+    # Hide MongoDB's internal document ID.
     cursor = messages_collection.find(
         query,
-        projection
+        {"_id": 0}
     )
 
-    # Sort messages by creation time.
-
+    # Return messages in chronological order.
     cursor = cursor.sort(
         [
             ("created_at", ASCENDING)
         ]
     )
 
+    # Limit the number of messages when requested.
     if limit is not None:
         cursor = cursor.limit(limit)
 
     return list(cursor)
 
 
-# Save a single chat message with a consistent timestamp.
-
+# Save one user or assistant message.
 def save_chat_message(
     session_id: str,
     role: str,
     content: str,
     language: str = "English"
 ):
-    """
-    Save exactly one chat message.
-
-    Every message uses created_at consistently.
-    """
-
-    now = datetime.now(timezone.utc)
 
     document = {
         "session_id": session_id,
         "role": role,
         "content": content,
         "language": language,
-        "created_at": now,
+        "created_at": datetime.now(timezone.utc),
     }
 
-    result = messages_collection.insert_one(
+    return messages_collection.insert_one(
         document
     )
 
-    return result
-
 
 # Create a conversation record if it does not already exist.
-
 def ensure_conversation(
     session_id: str,
     language: str = "English"
 ):
-    """
-    Create the conversation document if it doesn't exist.
-    """
 
     existing = conversations_collection.find_one(
         {
@@ -346,14 +438,10 @@ def ensure_conversation(
     return document
 
 
-# Update the last activity timestamp for a conversation.
-
+# Update the last activity time of a conversation.
 def update_conversation_timestamp(
     session_id: str
 ):
-    """
-    Update the last activity time of a conversation.
-    """
 
     conversations_collection.update_one(
         {
@@ -361,8 +449,7 @@ def update_conversation_timestamp(
         },
         {
             "$set": {
-                "updated_at":
-                    datetime.now(timezone.utc)
+                "updated_at": datetime.now(timezone.utc)
             }
         }
     )
