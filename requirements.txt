@@ -11,7 +11,7 @@ beautifulsoup4==4.15.0
 certifi==2026.7.22
 cffi==2.0.0
 charset-normalizer==3.5.0
-click==8.1.8
+click==8.4.2
 cryptography==50.0.0
 ctranslate2==4.8.1
 deep-translator==1.11.4
