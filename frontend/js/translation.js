@@ -56,7 +56,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function getLanguageCode(value) {
-        if (!value) return "auto";
+
+        if (!value) {
+            return "auto";
+        }
 
         if (value === "auto") {
             return "auto";
@@ -66,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getLanguageName(code) {
+
         return languageNames[code] || code || "Unknown";
     }
 
@@ -75,7 +79,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function showStatus(element, message, type = "") {
 
-        if (!element) return;
+        if (!element) {
+            return;
+        }
 
         element.textContent = message;
 
@@ -92,14 +98,18 @@ document.addEventListener("DOMContentLoaded", () => {
         let result;
 
         try {
+
             result = await response.json();
+
         } catch {
+
             throw new Error(
                 `Server returned HTTP ${response.status}`
             );
         }
 
         if (!response.ok) {
+
             throw new Error(
                 result.detail ||
                 result.error ||
@@ -108,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (result.success === false) {
+
             throw new Error(
                 result.error ||
                 "Request failed."
@@ -118,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =====================================================
-    // TEXT TRANSLATION
+    // TEXT TRANSLATION ELEMENTS
     // =====================================================
 
     const sourceLanguage =
@@ -187,8 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (
                     sourceLanguage.value !== "auto" &&
-                    sourceLanguage.value ===
-                    targetLanguage.value
+                    sourceLanguage.value === targetLanguage.value
                 ) {
 
                     translatedText.value = text;
@@ -204,8 +214,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 translateTextBtn.disabled = true;
 
-                translateTextBtn.textContent =
-                    "Translating...";
+                translateTextBtn.innerHTML =
+                    `<i class="fa-solid fa-spinner fa-spin"></i>
+                     Translating...`;
 
                 translatedText.value = "";
 
@@ -229,6 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 },
 
                                 body: JSON.stringify({
+
                                     text: text,
 
                                     source:
@@ -256,9 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         detectedLanguage.textContent =
                             `Detected language: ${
-                                getLanguageName(
-                                    detected
-                                )
+                                getLanguageName(detected)
                             }`;
 
                         detectedLanguage.style.display =
@@ -290,15 +300,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     translateTextBtn.disabled =
                         false;
 
-                    translateTextBtn.textContent =
-                        "Translate Text";
+                    translateTextBtn.innerHTML =
+                        `<i class="fa-solid fa-language"></i>
+                         Translate Text`;
                 }
             }
         );
     }
 
     // =====================================================
-    // IMAGE TRANSLATION
+    // IMAGE TRANSLATION ELEMENTS
     // =====================================================
 
     const imageInput =
@@ -320,6 +331,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const imageTranslation =
         document.getElementById(
             "imageTranslation"
+        );
+
+    const imageTargetLanguage =
+        document.getElementById(
+            "imageTargetLanguage"
         );
 
     const translateImageBtn =
@@ -411,6 +427,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const file =
                     imageInput.files[0];
 
+                // -----------------------------------------
+                // CHECK IMAGE
+                // -----------------------------------------
+
                 if (!file) {
 
                     alert(
@@ -420,8 +440,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
+                // -----------------------------------------
+                // CHECK TARGET LANGUAGE
+                // -----------------------------------------
+
+                const targetCode =
+                    imageTargetLanguage
+                        ? imageTargetLanguage.value
+                        : "en";
+
                 if (
-                    targetLanguage.value === "auto"
+                    !targetCode ||
+                    targetCode === "auto"
                 ) {
 
                     alert(
@@ -431,11 +461,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
+                // -----------------------------------------
+                // DISABLE BUTTON
+                // -----------------------------------------
+
                 translateImageBtn.disabled =
                     true;
 
-                translateImageBtn.textContent =
-                    "Processing Image...";
+                translateImageBtn.innerHTML =
+                    `<i class="fa-solid fa-spinner fa-spin"></i>
+                     Processing Image...`;
+
+                // -----------------------------------------
+                // CLEAR OLD RESULTS
+                // -----------------------------------------
 
                 originalImageText.value = "";
 
@@ -449,6 +488,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 try {
 
+                    // -------------------------------------
+                    // FORM DATA
+                    // -------------------------------------
+
                     const formData =
                         new FormData();
 
@@ -459,10 +502,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     formData.append(
                         "target",
-                        getLanguageCode(
-                            targetLanguage.value
-                        )
+                        targetCode
                     );
+
+                    console.log(
+                        "Image translation target:",
+                        targetCode
+                    );
+
+                    // -------------------------------------
+                    // API REQUEST
+                    // -------------------------------------
 
                     const response =
                         await fetch(
@@ -474,23 +524,56 @@ document.addEventListener("DOMContentLoaded", () => {
                         );
 
                     const result =
-                        await parseResponse(response);
+                        await parseResponse(
+                            response
+                        );
+
+                    console.log(
+                        "Image translation response:",
+                        result
+                    );
+
+                    // -------------------------------------
+                    // ORIGINAL TEXT
+                    // -------------------------------------
 
                     originalImageText.value =
                         result.original_text || "";
 
+                    // -------------------------------------
+                    // TRANSLATED TEXT
+                    // -------------------------------------
+
                     imageTranslation.value =
                         result.translated_text || "";
+
+                    // -------------------------------------
+                    // DETECTED SOURCE LANGUAGE
+                    // -------------------------------------
 
                     const source =
                         result.source_language ||
                         "Unknown";
 
+                    const sourceName =
+                        getLanguageName(source);
+
+                    // -------------------------------------
+                    // TARGET LANGUAGE NAME
+                    // -------------------------------------
+
+                    const targetName =
+                        getLanguageName(targetCode);
+
+                    // -------------------------------------
+                    // SUCCESS
+                    // -------------------------------------
+
                     showStatus(
                         imageTranslationStatus,
-                        `Image translated successfully. Detected language: ${
-                            getLanguageName(source)
-                        }`,
+
+                        `Image translated successfully. Detected: ${sourceName} → Translated to: ${targetName}`,
+
                         "success"
                     );
 
@@ -503,8 +586,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     showStatus(
                         imageTranslationStatus,
+
                         error.message ||
                         "Unable to translate image.",
+
                         "error"
                     );
 
@@ -513,8 +598,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     translateImageBtn.disabled =
                         false;
 
-                    translateImageBtn.textContent =
-                        "Translate Image";
+                    translateImageBtn.innerHTML =
+                        `<i class="fa-solid fa-wand-magic-sparkles"></i>
+                         Translate Image`;
                 }
             }
         );
@@ -619,13 +705,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function startTimer() {
 
-        if (!recordingTimer) return;
+        if (!recordingTimer) {
+            return;
+        }
 
         recordingStartTime =
             Date.now();
 
         recordingTimer.style.display =
-            "block";
+            "inline-flex";
 
         recordingInterval =
             setInterval(() => {
@@ -650,8 +738,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         elapsed % 60
                     ).padStart(2, "0");
 
-                recordingTimer.textContent =
-                    `Recording: ${minutes}:${seconds}`;
+                recordingTimer.innerHTML =
+                    `<span class="recording-dot"></span>
+                     <span>Recording: ${minutes}:${seconds}</span>`;
 
             }, 1000);
     }
@@ -730,9 +819,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             mimeType
                         }
                     )
-                    : new MediaRecorder(
-                        stream
-                    );
+                    : new MediaRecorder(stream);
 
             audioChunks = [];
 
@@ -778,7 +865,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 recordVoiceBtn.innerHTML =
                     `<i class="fa-solid fa-stop"></i>
-                     Stop Recording`;
+                     <span>Stop Recording</span>`;
 
                 recordVoiceBtn.classList.add(
                     "recording"
@@ -828,8 +915,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (
             mediaRecorder &&
-            mediaRecorder.state ===
-            "recording"
+            mediaRecorder.state === "recording"
         ) {
 
             mediaRecorder.stop();
@@ -841,9 +927,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             recordVoiceBtn.innerHTML =
                 `<i class="fa-solid fa-spinner fa-spin"></i>
-                 Processing...`;
+                 <span>Processing...</span>`;
 
-            recordVoiceBtn.disabled = true;
+            recordVoiceBtn.disabled =
+                true;
 
             recordVoiceBtn.classList.remove(
                 "recording"
@@ -947,19 +1034,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 result
             );
 
-            // ---------------------------------------------
-            // ORIGINAL TEXT
-            // ---------------------------------------------
-
             if (voiceOriginalText) {
 
                 voiceOriginalText.value =
                     result.original_text || "";
             }
-
-            // ---------------------------------------------
-            // TRANSLATED TEXT
-            // ---------------------------------------------
 
             if (voiceTranslatedText) {
 
@@ -967,28 +1046,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     result.translated_text || "";
             }
 
-            // ---------------------------------------------
-            // DETECTED LANGUAGE
-            // ---------------------------------------------
-
             const detected =
                 result.source_language ||
                 sourceCode;
 
             const detectedName =
-                getLanguageName(
-                    detected
-                );
-
-            // ---------------------------------------------
-            // AUDIO
-            // ---------------------------------------------
+                getLanguageName(detected);
 
             translatedAudio = null;
 
-            if (
-                result.audio_base64
-            ) {
+            if (result.audio_base64) {
 
                 translatedAudio =
                     new Audio(
@@ -1059,7 +1126,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 recordVoiceBtn.innerHTML =
                     `<i class="fa-solid fa-microphone"></i>
-                     Start Recording`;
+                     <span>Start Recording</span>`;
             }
 
             mediaRecorder = null;
@@ -1079,8 +1146,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (
                     mediaRecorder &&
-                    mediaRecorder.state ===
-                    "recording"
+                    mediaRecorder.state === "recording"
                 ) {
 
                     stopRecording();
@@ -1106,7 +1172,6 @@ document.addEventListener("DOMContentLoaded", () => {
             async () => {
 
                 if (!translatedAudio) {
-
                     return;
                 }
 
@@ -1156,8 +1221,7 @@ document.addEventListener("DOMContentLoaded", () => {
             () => {
 
                 if (
-                    sourceLanguage.value ===
-                    "auto"
+                    sourceLanguage.value === "auto"
                 ) {
 
                     alert(
@@ -1214,11 +1278,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(
         "Image API:",
         `${API_BASE}/api/image-translate`
-    );
-
-    console.log(
-        "Speech API:",
-        `${API_BASE}/api/speech-to-text`
     );
 
     console.log(

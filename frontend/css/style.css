@@ -1316,21 +1316,57 @@ height:650px;
 .switch input:checked+.slider:before{
     transform:translateX(26px);
 }
+/* =========================================================
+   PLANNER - GENERATE BUTTON
+========================================================= */
 
-.generate-button{
-    width:100%;
-    padding:18px;
-    border:none;
-    border-radius:18px;
-    background:#2563EB;
-    color:white;
-    font-size:16px;
-    font-weight:600;
-    cursor:pointer;
+.generate-button {
+    width: 100%;
+    padding: 18px;
+
+    border: none;
+    border-radius: 18px;
+
+    background: #2563EB !important;
+    color: #ffffff !important;
+
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+
+    cursor: pointer;
+
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.20);
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-.generate-button:hover{
-    background:#1E4FD8;
+.generate-button:hover {
+    background: #1D4ED8 !important;
+    color: #ffffff !important;
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
+}
+
+.generate-button:active {
+    background: #1E40AF !important;
+
+    transform: translateY(0);
+}
+
+.generate-button:disabled {
+    background: #93C5FD !important;
+    color: #ffffff !important;
+
+    cursor: not-allowed;
+    transform: none;
+
+    box-shadow: none;
 }
 
 @media(max-width:1000px){
@@ -1376,45 +1412,96 @@ height:650px;
     border-color:#2563EB;
     box-shadow:0 0 0 4px rgba(37,99,235,.12);
 }
-.option-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:14px;
+.option-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 14px;
+
 }
 
-.option-card{
-    display:flex;
-    align-items:flex-start;
-    gap:12px;
-    padding:16px;
-    border:1px solid #D8DEE8;
-    border-radius:16px;
-    background:#fff;
-    cursor:pointer;
-    transition:.25s;
+.option-card {
+
+    position: relative;
+
+    display: block;
+
+    padding: 18px;
+
+    border: 2px solid #e2e8f0;
+
+    border-radius: 16px;
+
+    background: #ffffff;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+
 }
 
-.option-card:hover{
-    border-color:#2563EB;
-    box-shadow:0 8px 20px rgba(37,99,235,.08);
+/* Hide radio button */
+
+.option-card input[type="radio"] {
+
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+
 }
 
-.option-card input{
-    margin-top:4px;
-    accent-color:#2563EB;
+/* Hover */
+
+.option-card:hover {
+
+    border-color: #93c5fd;
+
+    transform: translateY(-2px);
+
 }
 
-.option-card strong{
-    display:block;
-    color:#162554;
-    font-size:15px;
+/* Selected option */
+
+.option-card:has(input[type="radio"]:checked) {
+
+    border-color: #2563EB;
+
+    background: #eff6ff;
+
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
+
 }
 
-.option-card p{
-    margin:4px 0 0;
-    color:#64748B;
-    font-size:13px;
-    line-height:1.4;
+/* Text */
+
+.option-card strong {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #172554;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+}
+
+.option-card p {
+
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
 }
 
 .kids-card{
@@ -1646,75 +1733,762 @@ height:650px;
     background:#F8FAFC;
 }
 
-/* Voice */
+/* =========================================================
+   IMAGE TARGET LANGUAGE
+========================================================= */
 
-.voice-preview{
-    text-align:center;
-    padding:40px 20px;
+.image-language-section {
+    margin: 25px 0;
+
+    padding: 18px;
+
+    border-radius: 17px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
 }
 
-.voice-circle{
-    width:90px;
-    height:90px;
-    background:#2563EB;
-    border-radius:50%;
-    margin:auto;
-    position:relative;
+.image-language-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 14px;
 }
 
-.pulse-ring{
-    position:absolute;
-    inset:-12px;
-    border:2px solid rgba(37,99,235,.3);
-    border-radius:50%;
+.image-language-icon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: #eef2ff;
+
+    color: #4f46e5;
+
+    font-size: 17px;
 }
 
-.voice-preview h3{
-    color:#162554;
-    margin:22px 0 10px;
+.image-language-header h3 {
+    margin: 0 0 3px;
+
+    color: #172554;
+
+    font-size: 14px;
+
+    font-weight: 650;
 }
 
-.voice-preview p{
-    color:#64748B;
-    max-width:480px;
-    margin:auto;
-    line-height:1.7;
+.image-language-header p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 11px;
 }
 
-.voice-btn{
-    margin-top:28px;
-    padding:16px 36px;
-    border:none;
-    border-radius:999px;
-    background:#CBD5E1;
-    color:#64748B;
-    font-weight:600;
-    cursor:not-allowed;
+#imageTargetLanguage {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 13px 15px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 11px;
+
+    background: #ffffff;
+
+    color: #172554;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    outline: none;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
 }
 
-/* Responsive */
+#imageTargetLanguage:focus {
+    border-color: #6366f1;
 
-@media(max-width:900px){
-
-.translate-grid{
-    grid-template-columns:1fr;
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-.language-row{
-    grid-template-columns:1fr;
+
+@media (max-width: 700px) {
+
+    .image-language-section {
+        padding: 15px;
+    }
+
+    .image-language-header {
+        align-items: flex-start;
+    }
+
 }
 
-.swap-btn{
-    justify-self:center;
+/* =========================================================
+   VOICE TRANSLATION
+========================================================= */
+
+.voice-translation-card {
+    overflow: hidden;
 }
 
-.translation-hero h1{
-    font-size:40px;
+
+/* =========================================================
+   VOICE HEADER
+========================================================= */
+
+.voice-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
+.voice-heading-icon {
+    width: 50px;
+    height: 50px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background: #eef2ff;
+    color: #4f46e5;
+
+    font-size: 21px;
 }
-.bubble{
-    white-space: pre-wrap;
+
+.voice-card-header h2 {
+    margin: 0 0 5px;
+}
+
+.voice-card-header p {
+    margin: 0;
+}
+
+
+/* =========================================================
+   VOICE LANGUAGE PANEL
+========================================================= */
+
+.voice-language-panel {
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        45px
+        1fr;
+
+    align-items: end;
+
+    gap: 15px;
+
+    margin-top: 25px;
+    padding: 20px;
+
+    border-radius: 18px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+}
+
+.voice-language-item {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.voice-language-label {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    color: #334155;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.voice-language-label i {
+    color: #4f46e5;
+}
+
+.voice-language-item select {
+    width: 100%;
+
+    padding: 13px 15px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 11px;
+
+    background: #ffffff;
+
+    color: #172554;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    outline: none;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.voice-language-item select:hover {
+    border-color: #a5b4fc;
+}
+
+.voice-language-item select:focus {
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.voice-language-arrow {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 2px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    color: #4f46e5;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   RECORDING PANEL
+========================================================= */
+
+.voice-record-panel {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin-top: 25px;
+
+    padding: 45px 25px 35px;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef2ff 0%,
+            #ffffff 60%,
+            #f8fafc 100%
+        );
+
+    border: 1px solid #c7d2fe;
+}
+
+
+/* =========================================================
+   MICROPHONE
+========================================================= */
+
+.voice-circle {
+    position: relative;
+
+    width: 105px;
+    height: 105px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    border: 1px solid #c7d2fe;
+
+    color: #4f46e5;
+
+    font-size: 34px;
+
+    box-shadow:
+        0 12px 30px rgba(79, 70, 229, 0.12);
+
+    z-index: 2;
+}
+
+.voice-circle i {
+    position: relative;
+    z-index: 3;
+}
+
+
+/* =========================================================
+   PULSE ANIMATION
+========================================================= */
+
+.pulse-ring {
+    position: absolute;
+
+    width: 105px;
+    height: 105px;
+
+    border-radius: 50%;
+
+    border: 2px solid #a5b4fc;
+
+    opacity: 0;
+}
+
+.pulse-ring-two {
+    width: 125px;
+    height: 125px;
+}
+
+.voice-circle.recording .pulse-ring {
+    animation: voicePulse 1.7s infinite;
+}
+
+.voice-circle.recording .pulse-ring-two {
+    animation: voicePulse 1.7s infinite 0.5s;
+}
+
+@keyframes voicePulse {
+
+    0% {
+        transform: scale(0.85);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1.35);
+        opacity: 0;
+    }
+
+}
+
+
+/* =========================================================
+   RECORDING TEXT
+========================================================= */
+
+.voice-record-panel h3 {
+    margin: 25px 0 7px;
+
+    color: #172554;
+
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.voice-record-panel > p {
+    margin: 0 0 20px;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   RECORD BUTTON
+========================================================= */
+
+.voice-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    min-width: 185px;
+
+    padding: 13px 22px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #4f46e5;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(79, 70, 229, 0.18);
+
+    transition: 0.2s ease;
+}
+
+.voice-btn:hover {
+    background: #4338ca;
+
+    transform: translateY(-2px);
+}
+
+.voice-btn.recording {
+    background: #172554;
+}
+
+.voice-btn:disabled {
+    opacity: 0.7;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* =========================================================
+   RECORDING TIMER
+========================================================= */
+
+.recording-timer {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 15px;
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #c7d2fe;
+
+    color: #4f46e5;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.recording-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #4f46e5;
+
+    animation: recordingBlink 1s infinite;
+}
+
+@keyframes recordingBlink {
+
+    50% {
+        opacity: 0.25;
+    }
+
+}
+
+
+/* =========================================================
+   RESULT GRID
+========================================================= */
+
+.voice-results-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 18px;
+
+    margin-top: 25px;
+}
+
+
+/* =========================================================
+   RESULT CARD
+========================================================= */
+
+.voice-result-card {
+    padding: 18px;
+
+    border-radius: 17px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    transition: 0.2s ease;
+}
+
+.voice-result-card:hover {
+    border-color: #c7d2fe;
+
+    box-shadow:
+        0 8px 22px rgba(15, 23, 42, 0.05);
+}
+
+.voice-result-header {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    margin-bottom: 12px;
+}
+
+.voice-result-icon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+}
+
+.speech-icon {
+    background: #f8fafc;
+    color: #475569;
+}
+
+.translation-icon {
+    background: #eef2ff;
+    color: #4f46e5;
+}
+
+.voice-result-label {
+    display: block;
+
+    color: #172554;
+
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.voice-result-header small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+}
+
+.voice-result-card textarea {
+    width: 100%;
+    min-height: 135px;
+
+    box-sizing: border-box;
+
+    resize: vertical;
+
+    padding: 13px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 11px;
+
+    background: #f8fafc;
+
+    color: #334155;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    outline: none;
+}
+
+.voice-result-card textarea:focus {
+    border-color: #a5b4fc;
+
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.08);
+
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   PLAY AREA
+========================================================= */
+
+.voice-play-area {
+    display: flex;
+
+    justify-content: center;
+
+    margin-top: 22px;
+}
+
+.voice-play-btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    min-width: 210px;
+
+    padding: 12px 20px;
+
+    border: 1px solid #c7d2fe;
+
+    border-radius: 12px;
+
+    background: #eef2ff;
+
+    color: #4f46e5;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.voice-play-btn:hover:not(:disabled) {
+    background: #e0e7ff;
+
+    border-color: #a5b4fc;
+
+    transform: translateY(-1px);
+}
+
+.voice-play-btn:disabled {
+    opacity: 0.45;
+
+    cursor: not-allowed;
+}
+
+.play-icon {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    color: #4f46e5;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .voice-card-header {
+        align-items: flex-start;
+    }
+
+    .voice-heading-icon {
+        width: 44px;
+        height: 44px;
+
+        font-size: 18px;
+    }
+
+    .voice-language-panel {
+        grid-template-columns: 1fr;
+
+        gap: 12px;
+    }
+
+    .voice-language-arrow {
+        margin: 0 auto;
+
+        transform: rotate(90deg);
+    }
+
+    .voice-record-panel {
+        padding: 35px 18px 30px;
+
+        border-radius: 18px;
+    }
+
+    .voice-circle {
+        width: 90px;
+        height: 90px;
+
+        font-size: 29px;
+    }
+
+    .pulse-ring {
+        width: 90px;
+        height: 90px;
+    }
+
+    .pulse-ring-two {
+        width: 108px;
+        height: 108px;
+    }
+
+    .voice-results-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .voice-btn,
+    .voice-play-btn {
+        width: 100%;
+    }
+
 }
 /* ========================= */
 /* EMERGENCY PAGE */
@@ -4364,4 +5138,722 @@ margin:auto;
 .navbar nav a.active {
     font-size: 17px !important;
     font-weight: 500 !important;
+}
+/* =========================================================
+   TRAVELMATE — EMERGENCY PAGE
+   Clean • Minimal • Modern
+========================================================= */
+.emergency-page {
+    background: #f8fafc;
+    color: #172554;
+}
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
+.emergency-container {
+    width: min(1180px, calc(100% - 40px));
+    margin: 32px auto 70px;
+}
+/* =========================================================
+   HERO
+========================================================= */
+.emergency-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 48px 35px;
+    margin-bottom: 24px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+}
+.emergency-hero::before,
+.emergency-hero::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+.emergency-hero::before {
+    width: 220px;
+    height: 220px;
+    top: -120px;
+    right: -80px;
+    background: #fee2e2;
+}
+.emergency-hero::after {
+    width: 180px;
+    height: 180px;
+    bottom: -110px;
+    left: -70px;
+    background: #fef2f2;
+}
+.emergency-hero > * {
+    position: relative;
+    z-index: 1;
+}
+/* HERO TAG */
+.emergency-hero .hero-tag,
+.hero-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 13px;
+    border-radius: 30px;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+}
+/* HERO TITLE */
+.emergency-hero h1 {
+    margin: 14px 0 8px;
+    color: #172554;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+.emergency-hero > p {
+    max-width: 650px;
+    margin: 0 auto;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+}
+/* =========================================================
+   QUICK ACTIONS
+========================================================= */
+.quick-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 27px;
+}
+.quick-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 115px;
+    padding: 12px 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.quick-card:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    box-shadow: 0 7px 18px rgba(15, 23, 42, 0.07);
+}
+.quick-card i {
+    font-size: 16px;
+}
+.quick-card.hospital i {
+    color: #dc2626;
+}
+.quick-card.police i {
+    color: #4f46e5;
+}
+.quick-card.ambulance i {
+    color: #ea580c;
+}
+.quick-card.embassy i {
+    color: #0891b2;
+}
+/* =========================================================
+   COMMON CARDS
+========================================================= */
+.emergency-search-card,
+.results-card {
+    padding: 26px;
+    margin-bottom: 22px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+}
+.emergency-search-card h2,
+.results-card h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 8px;
+    color: #172554;
+    font-size: 20px;
+    font-weight: 650;
+}
+.emergency-search-card > p {
+    margin: 0 0 22px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+/* =========================================================
+   COUNTRY HEADER
+========================================================= */
+.emergency-search-card h2 .navbar-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    padding: 4px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+/* =========================================================
+   FORM
+========================================================= */
+.form-group {
+    margin-bottom: 18px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+}
+.form-group select,
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
+    color: #172554;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+    background: #ffffff;
+    border-color: #6366f1;
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.09);
+}
+.form-group textarea {
+    resize: vertical;
+}
+/* =========================================================
+   COUNTRY EMERGENCY CONTACTS
+========================================================= */
+.country-contacts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 22px;
+}
+/* =========================================================
+   EMERGENCY CONTACT CARD
+========================================================= */
+.emergency-contact-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 17px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    transition: all 0.2s ease;
+}
+.emergency-contact-card:hover {
+    transform: translateY(-2px);
+    border-color: #fecaca;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+/* ICON */
+.emergency-contact-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 17px;
+}
+/* CONTACT INFO */
+.emergency-contact-info {
+    min-width: 0;
+}
+.emergency-contact-info h3 {
+    margin: 0 0 4px;
+    color: #172554;
+    font-size: 14px;
+    font-weight: 650;
+}
+.emergency-contact-info p {
+    margin: 0;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+/* CONTACT BUTTON */
+.emergency-contact-action {
+    flex-shrink: 0;
+}
+.call-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 12px;
+    background: #dc2626;
+    color: #ffffff;
+    border-radius: 9px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+.call-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+}
+/* =========================================================
+   SEARCH GRID
+========================================================= */
+.search-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+/* =========================================================
+   BUTTONS
+========================================================= */
+.emergency-gps-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.secondary-action,
+.generate-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.secondary-action {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+}
+.secondary-action:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+.generate-button {
+    background: #dc2626;
+    border: none;
+    color: #ffffff;
+}
+.generate-button:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+}
+.generate-button:disabled,
+.secondary-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+/* =========================================================
+   RESULTS HEADER
+========================================================= */
+.results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.results-header h2 {
+    margin: 0;
+}
+/* STATUS */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 30px;
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 10px;
+    font-weight: 600;
+}
+/* =========================================================
+   NEARBY RESULTS
+========================================================= */
+#results {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px;
+}
+/* =========================================================
+   NEARBY EMERGENCY CARD
+========================================================= */
+.emergency-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 17px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    transition: all 0.2s ease;
+}
+.emergency-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 7px 18px rgba(15, 23, 42, 0.06);
+    transform: translateY(-2px);
+}
+/* SERVICE INFO */
+.emergency-info {
+    min-width: 0;
+    flex: 1;
+}
+.service-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    margin-bottom: 7px;
+    border-radius: 7px;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 10px;
+    font-weight: 700;
+}
+.emergency-info h3 {
+    margin: 0 0 7px;
+    color: #172554;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.4;
+}
+.emergency-info p {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 4px 0;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+.emergency-info p i {
+    width: 13px;
+    margin-top: 2px;
+    color: #94a3b8;
+    font-size: 10px;
+}
+/* =========================================================
+   RESULT ACTIONS
+========================================================= */
+.emergency-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+}
+.map-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 10px;
+    background: #eef2ff;
+    color: #4f46e5;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+.map-btn:hover {
+    background: #e0e7ff;
+}
+/* =========================================================
+   PLACEHOLDER
+========================================================= */
+.placeholder-box {
+    padding: 32px 20px;
+    text-align: center;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 15px;
+}
+.placeholder-box i {
+    margin-bottom: 9px;
+    color: #94a3b8;
+    font-size: 25px;
+}
+.placeholder-box h3 {
+    margin: 4px 0 5px;
+    color: #334155;
+    font-size: 15px;
+}
+.placeholder-box p {
+    max-width: 550px;
+    margin: 0 auto;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+/* =========================================================
+   INCIDENT SECTION
+========================================================= */
+.incident-section {
+    border-top: 3px solid #f59e0b;
+}
+.card-header {
+    margin-bottom: 23px;
+}
+.card-header h2 {
+    margin: 9px 0 7px;
+    font-size: 21px;
+}
+.card-header p {
+    max-width: 700px;
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+/* =========================================================
+   INCIDENT MESSAGES
+========================================================= */
+.success-message,
+.error-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+.success-message {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #047857;
+}
+.error-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+}
+.success-message i,
+.error-message i {
+    margin-top: 2px;
+    font-size: 17px;
+}
+.success-message p,
+.error-message p {
+    margin: 4px 0 0;
+    font-size: 11px;
+}
+/* =========================================================
+   INCIDENT HISTORY
+========================================================= */
+.incident-card {
+    padding: 17px;
+    margin-bottom: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+}
+.incident-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.incident-type {
+    padding: 5px 9px;
+    border-radius: 7px;
+    background: #fff7ed;
+    color: #c2410c;
+    font-size: 10px;
+    font-weight: 600;
+}
+.incident-date {
+    color: #94a3b8;
+    font-size: 10px;
+}
+.incident-description {
+    margin: 0;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.6;
+}
+/* =========================================================
+   SMALL TEXT
+========================================================= */
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    color: #94a3b8;
+    font-size: 10px;
+}
+/* =========================================================
+   MOBILE
+========================================================= */
+@media (max-width: 850px) {
+    .country-contacts,
+    #results {
+        grid-template-columns: 1fr;
+    }
+    .emergency-card {
+        align-items: flex-start;
+    }
+}
+@media (max-width: 700px) {
+    .emergency-container {
+        width: calc(100% - 28px);
+        margin-top: 20px;
+    }
+    .emergency-hero {
+        padding: 38px 20px;
+        border-radius: 20px;
+    }
+    .emergency-hero h1 {
+        font-size: 28px;
+    }
+    .emergency-hero > p {
+        font-size: 13px;
+    }
+    .quick-actions {
+        gap: 8px;
+    }
+    .quick-card {
+        min-width: 100px;
+        padding: 10px 12px;
+    }
+    .emergency-search-card,
+    .results-card {
+        padding: 20px;
+        border-radius: 17px;
+    }
+    .search-grid {
+        grid-template-columns: 1fr;
+    }
+    .emergency-contact-card {
+        grid-template-columns: auto 1fr;
+        align-items: start;
+    }
+    .emergency-contact-action {
+        grid-column: 2;
+    }
+    .call-btn {
+        width: fit-content;
+    }
+    .emergency-card {
+        flex-direction: column;
+    }
+    .emergency-actions {
+        width: 100%;
+    }
+    .emergency-actions a {
+        flex: 1;
+    }
+    .emergency-gps-actions {
+        flex-direction: column;
+    }
+    .secondary-action,
+    .generate-button {
+        width: 100%;
+    }
+}
+@media (max-width: 450px) {
+    .emergency-container {
+        width: calc(100% - 20px);
+    }
+    .emergency-hero {
+        padding: 32px 16px;
+    }
+    .emergency-hero h1 {
+        font-size: 25px;
+    }
+    .quick-card {
+        min-width: 90px;
+        font-size: 11px;
+    }
+    .quick-card i {
+        font-size: 14px;
+    }
+    .emergency-search-card,
+    .results-card {
+        padding: 16px;
+    }
+    .emergency-contact-card {
+        padding: 14px;
+    }
+}/* =========================================================
+   HOME PAGE HERO TAG
+========================================================= */
+
+.home-page .hero-tag {
+    display: inline-block;
+
+    padding: 10px 18px;
+
+    background: #EEF4FF;
+    color: #2563EB;
+
+    border-radius: 999px;
+
+    font-size: 14px;
+
+    margin-bottom: 24px;
+}/* =========================================================
+   FEATURES PAGE HERO TAG
+========================================================= */
+
+.features-hero .hero-tag {
+    background: #EEF4FF;
+    color: #2563EB;
+}
+
+/* =========================================================
+   EMERGENCY ACTION BUTTONS
+========================================================= */
+
+button.generate-button.emergency-button {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+button.generate-button.emergency-button:hover {
+    background: #b91c1c !important;
+}
+
+button.generate-button.emergency-button:active {
+    background: #991b1b !important;
 }

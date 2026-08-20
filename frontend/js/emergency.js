@@ -592,21 +592,19 @@ if (form) {
 // DISPLAY NEARBY SERVICES
 // =========================================================
 
-function displayNearbyResults(
-    results,
-    type
-) {
+function displayNearbyResults(results, type) {
 
     resultsContainer.innerHTML = "";
 
-    resultsStatus.textContent =
-        `${results.length} found`;
+    const limitedResults = results.slice(0, 10);
 
-    if (!results.length) {
+    resultsStatus.textContent =
+        `${limitedResults.length} found`;
+
+    if (!limitedResults.length) {
 
         resultsContainer.innerHTML = `
             <div class="placeholder-box">
-
                 <i class="fa-solid fa-location-dot"></i>
 
                 <h3>
@@ -614,59 +612,76 @@ function displayNearbyResults(
                 </h3>
 
                 <p>
-                    Try increasing the search radius.
+                    Try using your current location again.
                 </p>
-
             </div>
         `;
 
         return;
     }
 
-    results.forEach(
-        (place, index) => {
+    limitedResults.forEach((place, index) => {
 
-            const card =
-                document.createElement("div");
+        const card = document.createElement("div");
 
-            card.className =
-                "emergency-card";
+        card.className = "emergency-card";
 
-            const distance =
-                Number(place.distance_km);
+        const distance = Number(place.distance_km);
 
-            const safeDistance =
-                Number.isFinite(distance)
-                    ? distance.toFixed(2)
-                    : "N/A";
+        const safeDistance =
+            Number.isFinite(distance)
+                ? `${distance.toFixed(2)} km`
+                : "Distance unavailable";
 
-            const latitude =
-                Number(place.latitude);
+        const latitude = Number(place.latitude);
+        const longitude = Number(place.longitude);
 
-            const longitude =
-                Number(place.longitude);
+        let mapUrl = place.maps_url;
 
-            let mapUrl =
-                place.maps_url;
+        if (
+            !mapUrl &&
+            Number.isFinite(latitude) &&
+            Number.isFinite(longitude)
+        ) {
+            mapUrl =
+                `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+        }
 
-            if (
-                !mapUrl &&
-                Number.isFinite(latitude) &&
-                Number.isFinite(longitude)
-            ) {
+        const phoneHtml = place.phone
+            ? `
+                <a
+                    href="tel:${escapeHtml(place.phone)}"
+                    class="emergency-call-btn"
+                >
+                    <i class="fa-solid fa-phone"></i>
+                    Call
+                </a>
+            `
+            : "";
 
-                mapUrl =
-                    `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+        const directionsHtml = mapUrl
+            ? `
+                <a
+                    href="${escapeHtml(mapUrl)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="emergency-directions-btn"
+                >
+                    <i class="fa-solid fa-diamond-turn-right"></i>
+                    Directions
+                </a>
+            `
+            : "";
 
-            }
+        card.innerHTML = `
 
-            card.innerHTML = `
+            <div class="emergency-card-top">
 
-                <div class="emergency-info">
+                <div class="emergency-rank">
+                    ${index + 1}
+                </div>
 
-                    <span class="service-number">
-                        #${index + 1}
-                    </span>
+                <div class="emergency-card-title">
 
                     <h3>
                         ${escapeHtml(
@@ -675,82 +690,59 @@ function displayNearbyResults(
                         )}
                     </h3>
 
-                    <p>
+                    <span class="emergency-distance">
                         <i class="fa-solid fa-location-dot"></i>
-                        ${safeDistance} km away
-                    </p>
-
-                    ${
-                        place.address
-                            ? `
-                                <p>
-                                    <i class="fa-solid fa-map-pin"></i>
-                                    ${escapeHtml(
-                                        place.address
-                                    )}
-                                </p>
-                            `
-                            : ""
-                    }
-
-                    ${
-                        place.phone
-                            ? `
-                                <p>
-                                    <i class="fa-solid fa-phone"></i>
-                                    ${escapeHtml(
-                                        place.phone
-                                    )}
-                                </p>
-                            `
-                            : ""
-                    }
+                        ${safeDistance} away
+                    </span>
 
                 </div>
 
-                <div class="emergency-actions">
+            </div>
 
-                    ${
-                        place.phone
-                            ? `
-                                <a
-                                    href="tel:${escapeHtml(
-                                        place.phone
-                                    )}"
-                                    class="call-btn"
-                                >
-                                    <i class="fa-solid fa-phone"></i>
-                                    Call
-                                </a>
-                            `
-                            : ""
-                    }
 
-                    ${
-                        mapUrl
-                            ? `
-                                <a
-                                    href="${escapeHtml(
-                                        mapUrl
-                                    )}"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="map-btn"
-                                >
-                                    <i class="fa-solid fa-diamond-turn-right"></i>
-                                    Directions
-                                </a>
-                            `
-                            : ""
-                    }
+            <div class="emergency-card-details">
 
-                </div>
-            `;
+                ${
+                    place.address
+                        ? `
+                            <div class="emergency-detail">
+                                <i class="fa-solid fa-map-pin"></i>
+                                <span>
+                                    ${escapeHtml(place.address)}
+                                </span>
+                            </div>
+                        `
+                        : ""
+                }
 
-            resultsContainer.appendChild(card);
+                ${
+                    place.phone
+                        ? `
+                            <div class="emergency-detail">
+                                <i class="fa-solid fa-phone"></i>
+                                <span>
+                                    ${escapeHtml(place.phone)}
+                                </span>
+                            </div>
+                        `
+                        : ""
+                }
 
-        }
-    );
+            </div>
+
+
+            <div class="emergency-card-actions">
+
+                ${phoneHtml}
+
+                ${directionsHtml}
+
+            </div>
+
+        `;
+
+        resultsContainer.appendChild(card);
+    });
 }
 
 

@@ -397,6 +397,118 @@
 
         </div>
 
+        <!-- =================================================
+     IMAGE TARGET LANGUAGE
+================================================== -->
+
+<div class="image-language-section">
+
+    <div class="image-language-header">
+
+        <div class="image-language-icon">
+            <i class="fa-solid fa-language"></i>
+        </div>
+
+        <div>
+
+            <h3>
+                Target Language
+            </h3>
+
+            <p>
+                Choose the language you want the image text translated into.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <select
+        id="imageTargetLanguage"
+        aria-label="Image translation target language"
+    >
+
+        <option value="en" selected>
+            English
+        </option>
+
+        <option value="hi">
+            Hindi
+        </option>
+
+        <option value="te">
+            Telugu
+        </option>
+
+        <option value="ta">
+            Tamil
+        </option>
+
+        <option value="kn">
+            Kannada
+        </option>
+
+        <option value="ml">
+            Malayalam
+        </option>
+
+        <option value="bn">
+            Bengali
+        </option>
+
+        <option value="mr">
+            Marathi
+        </option>
+
+        <option value="gu">
+            Gujarati
+        </option>
+
+        <option value="pa">
+            Punjabi
+        </option>
+
+        <option value="es">
+            Spanish
+        </option>
+
+        <option value="fr">
+            French
+        </option>
+
+        <option value="de">
+            German
+        </option>
+
+        <option value="it">
+            Italian
+        </option>
+
+        <option value="ja">
+            Japanese
+        </option>
+
+        <option value="ko">
+            Korean
+        </option>
+
+        <option value="ar">
+            Arabic
+        </option>
+
+        <option value="zh-CN">
+            Chinese
+        </option>
+
+        <option value="ru">
+            Russian
+        </option>
+
+    </select>
+
+</div>
+
 
         <!-- IMAGE UPLOAD -->
 
@@ -503,31 +615,45 @@
 
 
     <!-- =================================================
-         VOICE TRANSLATION
-    ================================================== -->
+     VOICE TRANSLATION
+================================================== -->
 
-    <section class="translation-card">
+<section class="translation-card voice-translation-card">
 
-        <div class="card-header">
+    <div class="card-header voice-card-header">
+
+        <div class="voice-heading-icon">
+            <i class="fa-solid fa-microphone-lines"></i>
+        </div>
+
+        <div>
 
             <h2>
-                <i class="fa-solid fa-microphone"></i>
                 Voice Translation
             </h2>
 
             <p>
                 Speak naturally in your language and hear
-                the translated result.
+                the translated result instantly.
             </p>
 
         </div>
 
+    </div>
 
-        <!-- VOICE LANGUAGE SELECTORS -->
 
-        <div class="language-row">
+    <!-- =================================================
+         LANGUAGE SELECTION
+    ================================================== -->
 
-            <!-- VOICE SOURCE -->
+    <div class="voice-language-panel">
+
+        <div class="voice-language-item">
+
+            <span class="voice-language-label">
+                <i class="fa-solid fa-microphone"></i>
+                Speak in
+            </span>
 
             <select
                 id="voiceSourceLanguage"
@@ -560,16 +686,22 @@
 
             </select>
 
+        </div>
 
-            <span
-                class="swap-btn"
-                aria-hidden="true"
-            >
-                →
+
+        <div class="voice-language-arrow">
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+        </div>
+
+
+        <div class="voice-language-item">
+
+            <span class="voice-language-label">
+                <i class="fa-solid fa-language"></i>
+                Translate to
             </span>
-
-
-            <!-- VOICE TARGET -->
 
             <select
                 id="voiceTargetLanguage"
@@ -603,135 +735,191 @@
 
         </div>
 
-
-        <!-- RECORDING AREA -->
-
-        <div class="voice-preview">
-
-            <div
-                class="voice-circle"
-                id="voiceCircle"
-            >
-
-                <div class="pulse-ring"></div>
-
-                <i class="fa-solid fa-microphone"></i>
-
-            </div>
+    </div>
 
 
-            <h3 id="voiceTitle">
-                Speak Naturally
-            </h3>
+    <!-- =================================================
+         RECORDING PANEL
+    ================================================== -->
 
+    <div class="voice-record-panel">
 
-            <p id="voiceStatus">
-                Press the button and start speaking.
-            </p>
+        <div
+            class="voice-circle"
+            id="voiceCircle"
+        >
 
+            <div class="pulse-ring"></div>
 
-            <button
-                id="recordVoiceBtn"
-                class="voice-btn"
-                type="button"
-            >
+            <div class="pulse-ring pulse-ring-two"></div>
 
-                <i class="fa-solid fa-microphone"></i>
-
-                Start Recording
-
-            </button>
+            <i class="fa-solid fa-microphone"></i>
 
         </div>
+
+
+        <h3 id="voiceTitle">
+            Speak Naturally
+        </h3>
+
+
+        <p id="voiceStatus">
+            Press the button and start speaking.
+        </p>
+
+
+        <button
+            id="recordVoiceBtn"
+            class="voice-btn"
+            type="button"
+        >
+
+            <i class="fa-solid fa-microphone"></i>
+
+            <span>
+                Start Recording
+            </span>
+
+        </button>
 
 
         <!-- RECORDING TIMER -->
 
         <div
             id="recordingTimer"
-            class="translation-status"
+            class="recording-timer"
             style="display:none;"
         >
-            Recording: 00:00
+
+            <span class="recording-dot"></span>
+
+            <span>
+                Recording: 00:00
+            </span>
+
         </div>
 
+    </div>
 
-        <!-- VOICE RESULTS -->
 
-        <div class="translate-grid">
+    <!-- =================================================
+         VOICE RESULTS
+    ================================================== -->
 
-            <!-- ORIGINAL SPEECH -->
+    <div class="voice-results-grid">
 
-            <div class="translate-box">
+        <!-- ORIGINAL SPEECH -->
 
-                <label for="voiceOriginalText">
+        <div class="voice-result-card">
+
+            <div class="voice-result-header">
+
+                <div class="voice-result-icon speech-icon">
 
                     <i class="fa-solid fa-comment-dots"></i>
 
-                    Your Speech
+                </div>
 
-                </label>
+                <div>
 
-                <textarea
-                    id="voiceOriginalText"
-                    placeholder="Your spoken text will appear here..."
-                    readonly
-                ></textarea>
+                    <span class="voice-result-label">
+                        Your Speech
+                    </span>
+
+                    <small>
+                        Recognized text
+                    </small>
+
+                </div>
 
             </div>
 
 
-            <!-- TRANSLATION -->
+            <textarea
+                id="voiceOriginalText"
+                placeholder="Your spoken text will appear here..."
+                readonly
+            ></textarea>
 
-            <div class="translate-box">
+        </div>
 
-                <label for="voiceTranslatedText">
+
+        <!-- TRANSLATION -->
+
+        <div class="voice-result-card">
+
+            <div class="voice-result-header">
+
+                <div class="voice-result-icon translation-icon">
 
                     <i class="fa-solid fa-language"></i>
 
-                    Translation
+                </div>
 
-                </label>
+                <div>
 
-                <textarea
-                    id="voiceTranslatedText"
-                    placeholder="Translated speech will appear here..."
-                    readonly
-                ></textarea>
+                    <span class="voice-result-label">
+                        Translation
+                    </span>
+
+                    <small>
+                        Translated text
+                    </small>
+
+                </div>
 
             </div>
 
+
+            <textarea
+                id="voiceTranslatedText"
+                placeholder="Translated speech will appear here..."
+                readonly
+            ></textarea>
+
         </div>
 
+    </div>
 
-        <!-- PLAY TRANSLATION -->
 
-        <div class="voice-result-actions">
+    <!-- =================================================
+         PLAY TRANSLATION
+    ================================================== -->
 
-            <button
-                id="playTranslationBtn"
-                class="primary-action"
-                type="button"
-                disabled
-            >
+    <div class="voice-play-area">
+
+        <button
+            id="playTranslationBtn"
+            class="voice-play-btn"
+            type="button"
+            disabled
+        >
+
+            <span class="play-icon">
 
                 <i class="fa-solid fa-volume-high"></i>
 
+            </span>
+
+            <span>
                 Play Translation
+            </span>
 
-            </button>
+        </button>
 
-        </div>
+    </div>
 
 
-        <!-- VOICE STATUS -->
+    <!-- =================================================
+         STATUS
+    ================================================== -->
 
-        <div
-            id="voiceTranslationStatus"
-            class="translation-status"
-        ></div>
+    <div
+        id="voiceTranslationStatus"
+        class="translation-status"
+    ></div>
 
-    </section>
+</section>
 
 
 </main>

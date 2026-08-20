@@ -70,4 +70,4 @@ htmlcov/
 # Node.js (if used)
 # =========================================================
 
-node_modules/
+node_modules/.env

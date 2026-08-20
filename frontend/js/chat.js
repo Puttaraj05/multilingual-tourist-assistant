@@ -825,26 +825,19 @@ function showWelcomeScreen() {
 
     area.innerHTML = `
 
-        <div class="welcome-screen">
+    <div class="welcome-screen">
 
-            <div class="welcome-icon">
-                🌍
-            </div>
+        <h2>
+            How can I help?
+        </h2>
 
-            <h2>
-                Where do you want to go?
-            </h2>
+        <p>
+            Ask TravelMate about your trip.
+        </p>
 
-            <p>
-                Ask me about destinations,
-                detailed itineraries, local food,
-                transportation, budgets,
-                attractions, safety and travel tips.
-            </p>
+    </div>
 
-        </div>
-
-    `;
+`;
 }
 
 
