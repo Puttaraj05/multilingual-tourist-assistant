@@ -31,11 +31,12 @@ jobs:
         run: |
           python -m compileall backend
 
-      - name: Check FastAPI application
+      - name: Configure environment
         env:
-          GEMINI_API_KEY: test-key
-          JWT_SECRET_KEY: test-secret-key
-          JWT_ALGORITHM: HS256
-          JWT_ACCESS_TOKEN_EXPIRE_MINUTES: 60
+          ENV_SECRET_KEYS: ${{ secrets.ENV_SECRET_KEYS }}
+        run: |
+          printf '%s\n' "$ENV_SECRET_KEYS" > .env
+
+      - name: Check backend
         run: |
           python -c "from backend.main import app; print('TravelMate backend loaded successfully')"
