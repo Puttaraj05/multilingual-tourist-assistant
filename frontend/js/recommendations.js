@@ -857,28 +857,44 @@ searchLocation.addEventListener(
     }
 );
 
-
 // =====================================================
 // CATEGORY FILTER
 // =====================================================
 
 categoryFilter.addEventListener(
     "change",
-
     () => {
+
+        console.log(
+            "Category changed:",
+            categoryFilter.value
+        );
 
         const location =
             searchLocation.value.trim();
 
+        // All Places means all categories,
+        // NOT "no location".
+        if (categoryFilter.value === "all") {
+
+            if (!location) {
+
+                showInitialMessage();
+
+                return;
+            }
+
+            loadRecommendations();
+
+            return;
+        }
 
         if (!location) {
 
             showInitialMessage();
 
             return;
-
         }
-
 
         loadRecommendations();
 

@@ -1631,3 +1631,55 @@ select {
         padding: 15px;
     }
 }
+/* =====================================================
+   CHAT PAGE - MATCH PLANNER NAVBAR FONT
+   ===================================================== */
+
+.chat-app .navbar,
+.chat-app .navbar nav,
+.chat-app .navbar nav a,
+.chat-app .navbar .logo h2,
+.chat-app .navbar .logo p {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+.chat-app .navbar nav a {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+}
+
+
+/* =========================================================
+   CHAT PAGE — NAVBAR MATCH PLANNER
+========================================================= */
+
+.chat-app > .navbar {
+    font-family: "Poppins", sans-serif !important;
+}
+
+.chat-app > .navbar nav {
+    font-family: "Poppins", sans-serif !important;
+}
+
+.chat-app > .navbar nav a {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    line-height: normal !important;
+    letter-spacing: normal !important;
+}
+
+.chat-app > .navbar .logo h2 {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 30px !important;
+    font-weight: 700 !important;
+}
+
+.chat-app > .navbar .logo p {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    line-height: 1.2 !important;
+}
+

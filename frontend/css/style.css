@@ -5857,3 +5857,155 @@ button.generate-button.emergency-button:hover {
 button.generate-button.emergency-button:active {
     background: #991b1b !important;
 }
+/* =====================================================
+   GLOBAL LANGUAGE SELECTOR
+===================================================== */
+
+.global-language-selector {
+    appearance: none;
+    -webkit-appearance: none;
+
+    min-width: 150px;
+    height: 44px;
+
+    padding: 0 42px 0 16px;
+
+    border: 1px solid rgba(91, 67, 232, 0.22);
+    border-radius: 14px;
+
+    background-color: #ffffff;
+    color: #26223b;
+
+    font-family: "Poppins", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    outline: none;
+
+    box-shadow:
+        0 4px 14px rgba(35, 25, 80, 0.08);
+
+    background-image:
+        linear-gradient(45deg, transparent 50%, #5b43e8 50%),
+        linear-gradient(135deg, #5b43e8 50%, transparent 50%);
+
+    background-position:
+        calc(100% - 18px) 18px,
+        calc(100% - 12px) 18px;
+
+    background-size:
+        6px 6px,
+        6px 6px;
+
+    background-repeat: no-repeat;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.global-language-selector:hover {
+    border-color: rgba(91, 67, 232, 0.5);
+
+    box-shadow:
+        0 6px 18px rgba(91, 67, 232, 0.14);
+
+    transform: translateY(-1px);
+}
+
+.global-language-selector:focus {
+    border-color: #5b43e8;
+
+    box-shadow:
+        0 0 0 3px rgba(91, 67, 232, 0.12),
+        0 6px 18px rgba(91, 67, 232, 0.12);
+}
+
+.global-language-selector option {
+    background: #ffffff;
+    color: #26223b;
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+}
+
+/* Dark/colored navbar compatibility */
+.navbar .global-language-selector {
+    flex-shrink: 0;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+
+    .global-language-selector {
+        min-width: 125px;
+        width: 125px;
+        height: 40px;
+
+        padding-left: 12px;
+        padding-right: 32px;
+
+        border-radius: 12px;
+
+        font-size: 12px;
+    }
+}
+
+
+/* =====================================================
+   TRAVELMATE NAVBAR - CONSISTENT FONT
+   ===================================================== */
+
+.navbar nav a {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.navbar .logo h2 {
+    font-family: 'Poppins', sans-serif;
+}
+
+.navbar .logo p {
+    font-family: 'Poppins', sans-serif;
+}
+
+
+/* =====================================================
+   FINAL TRAVELMATE NAVBAR OVERRIDE
+   ===================================================== */
+
+.navbar nav {
+    display: flex !important;
+    align-items: center !important;
+    gap: 28px !important;
+}
+
+.navbar nav a {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+    text-decoration: none !important;
+}
+
+.navbar nav a,
+.navbar nav a:visited {
+    color: inherit !important;
+}
+
+.navbar .logo h2 {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+.navbar .logo p {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+/* Remove Home visually if any old HTML remains */
+.navbar nav a[href="/"]:first-child {
+    display: none !important;
+}
+

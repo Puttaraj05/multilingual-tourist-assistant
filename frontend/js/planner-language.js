@@ -56,7 +56,7 @@ async function translateUI(language) {
     try {
 
         const response = await fetch(
-            "http://127.0.0.1:8000/api/ui-translate",
+            "/api/ui-translate",
             {
                 method: "POST",
                 headers: {

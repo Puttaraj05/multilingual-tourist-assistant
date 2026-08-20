@@ -77,15 +77,22 @@ CATEGORY_MAPPING = {
 }
 
 
-def normalize_category(category: str) -> str:
+def normalize_category(category: str | None) -> str | None:
+
+    if not category:
+        return None
+
     return category.lower().strip()
 
 
-def get_geoapify_category(category: str) -> str | None:
+def get_geoapify_category(category: str | None) -> str | None:
 
-    category = normalize_category(category)
+    normalized = normalize_category(category)
 
-    return CATEGORY_MAPPING.get(category)
+    if not normalized or normalized == "all":
+        return None
+
+    return CATEGORY_MAPPING.get(normalized)
 
 
 async def geocode_location(location: str) -> dict:
@@ -132,25 +139,16 @@ async def geocode_location(location: str) -> dict:
 async def get_nearby_places(
     latitude: float,
     longitude: float,
-    category: str,
+    category: str | None,
     radius_km: float,
     limit: int = 20
 ) -> list[dict]:
 
-    geoapify_category = get_geoapify_category(
-        category
-    )
-
-    # REC-08
-    # Unsupported category returns no results
-    if not geoapify_category:
-        return []
+    normalized_category = normalize_category(category)
 
     radius_meters = int(radius_km * 1000)
 
     params = {
-        "categories": geoapify_category,
-
         "filter": (
             f"circle:{longitude},"
             f"{latitude},"
@@ -167,22 +165,151 @@ async def get_nearby_places(
         "apiKey": GEOAPIFY_API_KEY
     }
 
-    async with httpx.AsyncClient(
-        timeout=30.0
-    ) as client:
+    # =====================================================
+    # CATEGORY FILTER
+    # =====================================================
 
-        response = await client.get(
-            PLACES_URL,
-            params=params
+    if normalized_category and normalized_category != "all":
+
+        geoapify_category = get_geoapify_category(
+            normalized_category
         )
 
-        response.raise_for_status()
+        # Unsupported specific category
+        if not geoapify_category:
+            return []
 
-        data = response.json()
+        params["categories"] = geoapify_category
+
+    else:
+
+        # =================================================
+        # ALL PLACES
+        # =================================================
+        # Geoapify needs actual category names rather than
+        # a generic "all" value. Request several categories
+        # separately and combine the results.
+
+        all_categories = [
+            "catering.restaurant",
+            "catering.cafe",
+            "accommodation.hotel",
+            "tourism.sights",
+            "entertainment.museum",
+            "leisure.park",
+            "commercial.shopping_mall"
+        ]
+
+        all_places = []
+
+        async with httpx.AsyncClient(
+            timeout=30.0
+        ) as client:
+
+            for geoapify_category in all_categories:
+
+                category_params = {
+                    "categories": geoapify_category,
+
+                    "filter": (
+                        f"circle:{longitude},"
+                        f"{latitude},"
+                        f"{radius_meters}"
+                    ),
+
+                    "bias": (
+                        f"proximity:{longitude},"
+                        f"{latitude}"
+                    ),
+
+                    "limit": limit,
+
+                    "apiKey": GEOAPIFY_API_KEY
+                }
+
+                response = await client.get(
+                    PLACES_URL,
+                    params=category_params
+                )
+
+                response.raise_for_status()
+
+                data = response.json()
+
+                for feature in data.get("features", []):
+                    all_places.append(feature)
+
+        # Remove duplicate places
+        unique_places = {}
+        for feature in all_places:
+
+            properties = feature.get(
+                "properties",
+                {}
+            )
+
+            geometry = feature.get(
+                "geometry",
+                {}
+            )
+
+            coordinates = geometry.get(
+                "coordinates",
+                []
+            )
+
+            if len(coordinates) < 2:
+                continue
+
+            name = (
+                properties.get("name")
+                or properties.get("address_line1")
+            )
+
+            if not name:
+                continue
+
+            key = (
+                str(name).strip().lower(),
+                round(float(coordinates[0]), 5),
+                round(float(coordinates[1]), 5)
+            )
+
+            unique_places[key] = feature
+
+        features = list(unique_places.values())
+
+    # =====================================================
+    # SPECIFIC CATEGORY REQUEST
+    # =====================================================
+
+    if normalized_category and normalized_category != "all":
+
+        async with httpx.AsyncClient(
+            timeout=30.0
+        ) as client:
+
+            response = await client.get(
+                PLACES_URL,
+                params=params
+            )
+
+            response.raise_for_status()
+
+            data = response.json()
+
+        features = data.get(
+            "features",
+            []
+        )
+
+    # =====================================================
+    # BUILD PLACES
+    # =====================================================
 
     places = []
 
-    for feature in data.get("features", []):
+    for feature in features:
 
         properties = feature.get(
             "properties",
@@ -224,15 +351,44 @@ async def get_nearby_places(
             if part
         ) or None
 
+        raw_category = (
+            properties.get("category")
+            or properties.get("categories")
+            or "place"
+        )
+
+        if isinstance(raw_category, list):
+            place_category = (
+                raw_category[-1]
+                if raw_category
+                else "place"
+            )
+        else:
+            place_category = str(raw_category)
+
+        if (
+            normalized_category
+            and normalized_category != "all"
+        ):
+            place_category = normalized_category
+
         places.append(
             {
                 "name": name,
-                "category": normalize_category(category),
 
-                "latitude": float(place_latitude),
-                "longitude": float(place_longitude),
+                "category": place_category,
 
-                "rating": properties.get("rating"),
+                "latitude": float(
+                    place_latitude
+                ),
+
+                "longitude": float(
+                    place_longitude
+                ),
+
+                "rating": properties.get(
+                    "rating"
+                ),
 
                 "opening_time": properties.get(
                     "opening_hours"
@@ -243,8 +399,14 @@ async def get_nearby_places(
                 "address": address,
 
                 "source_url": properties.get(
-                    "website"
+                    "datasource",
+                    {}
+                ).get("url")
+                if isinstance(
+                    properties.get("datasource"),
+                    dict
                 )
+                else None
             }
         )
 
