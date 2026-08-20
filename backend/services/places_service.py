@@ -6,6 +6,8 @@ OVERPASS_URL = (
 )
 
 
+# Define the OpenStreetMap queries used to find each supported place category.
+
 CATEGORY_QUERIES = {
     "restaurant": [
         'node["amenity"="restaurant"]',
@@ -34,6 +36,8 @@ CATEGORY_QUERIES = {
 def normalize_category(category: str) -> str:
 
     category = category.lower().strip()
+
+    # Convert common category names into the categories supported by OpenStreetMap queries.
 
     mapping = {
         "restaurants": "restaurant",
@@ -77,6 +81,8 @@ async def find_nearby_places(
             f'{latitude},{longitude});'
         )
 
+    # Build the Overpass query for the requested category and search radius.
+
     overpass_query = f"""
     [out:json][timeout:25];
 
@@ -111,7 +117,8 @@ async def find_nearby_places(
         if not name:
             continue
 
-        # Nodes contain lat/lon directly
+        # Nodes contain latitude and longitude directly.
+
         if (
             "lat" in element
             and "lon" in element
@@ -119,7 +126,8 @@ async def find_nearby_places(
             place_latitude = element["lat"]
             place_longitude = element["lon"]
 
-        # Ways/relations may contain center
+        # Ways and relations may provide their coordinates through a center point.
+
         elif "center" in element:
             place_latitude = element[
                 "center"
@@ -137,6 +145,8 @@ async def find_nearby_places(
             or place_longitude is None
         ):
             continue
+
+        # Combine the available address fields into a readable address.
 
         address_parts = [
             tags.get("addr:housenumber"),

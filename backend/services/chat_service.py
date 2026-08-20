@@ -21,22 +21,16 @@ from backend.services.gemini_service import (
 )
 
 
-# =========================================================
-# ROUTER
-# =========================================================
-
+# Create the chat API router.
 router = APIRouter(
     prefix="/api/chat",
     tags=["Chat"],
 )
 
 
-# =========================================================
-# NORMALIZE API RESPONSE
-# =========================================================
-
 def normalize_chat_response(response):
 
+    # Convert a JSON string into a Python dictionary.
     if isinstance(response, str):
 
         try:
@@ -59,6 +53,7 @@ def normalize_chat_response(response):
                 "itinerary": [],
             }
 
+    # Return a safe response when Gemini returns an unexpected type.
     if not isinstance(response, dict):
 
         return {
@@ -76,6 +71,7 @@ def normalize_chat_response(response):
             "itinerary": [],
         }
 
+    # Make sure list fields always contain lists.
     def safe_list(value):
 
         if isinstance(value, list):
@@ -156,10 +152,6 @@ def normalize_chat_response(response):
     }
 
 
-# =========================================================
-# CHAT ENDPOINT
-# =========================================================
-
 @router.post(
     "",
     response_model=ChatResponse
@@ -168,19 +160,13 @@ async def chat(
     request: ChatRequest
 ):
 
-    # =====================================================
-    # 1. SESSION
-    # =====================================================
-
+    # Create a new session ID when the client does not provide one.
     session_id = (
         request.session_id
         or str(uuid4())
     )
 
-    # =====================================================
-    # 2. LOAD CONVERSATION HISTORY
-    # =====================================================
-
+    # Load previous messages to maintain conversation context.
     conversation_history = []
 
     try:
@@ -202,18 +188,12 @@ async def chat(
                 ""
             )
 
-            # -------------------------------------------------
-            # USER MESSAGE
-            # -------------------------------------------------
-
+            # Store the latest user message until its reply is found.
             if role == "user":
 
                 pending_user_message = content
 
-            # -------------------------------------------------
-            # ASSISTANT MESSAGE
-            # -------------------------------------------------
-
+            # Pair each assistant response with the previous user message.
             elif (
                 role == "assistant"
                 and
@@ -223,6 +203,7 @@ async def chat(
 
                 assistant_content = content
 
+                # Convert stored JSON responses back into dictionaries.
                 if isinstance(
                     assistant_content,
                     str
@@ -262,10 +243,7 @@ async def chat(
 
         conversation_history = []
 
-    # =====================================================
-    # 3. GENERATE GEMINI RESPONSE
-    # =====================================================
-
+    # Generate a response using Gemini and the previous conversation.
     try:
 
         raw_response = generate_chat_response(
@@ -283,6 +261,7 @@ async def chat(
 
         error_message = str(e)
 
+        # Return HTTP 429 when the Gemini API quota is exceeded.
         if (
             "quota" in error_message.lower()
             or
@@ -314,18 +293,12 @@ async def chat(
             detail=f"Chat service error: {str(e)}"
         )
 
-    # =====================================================
-    # 4. NORMALIZE RESPONSE
-    # =====================================================
-
+    # Ensure the generated response matches the API structure.
     response = normalize_chat_response(
         raw_response
     )
 
-    # =====================================================
-    # 5. SAVE USER MESSAGE
-    # =====================================================
-
+    # Save the user's message to MongoDB.
     try:
 
         save_chat_message(
@@ -342,10 +315,7 @@ async def chat(
             flush=True
         )
 
-    # =====================================================
-    # 6. SAVE ASSISTANT MESSAGE
-    # =====================================================
-
+    # Save the generated assistant response to MongoDB.
     try:
 
         save_chat_message(
@@ -365,10 +335,7 @@ async def chat(
             flush=True
         )
 
-    # =====================================================
-    # 7. RETURN RESPONSE
-    # =====================================================
-
+    # Return the session, language, and generated response.
     return {
 
         "session_id":

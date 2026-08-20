@@ -12,6 +12,7 @@ PLACES_URL = (
 )
 
 
+# Map user-friendly category names to Geoapify categories.
 CATEGORY_MAPPING = {
 
     # Food
@@ -77,6 +78,7 @@ CATEGORY_MAPPING = {
 }
 
 
+# Normalize category names before using them in API requests.
 def normalize_category(category: str | None) -> str | None:
 
     if not category:
@@ -85,6 +87,7 @@ def normalize_category(category: str | None) -> str | None:
     return category.lower().strip()
 
 
+# Convert a normalized category into the Geoapify category name.
 def get_geoapify_category(category: str | None) -> str | None:
 
     normalized = normalize_category(category)
@@ -95,6 +98,7 @@ def get_geoapify_category(category: str | None) -> str | None:
     return CATEGORY_MAPPING.get(normalized)
 
 
+# Convert a location name into geographic coordinates.
 async def geocode_location(location: str) -> dict:
 
     params = {
@@ -136,6 +140,7 @@ async def geocode_location(location: str) -> dict:
     }
 
 
+# Fetch nearby places from Geoapify based on location and category.
 async def get_nearby_places(
     latitude: float,
     longitude: float,
@@ -165,17 +170,14 @@ async def get_nearby_places(
         "apiKey": GEOAPIFY_API_KEY
     }
 
-    # =====================================================
-    # CATEGORY FILTER
-    # =====================================================
-
+    # Apply a specific category filter when requested.
     if normalized_category and normalized_category != "all":
 
         geoapify_category = get_geoapify_category(
             normalized_category
         )
 
-        # Unsupported specific category
+        # Return no results for unsupported categories.
         if not geoapify_category:
             return []
 
@@ -183,13 +185,8 @@ async def get_nearby_places(
 
     else:
 
-        # =================================================
-        # ALL PLACES
-        # =================================================
-        # Geoapify needs actual category names rather than
-        # a generic "all" value. Request several categories
-        # separately and combine the results.
-
+        # Request several useful place categories when
+        # the user wants all available place types.
         all_categories = [
             "catering.restaurant",
             "catering.cafe",
@@ -239,7 +236,7 @@ async def get_nearby_places(
                 for feature in data.get("features", []):
                     all_places.append(feature)
 
-        # Remove duplicate places
+        # Remove duplicate places returned by different categories.
         unique_places = {}
         for feature in all_places:
 
@@ -279,10 +276,7 @@ async def get_nearby_places(
 
         features = list(unique_places.values())
 
-    # =====================================================
-    # SPECIFIC CATEGORY REQUEST
-    # =====================================================
-
+    # Fetch places for a specific category.
     if normalized_category and normalized_category != "all":
 
         async with httpx.AsyncClient(
@@ -303,10 +297,7 @@ async def get_nearby_places(
             []
         )
 
-    # =====================================================
-    # BUILD PLACES
-    # =====================================================
-
+    # Convert Geoapify responses into the application's place format.
     places = []
 
     for feature in features:

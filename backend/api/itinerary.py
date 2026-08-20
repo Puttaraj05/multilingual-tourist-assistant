@@ -14,19 +14,13 @@ from google.genai import types
 from google.genai.errors import ServerError, ClientError
 
 
-# =========================================================
-# ENVIRONMENT
-# =========================================================
-
+# Load environment variables from the .env file.
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
-# =========================================================
-# GEMINI CLIENT
-# =========================================================
-
+# Create the Gemini client when an API key is available.
 client = None
 
 if GEMINI_API_KEY:
@@ -45,20 +39,14 @@ else:
     )
 
 
-# =========================================================
-# ROUTER
-# =========================================================
-
+# Define itinerary-related API routes.
 router = APIRouter(
     prefix="/api",
     tags=["Itinerary"],
 )
 
 
-# =========================================================
-# RESPONSE MODELS
-# =========================================================
-
+# Define the structure of an itinerary activity.
 class Activity(BaseModel):
 
     time: str
@@ -73,6 +61,7 @@ class Activity(BaseModel):
     popularity: str = ""
 
 
+# Define the structure of one itinerary day.
 class Day(BaseModel):
 
     day: int
@@ -81,6 +70,7 @@ class Day(BaseModel):
     activities: List[Activity]
 
 
+# Define the complete itinerary response structure.
 class TravelItinerary(BaseModel):
 
     destination: str
@@ -90,10 +80,7 @@ class TravelItinerary(BaseModel):
     days: List[Day]
 
 
-# =========================================================
-# REQUEST MODEL
-# =========================================================
-
+# Define the information required to generate an itinerary.
 class ItineraryRequest(BaseModel):
 
     destination: str
@@ -117,10 +104,7 @@ class ItineraryRequest(BaseModel):
     kidsUnder12: bool = False
 
 
-# =========================================================
-# CREATE ITINERARY
-# =========================================================
-
+# Generate a personalized travel itinerary using Gemini.
 @router.post("/itinerary")
 async def create_itinerary(
     data: ItineraryRequest
@@ -141,10 +125,7 @@ async def create_itinerary(
     print("Kids Under 12:", data.kidsUnder12)
     print("Interests:", data.interests)
 
-    # =====================================================
-    # GEMINI VALIDATION
-    # =====================================================
-
+    # Ensure the Gemini client is configured before processing the request.
     if not GEMINI_API_KEY or client is None:
 
         raise HTTPException(
@@ -152,10 +133,7 @@ async def create_itinerary(
             detail="GEMINI_API_KEY is not configured.",
         )
 
-    # =====================================================
-    # INPUT VALIDATION
-    # =====================================================
-
+    # Validate the required trip details.
     if not data.destination.strip():
 
         raise HTTPException(
@@ -180,20 +158,14 @@ async def create_itinerary(
             detail="Budget must be greater than zero.",
         )
 
-    # =====================================================
-    # INTERESTS
-    # =====================================================
-
+    # Use general sightseeing when no interests are selected.
     interests = (
         ", ".join(data.interests)
         if data.interests
         else "General sightseeing"
     )
 
-    # =====================================================
-    # GEMINI PROMPT
-    # =====================================================
-
+    # Build the prompt using the traveler's preferences.
     prompt = f"""
 You are TravelMate, an expert multilingual travel planner.
 
@@ -376,11 +348,7 @@ If Child Under 12 is Yes:
 - Avoid activities unsuitable for children.
 """
 
-
-    # =====================================================
-    # GEMINI REQUEST WITH RETRIES
-    # =====================================================
-
+    # Send the itinerary request with automatic retries for server errors.
     response = None
 
     max_attempts = 3
@@ -416,10 +384,7 @@ If Child Under 12 is Yes:
 
             break
 
-        # =================================================
-        # GEMINI SERVER ERROR
-        # =================================================
-
+        # Retry when Gemini is temporarily unavailable.
         except ServerError as e:
 
             print("\n========================================")
@@ -452,10 +417,7 @@ If Child Under 12 is Yes:
                     ),
                 )
 
-        # =================================================
-        # GEMINI CLIENT ERROR
-        # =================================================
-
+        # Handle errors returned by the Gemini API request.
         except ClientError as e:
 
             print("\n========================================")
@@ -465,10 +427,7 @@ If Child Under 12 is Yes:
 
             error_message = str(e)
 
-            # ---------------------------------------------
-            # QUOTA
-            # ---------------------------------------------
-
+            # Return a clear message when the API quota is exhausted.
             if "RESOURCE_EXHAUSTED" in error_message:
 
                 raise HTTPException(
@@ -479,10 +438,7 @@ If Child Under 12 is Yes:
                     ),
                 )
 
-            # ---------------------------------------------
-            # MODEL NOT FOUND
-            # ---------------------------------------------
-
+            # Report when the configured model is unavailable.
             if "NOT_FOUND" in error_message:
 
                 raise HTTPException(
@@ -501,10 +457,7 @@ If Child Under 12 is Yes:
                 ),
             )
 
-        # =================================================
-        # UNEXPECTED ERROR
-        # =================================================
-
+        # Handle unexpected errors during itinerary generation.
         except Exception as e:
 
             print("\n========================================")
@@ -520,11 +473,7 @@ If Child Under 12 is Yes:
                 ),
             )
 
-
-    # =====================================================
-    # NO RESPONSE
-    # =====================================================
-
+    # Ensure a response was received after all attempts.
     if response is None:
 
         raise HTTPException(
@@ -535,11 +484,7 @@ If Child Under 12 is Yes:
             ),
         )
 
-
-    # =====================================================
-    # EMPTY RESPONSE
-    # =====================================================
-
+    # Reject empty responses from Gemini.
     if not response.text:
 
         print(
@@ -554,11 +499,7 @@ If Child Under 12 is Yes:
             ),
         )
 
-
-    # =====================================================
-    # PARSE JSON
-    # =====================================================
-
+    # Parse the generated JSON itinerary.
     try:
 
         itinerary = json.loads(
@@ -584,11 +525,7 @@ If Child Under 12 is Yes:
             ),
         )
 
-
-    # =====================================================
-    # ADD REQUEST METADATA
-    # =====================================================
-
+    # Add the original request details to the response.
     itinerary["travel_date"] = (
         data.travelDate
     )
@@ -621,11 +558,7 @@ If Child Under 12 is Yes:
         data.kidsUnder12
     )
 
-
-    # =====================================================
-    # SUCCESS
-    # =====================================================
-
+    # Log the successfully generated itinerary.
     print("\n========================================")
     print("ITINERARY GENERATED SUCCESSFULLY")
     print("========================================")
@@ -646,6 +579,5 @@ If Child Under 12 is Yes:
     )
 
     print("========================================\n")
-
 
     return itinerary

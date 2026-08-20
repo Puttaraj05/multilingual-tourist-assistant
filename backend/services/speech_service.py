@@ -1,4 +1,4 @@
-# backend/services/speech_service.py
+# Speech recognition and text-to-speech services for TravelMate.
 
 import io
 import os
@@ -8,9 +8,7 @@ import edge_tts
 from faster_whisper import WhisperModel
 
 
-# =========================================================
-# CONFIGURATION
-# =========================================================
+# Configure the Whisper model for speech recognition.
 
 # Options:
 # tiny  -> fastest
@@ -27,9 +25,7 @@ WHISPER_DEVICE = "cpu"
 WHISPER_COMPUTE_TYPE = "int8"
 
 
-# =========================================================
-# GLOBAL WHISPER MODEL
-# =========================================================
+# Keep one shared Whisper model instance so it does not need to be loaded for every request.
 
 _whisper_model = None
 
@@ -63,9 +59,7 @@ def get_whisper_model():
     return _whisper_model
 
 
-# =========================================================
-# EDGE-TTS VOICES
-# =========================================================
+# Map supported language codes to their Edge-TTS voices.
 
 VOICE_MAP = {
 
@@ -113,9 +107,7 @@ VOICE_MAP = {
 DEFAULT_VOICE = "en-US-JennyNeural"
 
 
-# =========================================================
-# LANGUAGE NORMALIZATION
-# =========================================================
+# Convert different language formats into the codes used by the speech services.
 
 def normalize_language(language: str | None) -> str | None:
     """
@@ -143,13 +135,13 @@ def normalize_language(language: str | None) -> str | None:
         return None
 
 
-    # Already supported language code
+    # Return the language code directly when it is already supported.
 
     if language in VOICE_MAP:
         return language
 
 
-    # Browser / Whisper style codes
+    # Normalize browser and frontend language values.
 
     language_lower = language.lower()
 
@@ -223,7 +215,7 @@ def normalize_language(language: str | None) -> str | None:
         return aliases[language_lower]
 
 
-    # Handle values such as "en-US"
+    # Handle values such as "en-US" by using the base language code.
 
     base_language = (
         language_lower
@@ -240,9 +232,7 @@ def normalize_language(language: str | None) -> str | None:
     return language
 
 
-# =========================================================
-# SPEECH → TEXT
-# =========================================================
+# Convert uploaded speech audio into text using faster-whisper.
 
 def speech_to_text(
     audio_bytes: bytes,
@@ -275,22 +265,17 @@ def speech_to_text(
     model = get_whisper_model()
 
 
-    # -----------------------------------------------------
-    # Normalize requested language
-    # -----------------------------------------------------
+    # Normalize the requested language before sending it to Whisper.
 
     whisper_language = normalize_language(
         language
     )
 
 
-    # -----------------------------------------------------
-    # Save browser audio temporarily
-    #
-    # IMPORTANT:
+    # Save the browser audio temporarily so Whisper can process the file.
+
     # Browser MediaRecorder normally creates WebM.
     # Do NOT save WebM bytes using a .wav extension.
-    # -----------------------------------------------------
 
     with tempfile.NamedTemporaryFile(
         suffix=".webm",
@@ -304,9 +289,7 @@ def speech_to_text(
 
     try:
 
-        # -------------------------------------------------
-        # Whisper transcription
-        # -------------------------------------------------
+        # Transcribe the temporary audio file with Whisper.
 
         segments, info = model.transcribe(
 
@@ -326,9 +309,7 @@ def speech_to_text(
         )
 
 
-        # -------------------------------------------------
-        # Collect segments
-        # -------------------------------------------------
+        # Collect the text returned by each transcription segment.
 
         text_parts = []
 
@@ -349,10 +330,8 @@ def speech_to_text(
                 text_parts.append(text)
 
 
-            # -------------------------------------------------
             # Convert avg_logprob into rough 0-1 confidence.
             # This is NOT a calibrated probability.
-            # -------------------------------------------------
 
             if segment.avg_logprob is not None:
 
@@ -369,18 +348,14 @@ def speech_to_text(
                 confidence_count += 1
 
 
-        # -------------------------------------------------
-        # Final text
-        # -------------------------------------------------
+        # Combine all transcription segments into the final text.
 
         full_text = " ".join(
             text_parts
         ).strip()
 
 
-        # -------------------------------------------------
-        # Average confidence
-        # -------------------------------------------------
+        # Calculate the average confidence across the transcription segments.
 
         if confidence_count > 0:
 
@@ -394,9 +369,7 @@ def speech_to_text(
             avg_confidence = 0.0
 
 
-        # -------------------------------------------------
-        # Detected language
-        # -------------------------------------------------
+        # Get the language detected by Whisper.
 
         detected_language = (
             info.language
@@ -426,9 +399,7 @@ def speech_to_text(
 
     finally:
 
-        # -------------------------------------------------
-        # Remove temporary file
-        # -------------------------------------------------
+        # Remove the temporary audio file after transcription is complete.
 
         try:
 
@@ -439,9 +410,7 @@ def speech_to_text(
             pass
 
 
-# =========================================================
-# TEXT → SPEECH
-# =========================================================
+# Convert text into MP3 speech using Edge-TTS.
 
 async def text_to_speech(
     text: str,
@@ -456,9 +425,7 @@ async def text_to_speech(
         return b""
 
 
-    # -----------------------------------------------------
-    # Normalize language
-    # -----------------------------------------------------
+    # Normalize the language before selecting the voice.
 
     normalized_language = (
         normalize_language(language)
@@ -466,9 +433,7 @@ async def text_to_speech(
     )
 
 
-    # -----------------------------------------------------
-    # Find voice
-    # -----------------------------------------------------
+    # Select the voice for the requested language.
 
     voice = VOICE_MAP.get(
         normalized_language,
@@ -483,9 +448,7 @@ async def text_to_speech(
     )
 
 
-    # -----------------------------------------------------
-    # Edge TTS
-    # -----------------------------------------------------
+    # Generate speech using the selected Edge-TTS voice.
 
     communicate = edge_tts.Communicate(
         text=text.strip(),
@@ -519,9 +482,7 @@ async def text_to_speech(
     return audio_data
 
 
-# =========================================================
-# AVAILABLE VOICES
-# =========================================================
+# Return the language-to-voice mapping supported by TravelMate.
 
 def get_available_voices() -> dict:
     """

@@ -1,6 +1,7 @@
 from deep_translator import GoogleTranslator
 from langdetect import detect, DetectorFactory
 
+# Keep language detection results consistent across runs.
 DetectorFactory.seed = 0
 
 
@@ -28,7 +29,7 @@ LANGUAGES = {
 }
 
 
-# Name -> Google Translate code
+# Map language names to the codes used by Google Translate.
 LANGUAGE_CODES = {
     "Auto Detect": "auto",
     "English": "en",
@@ -60,11 +61,11 @@ def normalize_language(language: str) -> str:
 
     language = language.strip()
 
-    # Already a language code
+    # Return the code directly when a valid language code is provided.
     if language in LANGUAGE_CODES.values():
         return language
 
-    # Language name
+    # Convert a language name to its corresponding translation code.
     return LANGUAGE_CODES.get(
         language,
         "auto"
@@ -81,6 +82,7 @@ def detect_language(text: str) -> str:
 
     except Exception:
 
+        # Fall back to automatic detection when the text cannot be identified.
         return "auto"
 
 
@@ -96,7 +98,7 @@ def translate_text(
     target_code = normalize_language(target)
     source_code = normalize_language(source)
 
-    # Same language
+    # Return the original text when the source and target languages are the same.
     if (
         source_code != "auto"
         and source_code == target_code

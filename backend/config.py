@@ -4,9 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# =========================================================
-# GEOAPIFY
-# =========================================================
+# Load the Geoapify API key from the environment.
 
 GEOAPIFY_API_KEY = os.getenv("GEOAPIFY_API_KEY")
 
@@ -17,9 +15,7 @@ if not GEOAPIFY_API_KEY:
     )
 
 
-# =========================================================
-# JWT AUTHENTICATION
-# =========================================================
+# Load the secret key used to sign JWT authentication tokens.
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 

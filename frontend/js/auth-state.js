@@ -1,17 +1,11 @@
-/* =========================================================
-   TRAVELMATE AUTH STATE
-   Handles logged-in user on all pages
-========================================================= */
+// Manage the logged-in user's authentication state across all pages.
 
 const AUTH_TOKEN_KEY = "travelmate_token";
 const AUTH_USER_KEY = "travelmate_user";
 
 const AUTH_ME_ENDPOINT = "/api/auth/me";
 
-
-/* =========================================================
-   GET TOKEN
-========================================================= */
+// Get the authentication token saved in localStorage.
 
 function getAuthToken() {
 
@@ -20,10 +14,7 @@ function getAuthToken() {
     );
 }
 
-
-/* =========================================================
-   GET SAVED USER
-========================================================= */
+// Retrieve the previously saved user information.
 
 function getSavedUser() {
 
@@ -44,10 +35,7 @@ function getSavedUser() {
     }
 }
 
-
-/* =========================================================
-   INITIALS
-========================================================= */
+// Generate initials from the user's name for the profile avatar.
 
 function getUserInitials(name) {
 
@@ -68,10 +56,7 @@ function getUserInitials(name) {
         .join("");
 }
 
-
-/* =========================================================
-   LOGOUT
-========================================================= */
+// Clear the saved authentication details and return to the login page.
 
 function logoutUser() {
 
@@ -87,10 +72,7 @@ function logoutUser() {
         "/auth.html";
 }
 
-
-/* =========================================================
-   RENDER LOGGED OUT
-========================================================= */
+// Show login and sign-up links when there is no active session.
 
 function renderLoggedOut() {
 
@@ -117,10 +99,7 @@ function renderLoggedOut() {
     `;
 }
 
-
-/* =========================================================
-   RENDER LOGGED IN
-========================================================= */
+// Display the user's profile menu when they are logged in.
 
 function renderLoggedIn(user) {
 
@@ -287,10 +266,7 @@ function renderLoggedIn(user) {
     );
 }
 
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
+// Escape special characters before inserting user data into HTML.
 
 function escapeAuthHtml(value) {
 
@@ -302,20 +278,14 @@ function escapeAuthHtml(value) {
         .replace(/'/g, "&#039;");
 }
 
-
-/* =========================================================
-   CHECK AUTH
-========================================================= */
+// Check the current authentication token and update the page accordingly.
 
 async function initializeAuthState() {
 
     const token =
         getAuthToken();
 
-
-    /*
-     * User is not logged in
-     */
+    // If there is no saved token, show the logged-out navigation.
 
     if (!token) {
 
@@ -324,11 +294,7 @@ async function initializeAuthState() {
         return;
     }
 
-
-    /*
-     * First show cached user
-     * for instant UI
-     */
+    // Show the cached user immediately while the backend verifies the token.
 
     const cachedUser =
         getSavedUser();
@@ -340,10 +306,7 @@ async function initializeAuthState() {
         );
     }
 
-
-    /*
-     * Verify token with backend
-     */
+    // Verify the saved token with the backend.
 
     try {
 
@@ -389,10 +352,7 @@ async function initializeAuthState() {
             return;
         }
 
-
-        /*
-         * Update cached user
-         */
+        // Save the latest user information for future page loads.
 
         localStorage.setItem(
             AUTH_USER_KEY,
@@ -414,11 +374,7 @@ async function initializeAuthState() {
             error
         );
 
-
-        /*
-         * If backend temporarily unavailable,
-         * keep cached user visible.
-         */
+        // Keep the cached user visible if the backend is temporarily unavailable.
 
         if (!cachedUser) {
 
@@ -429,10 +385,7 @@ async function initializeAuthState() {
     }
 }
 
-
-/* =========================================================
-   START
-========================================================= */
+// Initialize authentication handling after the page has loaded.
 
 document.addEventListener(
     "DOMContentLoaded",

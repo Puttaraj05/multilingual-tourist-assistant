@@ -8,9 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 
-# =========================================================
-# ENVIRONMENT
-# =========================================================
+# Load environment variables from the .env file.
 
 load_dotenv()
 
@@ -22,9 +20,7 @@ else:
     print("WARNING: GEMINI_API_KEY is not configured.")
 
 
-# =========================================================
-# APPLICATION
-# =========================================================
+# Create the main FastAPI application.
 
 app = FastAPI(
     title="Multilingual Tourist Assistant",
@@ -32,9 +28,7 @@ app = FastAPI(
 )
 
 
-# =========================================================
-# DIRECTORIES
-# =========================================================
+# Define the main project and frontend directories.
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -54,9 +48,7 @@ print("JS:", JS_DIR)
 print("========================================")
 
 
-# =========================================================
-# CORS
-# =========================================================
+# Allow the frontend to communicate with the FastAPI backend.
 
 app.add_middleware(
     CORSMiddleware,
@@ -67,9 +59,7 @@ app.add_middleware(
 )
 
 
-# =========================================================
-# API ROUTERS
-# =========================================================
+# Register the API routers used by the application.
 
 from backend.api.chat import router as chat_router
 from backend.api.chat_history import router as chat_history_router
@@ -89,9 +79,8 @@ app.include_router(itinerary_router)
 app.include_router(recommendation_router)
 app.include_router(auth_router)
 
-# =========================================================
-# STATIC FILES
-# =========================================================
+
+# Serve frontend assets through the /static path.
 
 if FRONTEND_DIR.exists():
 
@@ -110,9 +99,7 @@ else:
     )
 
 
-# =========================================================
-# FAVICON
-# =========================================================
+# Serve the application favicon when the logo file is available.
 
 @app.get(
     "/favicon.ico",
@@ -139,9 +126,7 @@ async def favicon():
     }
 
 
-# =========================================================
-# FRONTEND PAGE HELPER
-# =========================================================
+# Return a frontend page from the configured frontend directory.
 
 def frontend_file(filename: str):
 
@@ -157,9 +142,7 @@ def frontend_file(filename: str):
     return FileResponse(file_path)
 
 
-# =========================================================
-# FRONTEND PAGES
-# =========================================================
+# Define routes for the frontend pages.
 
 @app.get("/")
 async def home():
@@ -234,9 +217,7 @@ async def translation_page():
     )
 
 
-# =========================================================
-# HEALTH CHECK
-# =========================================================
+# Provide a simple endpoint for checking whether the API is running.
 
 @app.get("/api/health")
 async def health():

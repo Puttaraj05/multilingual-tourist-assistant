@@ -17,9 +17,7 @@ router = APIRouter(
 )
 
 
-# ---------------------------------------------------------
-# Numeric / price detection
-# ---------------------------------------------------------
+# Detect prices, numbers, and numeric expressions.
 
 def is_numeric_or_price(text: str) -> bool:
     """
@@ -51,20 +49,18 @@ def is_numeric_or_price(text: str) -> bool:
         ".,:%/-+()"
     )
 
-    # Every character must be numeric/currency/punctuation.
+    # Check that all characters are numeric or allowed symbols.
     if not all(ch in allowed_chars for ch in compact):
         return False
 
-    # Must contain at least one digit.
+    # Require at least one digit in the value.
     if not any(ch.isdigit() for ch in compact):
         return False
 
     return True
 
 
-# ---------------------------------------------------------
-# Detect likely OCR numeric errors
-# ---------------------------------------------------------
+# Detect OCR results that may contain numeric values.
 
 def looks_like_numeric_ocr(text: str) -> bool:
     """
@@ -103,9 +99,7 @@ def looks_like_numeric_ocr(text: str) -> bool:
     return ratio >= 0.60
 
 
-# ---------------------------------------------------------
-# Clean translated text
-# ---------------------------------------------------------
+# Clean extra whitespace from translated text.
 
 def clean_translation(text: str) -> str:
     if not text:
@@ -113,15 +107,14 @@ def clean_translation(text: str) -> str:
 
     text = str(text).strip()
 
-    # Remove accidental whitespace around lines.
+    # Remove unnecessary whitespace around lines.
     text = re.sub(r"[ \t]+", " ", text)
 
     return text
 
 
-# ---------------------------------------------------------
-# Normal text translation
-# ---------------------------------------------------------
+# Translate normal text.
+
 @router.post("/translate")
 async def translate(payload: dict):
 
@@ -143,18 +136,14 @@ async def translate(payload: dict):
 
     try:
 
-        # ---------------------------------------------
-        # Detect source if Auto Detect is selected
-        # ---------------------------------------------
+        # Detect the source language when Auto Detect is selected.
 
         if source.lower() in ["auto", "auto detect"]:
             detected_source = detect_language(text)
         else:
             detected_source = source
 
-        # ---------------------------------------------
-        # Numbers/prices don't need translation
-        # ---------------------------------------------
+        # Keep numbers and prices unchanged.
 
         if is_numeric_or_price(text):
 
@@ -201,9 +190,8 @@ async def translate(payload: dict):
 
         }
 
-# ---------------------------------------------------------
-# Image translation
-# ---------------------------------------------------------
+
+# Translate text extracted from an image.
 
 @router.post("/image-translate")
 async def image_translate(
@@ -213,9 +201,7 @@ async def image_translate(
 
     try:
 
-        # -------------------------------------------------
-        # Validate target language
-        # -------------------------------------------------
+        # Validate the selected target language.
 
         if not target:
 
@@ -224,9 +210,7 @@ async def image_translate(
                 "error": "Please select a target language.",
             }
 
-        # -------------------------------------------------
-        # Read uploaded image
-        # -------------------------------------------------
+        # Read the uploaded image.
 
         data = await image.read()
 
@@ -237,9 +221,7 @@ async def image_translate(
                 "error": "The uploaded image is empty.",
             }
 
-        # -------------------------------------------------
-        # Open image
-        # -------------------------------------------------
+        # Convert the uploaded image to RGB format.
 
         img = Image.open(
             io.BytesIO(data)
@@ -247,9 +229,7 @@ async def image_translate(
 
         original_width, original_height = img.size
 
-        # -------------------------------------------------
-        # OCR
-        # -------------------------------------------------
+        # Extract text and its positions using OCR.
 
         ocr_result = extract_text_from_image(img)
 
@@ -265,15 +245,11 @@ async def image_translate(
                 "ocr": ocr_result,
             }
 
-        # -------------------------------------------------
-        # Detect source language
-        # -------------------------------------------------
+        # Detect the language of the extracted text.
 
         source = detect_language(text)
 
-        # -------------------------------------------------
-        # Translate every OCR item separately
-        # -------------------------------------------------
+        # Translate each detected text region separately.
 
         positioned_items = []
 
@@ -290,33 +266,25 @@ async def image_translate(
                 item.get("confidence", 0.0)
             )
 
-            # -------------------------------------------------
-            # Numbers / prices
-            # -------------------------------------------------
+            # Keep detected numbers and prices unchanged.
 
             if is_numeric_or_price(original):
 
-                # IMPORTANT:
-                # Never send prices/numbers to translator.
+                # Never send prices or numbers to the translator.
                 translated = original
 
                 content_type = "numeric"
 
-            # -------------------------------------------------
-            # Possible OCR numeric result
-            # -------------------------------------------------
+            # Keep likely numeric OCR results unchanged.
 
             elif looks_like_numeric_ocr(original):
 
-                # Do NOT translate likely numeric OCR.
-                # Keep exactly what OCR produced.
+                # Preserve the OCR result without translation.
                 translated = original
 
                 content_type = "numeric"
 
-            # -------------------------------------------------
-            # Normal text
-            # -------------------------------------------------
+            # Translate normal text.
 
             else:
 
@@ -330,7 +298,7 @@ async def image_translate(
 
                 except Exception:
 
-                    # Mixed/short OCR text.
+                    # Retry with automatic language detection.
                     translated = translate_text(
                         original,
                         target,
@@ -343,9 +311,7 @@ async def image_translate(
                 translated
             )
 
-            # -------------------------------------------------
-            # Low confidence warning
-            # -------------------------------------------------
+            # Mark OCR results with low confidence.
 
             low_confidence = confidence < 0.65
 
@@ -369,18 +335,14 @@ async def image_translate(
 
             })
 
-        # -------------------------------------------------
-        # Full translated text
-        # -------------------------------------------------
+        # Combine translated OCR regions into one text block.
 
         translated_full = "\n".join(
             item["translated_text"]
             for item in positioned_items
         )
 
-        # -------------------------------------------------
-        # Return response
-        # -------------------------------------------------
+        # Return the translation and OCR details.
 
         return {
 

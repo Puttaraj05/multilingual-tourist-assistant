@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 import os
+
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, EmailStr
 from jose import JWTError, jwt
@@ -9,20 +10,14 @@ from bson import ObjectId
 from backend.database import mongodb
 
 
-# =========================================================
-# ROUTER
-# =========================================================
-
+# Authentication API routes.
 router = APIRouter(
     prefix="/api/auth",
     tags=["Authentication"]
 )
 
 
-# =========================================================
-# CONFIGURATION
-# =========================================================
-
+# JWT settings used for creating and validating login tokens.
 from backend.config import (
     JWT_SECRET_KEY,
     JWT_ALGORITHM,
@@ -34,14 +29,12 @@ ALGORITHM = JWT_ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 
 
-# =========================================================
-# PASSWORD HASHING
-# =========================================================
-
+# Hash the user's password before saving it to the database.
 def hash_password(password: str) -> str:
 
     password_bytes = password.encode("utf-8")
 
+    # bcrypt only supports passwords up to 72 bytes.
     if len(password_bytes) > 72:
         raise HTTPException(
             status_code=400,
@@ -56,6 +49,7 @@ def hash_password(password: str) -> str:
     return hashed.decode("utf-8")
 
 
+# Check whether a login password matches the saved password hash.
 def verify_password(
     plain_password: str,
     hashed_password: str
@@ -71,10 +65,8 @@ def verify_password(
         hashed_password.encode("utf-8")
     )
 
-# =========================================================
-# MONGODB
-# =========================================================
 
+# Get the users collection from the connected MongoDB database.
 def get_users_collection():
 
     if mongodb.db is None:
@@ -86,10 +78,7 @@ def get_users_collection():
     return mongodb.db["users"]
 
 
-# =========================================================
-# REQUEST / RESPONSE SCHEMAS
-# =========================================================
-
+# Request data used when creating a new account.
 class SignupRequest(BaseModel):
 
     name: str
@@ -99,6 +88,7 @@ class SignupRequest(BaseModel):
     password: str
 
 
+# Request data used when logging in.
 class LoginRequest(BaseModel):
 
     email: EmailStr
@@ -106,6 +96,7 @@ class LoginRequest(BaseModel):
     password: str
 
 
+# User information returned by the authentication APIs.
 class UserResponse(BaseModel):
 
     id: str
@@ -115,6 +106,7 @@ class UserResponse(BaseModel):
     email: str
 
 
+# Response returned after signup or login.
 class AuthResponse(BaseModel):
 
     success: bool
@@ -126,6 +118,7 @@ class AuthResponse(BaseModel):
     user: UserResponse
 
 
+# Response returned for the current logged-in user.
 class MeResponse(BaseModel):
 
     success: bool
@@ -133,49 +126,7 @@ class MeResponse(BaseModel):
     user: UserResponse
 
 
-# =========================================================
-# PASSWORD FUNCTIONS
-# =========================================================
-
-def hash_password(password: str) -> str:
-
-    password_bytes = password.encode("utf-8")
-
-    if len(password_bytes) > 72:
-        raise HTTPException(
-            status_code=400,
-            detail="Password must be 72 bytes or fewer"
-        )
-
-    hashed = bcrypt.hashpw(
-        password_bytes,
-        bcrypt.gensalt()
-    )
-
-    return hashed.decode("utf-8")
-
-
-def verify_password(
-    plain_password: str,
-    hashed_password: str
-) -> bool:
-
-    password_bytes = plain_password.encode("utf-8")
-
-    if len(password_bytes) > 72:
-        return False
-
-    return bcrypt.checkpw(
-        password_bytes,
-        hashed_password.encode("utf-8")
-    )
-    
-
-
-# =========================================================
-# JWT FUNCTIONS
-# =========================================================
-
+# Create a JWT token containing the user's ID and expiry time.
 def create_access_token(user_id: str) -> str:
 
     expire = (
@@ -197,6 +148,7 @@ def create_access_token(user_id: str) -> str:
     )
 
 
+# Read and validate the user ID stored inside a JWT token.
 def get_user_from_token(token: str) -> str:
 
     try:
@@ -226,10 +178,7 @@ def get_user_from_token(token: str) -> str:
         )
 
 
-# =========================================================
-# SIGN UP
-# =========================================================
-
+# Create a new user account.
 @router.post(
     "/signup",
     response_model=AuthResponse
@@ -242,18 +191,13 @@ async def signup(data: SignupRequest):
 
     password = data.password
 
-
-    # -----------------------------------------------------
-    # VALIDATION
-    # -----------------------------------------------------
-
+    # Check the basic signup requirements.
     if len(name) < 2:
 
         raise HTTPException(
             status_code=400,
             detail="Name must contain at least 2 characters"
         )
-
 
     if len(password) < 6:
 
@@ -262,18 +206,9 @@ async def signup(data: SignupRequest):
             detail="Password must contain at least 6 characters"
         )
 
-
-    # -----------------------------------------------------
-    # USERS COLLECTION
-    # -----------------------------------------------------
-
     users = get_users_collection()
 
-
-    # -----------------------------------------------------
-    # CHECK EXISTING USER
-    # -----------------------------------------------------
-
+    # Do not create another account with the same email.
     existing_user = users.find_one(
         {
             "email": email
@@ -287,11 +222,7 @@ async def signup(data: SignupRequest):
             detail="An account with this email already exists"
         )
 
-
-    # -----------------------------------------------------
-    # CREATE USER
-    # -----------------------------------------------------
-
+    # Store the new user's basic account information.
     now = datetime.now(timezone.utc)
 
     user = {
@@ -308,14 +239,13 @@ async def signup(data: SignupRequest):
         "updated_at": now
     }
 
-
     try:
 
         result = users.insert_one(user)
 
     except Exception as error:
 
-        # Handles duplicate email index
+        # Handle duplicate email errors from MongoDB.
         if "duplicate" in str(error).lower():
 
             raise HTTPException(
@@ -328,13 +258,12 @@ async def signup(data: SignupRequest):
             detail="Unable to create account"
         )
 
-
     user_id = str(result.inserted_id)
 
+    # Create a token so the user is logged in after signup.
     token = create_access_token(
         user_id
     )
-
 
     return {
 
@@ -356,10 +285,7 @@ async def signup(data: SignupRequest):
     }
 
 
-# =========================================================
-# LOGIN
-# =========================================================
-
+# Log an existing user into the application.
 @router.post(
     "/login",
     response_model=AuthResponse
@@ -372,20 +298,14 @@ async def login(data: LoginRequest):
 
     password = data.password
 
-
     users = get_users_collection()
 
-
-    # -----------------------------------------------------
-    # FIND USER
-    # -----------------------------------------------------
-
+    # Find the account using the provided email.
     user = users.find_one(
         {
             "email": email
         }
     )
-
 
     if not user:
 
@@ -394,11 +314,7 @@ async def login(data: LoginRequest):
             detail="Invalid email or password"
         )
 
-
-    # -----------------------------------------------------
-    # VERIFY PASSWORD
-    # -----------------------------------------------------
-
+    # Get the saved password hash.
     password_hash = user.get(
         "password_hash"
     )
@@ -410,7 +326,7 @@ async def login(data: LoginRequest):
             detail="Invalid email or password"
         )
 
-
+    # Verify the password entered during login.
     try:
 
         valid_password = verify_password(
@@ -422,7 +338,6 @@ async def login(data: LoginRequest):
 
         valid_password = False
 
-
     if not valid_password:
 
         raise HTTPException(
@@ -430,11 +345,7 @@ async def login(data: LoginRequest):
             detail="Invalid email or password"
         )
 
-
-    # -----------------------------------------------------
-    # CREATE TOKEN
-    # -----------------------------------------------------
-
+    # Create a new login token for the user.
     user_id = str(
         user["_id"]
     )
@@ -442,7 +353,6 @@ async def login(data: LoginRequest):
     token = create_access_token(
         user_id
     )
-
 
     return {
 
@@ -472,10 +382,7 @@ async def login(data: LoginRequest):
     }
 
 
-# =========================================================
-# CURRENT USER
-# =========================================================
-
+# Return the details of the currently authenticated user.
 @router.get(
     "/me",
     response_model=MeResponse
@@ -486,17 +393,13 @@ async def get_current_user(
     )
 ):
 
-    # -----------------------------------------------------
-    # CHECK AUTHORIZATION HEADER
-    # -----------------------------------------------------
-
+    # Check that the request contains an authorization header.
     if not authorization:
 
         raise HTTPException(
             status_code=401,
             detail="Authentication required"
         )
-
 
     if not authorization.startswith(
         "Bearer "
@@ -507,13 +410,12 @@ async def get_current_user(
             detail="Invalid authorization header"
         )
 
-
+    # Extract the JWT token from the Bearer header.
     token = authorization.replace(
         "Bearer ",
         "",
         1
     ).strip()
-
 
     if not token:
 
@@ -522,20 +424,12 @@ async def get_current_user(
             detail="Authentication token missing"
         )
 
-
-    # -----------------------------------------------------
-    # DECODE TOKEN
-    # -----------------------------------------------------
-
+    # Validate the token and get the user ID.
     user_id = get_user_from_token(
         token
     )
 
-
-    # -----------------------------------------------------
-    # CONVERT ID
-    # -----------------------------------------------------
-
+    # Convert the ID from the token into a MongoDB ObjectId.
     try:
 
         object_id = ObjectId(
@@ -549,19 +443,14 @@ async def get_current_user(
             detail="Invalid user ID"
         )
 
-
-    # -----------------------------------------------------
-    # FIND USER
-    # -----------------------------------------------------
-
     users = get_users_collection()
 
+    # Find the user associated with the token.
     user = users.find_one(
         {
             "_id": object_id
         }
     )
-
 
     if not user:
 
@@ -569,7 +458,6 @@ async def get_current_user(
             status_code=404,
             detail="User not found"
         )
-
 
     return {
 
@@ -597,13 +485,11 @@ async def get_current_user(
     }
 
 
-# =========================================================
-# LOGOUT
-# =========================================================
-
+# Handle logout requests.
 @router.post("/logout")
 async def logout():
 
+    # JWT logout is handled on the client by removing the token.
     return {
 
         "success": True,

@@ -7,9 +7,7 @@ from pymongo import MongoClient, ASCENDING
 load_dotenv()
 
 
-# =========================================================
-# MONGODB CONFIGURATION
-# =========================================================
+# Load MongoDB configuration.
 
 MONGODB_URI = os.getenv("MONGODB_URI")
 
@@ -19,9 +17,7 @@ DATABASE_NAME = os.getenv(
 )
 
 
-# =========================================================
-# SAFE FALLBACK RESULT
-# =========================================================
+# Provide a safe fallback result when MongoDB is unavailable.
 
 class DummyResult:
 
@@ -29,13 +25,7 @@ class DummyResult:
         self.inserted_id = None
 
 
-# =========================================================
-# SAFE FALLBACK COLLECTION
-#
-# IMPORTANT:
-# This collection never returns a normal Python list from
-# find(). It returns a cursor-like object so .sort() is safe.
-# =========================================================
+# Provide a cursor-like fallback for safe database operations.
 
 class DummyCursor:
 
@@ -54,6 +44,8 @@ class DummyCursor:
     def __next__(self):
         return next(iter(self.documents))
 
+
+# Provide a fallback collection when MongoDB is unavailable.
 
 class DummyCollection:
 
@@ -82,9 +74,7 @@ class DummyCollection:
         return None
 
 
-# =========================================================
-# DEFAULT COLLECTIONS
-# =========================================================
+# Initialize fallback collections before connecting to MongoDB.
 
 messages_collection = DummyCollection()
 conversations_collection = DummyCollection()
@@ -99,17 +89,13 @@ translations_collection = DummyCollection()
 recommendations_collection = DummyCollection()
 
 
-# =========================================================
-# MONGODB CLIENT
-# =========================================================
+# Initialize MongoDB client and database references.
 
 client = None
 db = None
 
 
-# =========================================================
-# CONNECT TO MONGODB
-# =========================================================
+# Connect to MongoDB when a connection string is available.
 
 if MONGODB_URI:
 
@@ -140,18 +126,14 @@ if MONGODB_URI:
         )
 
 
-        # =================================================
-        # CHAT
-        # =================================================
+        # Initialize chat collections.
 
         messages_collection = db["messages"]
 
         conversations_collection = db["conversations"]
 
 
-        # =================================================
-        # EMERGENCY
-        # =================================================
+        # Initialize emergency-related collections.
 
         emergency_contacts_collection = db[
             "emergency_contacts"
@@ -170,36 +152,28 @@ if MONGODB_URI:
         ]
 
 
-        # =================================================
-        # ITINERARY
-        # =================================================
+        # Initialize itinerary collection.
 
         itineraries_collection = db[
             "itineraries"
         ]
 
 
-        # =================================================
-        # TRANSLATION
-        # =================================================
+        # Initialize translation collection.
 
         translations_collection = db[
             "translations"
         ]
 
 
-        # =================================================
-        # RECOMMENDATIONS
-        # =================================================
+        # Initialize recommendation collection.
 
         recommendations_collection = db[
             "recommendations"
         ]
 
 
-        # =================================================
-        # CHAT INDEXES
-        # =================================================
+        # Create indexes for faster chat history queries.
 
         try:
 
@@ -231,6 +205,8 @@ if MONGODB_URI:
                 flush=True
             )
 
+
+        # Confirm that all MongoDB collections are ready.
 
         print(
             "MongoDB collections initialized.",
@@ -264,9 +240,7 @@ else:
     )
 
 
-# =========================================================
-# CENTRAL CHAT HISTORY HELPERS
-# =========================================================
+# Get chat messages in chronological order.
 
 def get_chat_messages(
     session_id: str,
@@ -292,7 +266,8 @@ def get_chat_messages(
         projection
     )
 
-    # Use PyMongo's supported list-of-tuples sort format.
+    # Sort messages by creation time.
+
     cursor = cursor.sort(
         [
             ("created_at", ASCENDING)
@@ -304,6 +279,8 @@ def get_chat_messages(
 
     return list(cursor)
 
+
+# Save a single chat message with a consistent timestamp.
 
 def save_chat_message(
     session_id: str,
@@ -333,6 +310,8 @@ def save_chat_message(
 
     return result
 
+
+# Create a conversation record if it does not already exist.
 
 def ensure_conversation(
     session_id: str,
@@ -366,6 +345,8 @@ def ensure_conversation(
 
     return document
 
+
+# Update the last activity timestamp for a conversation.
 
 def update_conversation_timestamp(
     session_id: str

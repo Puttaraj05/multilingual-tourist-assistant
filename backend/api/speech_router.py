@@ -15,20 +15,14 @@ from backend.services.translation_service import (
 )
 
 
-# =========================================================
-# ROUTER
-# =========================================================
-
+# Define speech-related API routes.
 router = APIRouter(
     prefix="/api",
     tags=["Speech"],
 )
 
 
-# =========================================================
-# SUPPORTED LANGUAGES
-# =========================================================
-
+# Supported language codes for speech processing.
 SUPPORTED_LANGUAGES = {
     "en",
     "hi",
@@ -51,13 +45,11 @@ SUPPORTED_LANGUAGES = {
     "ru",
 }
 
+# Limit uploaded audio files to 25 MB.
 MAX_AUDIO_SIZE = 25 * 1024 * 1024
 
 
-# =========================================================
-# LANGUAGE VALIDATION
-# =========================================================
-
+# Normalize and validate language values.
 def normalize_language(language: str | None) -> str:
     """
     Normalize language values received from frontend.
@@ -85,10 +77,7 @@ def validate_language(
     return language in SUPPORTED_LANGUAGES
 
 
-# =========================================================
-# READ AUDIO
-# =========================================================
-
+# Read the uploaded audio and enforce the size limit.
 async def read_audio_file(
     audio: UploadFile,
 ) -> bytes:
@@ -109,10 +98,7 @@ async def read_audio_file(
     return audio_bytes
 
 
-# =========================================================
-# SPEECH → TEXT
-# =========================================================
-
+# Convert spoken audio into text.
 @router.post("/speech-to-text")
 async def speech_to_text_endpoint(
     audio: UploadFile = File(...),
@@ -195,10 +181,7 @@ async def speech_to_text_endpoint(
         }
 
 
-# =========================================================
-# TEXT → SPEECH
-# =========================================================
-
+# Convert text into spoken audio.
 @router.post("/text-to-speech")
 async def text_to_speech_endpoint(
     text: str = Form(...),
@@ -278,10 +261,7 @@ async def text_to_speech_endpoint(
         }
 
 
-# =========================================================
-# VOICE → TRANSLATION → VOICE
-# =========================================================
-
+# Translate spoken audio and generate translated speech.
 @router.post("/voice-translate")
 async def voice_translate(
     audio: UploadFile = File(...),
@@ -313,17 +293,11 @@ async def voice_translate(
 
     try:
 
-        # -------------------------------------------------
-        # Normalize languages
-        # -------------------------------------------------
-
+        # Normalize the source and target languages.
         source = normalize_language(source)
         target = normalize_language(target)
 
-        # -------------------------------------------------
-        # Validate target
-        # -------------------------------------------------
-
+        # Validate the target language.
         if target == "auto":
 
             return {
@@ -347,10 +321,7 @@ async def voice_translate(
                 ),
             }
 
-        # -------------------------------------------------
-        # Validate source
-        # -------------------------------------------------
-
+        # Validate the source language.
         if not validate_language(source):
 
             return {
@@ -361,18 +332,12 @@ async def voice_translate(
                 ),
             }
 
-        # -------------------------------------------------
-        # Read audio
-        # -------------------------------------------------
-
+        # Read and validate the uploaded audio.
         audio_bytes = await read_audio_file(
             audio
         )
 
-        # =================================================
-        # STEP 1 — SPEECH TO TEXT
-        # =================================================
-
+        # Convert speech into text.
         stt_result = speech_to_text(
             audio_bytes,
             language=(
@@ -409,10 +374,7 @@ async def voice_translate(
                     detected_source,
             }
 
-        # =================================================
-        # STEP 2 — DETERMINE SOURCE LANGUAGE
-        # =================================================
-
+        # Use the detected language when source is automatic.
         if source == "auto":
 
             source_language = detected_source
@@ -421,10 +383,7 @@ async def voice_translate(
 
             source_language = source
 
-        # =================================================
-        # STEP 3 — TRANSLATION
-        # =================================================
-
+        # Translate the recognized text.
         if (
             source_language == target
         ):
@@ -455,10 +414,7 @@ async def voice_translate(
                 ),
             }
 
-        # =================================================
-        # STEP 4 — TEXT TO SPEECH
-        # =================================================
-
+        # Convert the translated text into speech.
         audio_bytes_out = await text_to_speech(
             translated_text,
             language=target,
@@ -478,18 +434,12 @@ async def voice_translate(
                     translated_text,
             }
 
-        # =================================================
-        # STEP 5 — BASE64 AUDIO
-        # =================================================
-
+        # Encode the generated MP3 as Base64.
         audio_base64 = base64.b64encode(
             audio_bytes_out
         ).decode("utf-8")
 
-        # =================================================
-        # FINAL RESPONSE
-        # =================================================
-
+        # Return the complete voice translation result.
         return {
             "success": True,
 
@@ -538,10 +488,7 @@ async def voice_translate(
         }
 
 
-# =========================================================
-# AVAILABLE VOICES
-# =========================================================
-
+# Return the available text-to-speech voices.
 @router.get("/voices")
 async def list_voices():
     """

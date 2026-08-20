@@ -19,9 +19,7 @@ async def get_recommendations(
 
     search_location = None
 
-    # =====================================================
-    # OPTION 1: NEAR ME
-    # =====================================================
+    # Use the user's coordinates when searching for places nearby.
 
     if latitude is not None and longitude is not None:
 
@@ -30,9 +28,7 @@ async def get_recommendations(
 
         search_location = "Near Me"
 
-    # =====================================================
-    # OPTION 2: SEARCH NEAR LOCATION
-    # =====================================================
+    # Otherwise, convert the provided location name into coordinates.
 
     else:
 
@@ -45,18 +41,15 @@ async def get_recommendations(
 
         search_location = location_data["display_name"]
 
-    # =====================================================
-    # CATEGORY
-    # =====================================================
+    # Normalize the requested category before searching for places.
 
     normalized_category = None
 
     if category and category.lower() != "all":
         normalized_category = normalize_category(category)
 
-    # =====================================================
-    # FETCH PLACES
-    # =====================================================
+    # Fetch more places than needed so results outside the requested radius
+    # can be filtered before returning the final recommendations.
 
     fetch_limit = max(
         max_results * 4,
@@ -73,9 +66,7 @@ async def get_recommendations(
 
     recommendations = []
 
-    # =====================================================
-    # BUILD RESULTS
-    # =====================================================
+    # Calculate the distance and build the response for each nearby place.
 
     for place in places:
 
@@ -129,9 +120,7 @@ async def get_recommendations(
             }
         )
 
-    # =====================================================
-    # SORT
-    # =====================================================
+    # Sort recommendations from the closest place to the farthest.
 
     recommendations.sort(
         key=lambda item: item["distance_km"]

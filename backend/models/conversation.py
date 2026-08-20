@@ -6,6 +6,7 @@ def create_message(
     content: str,
     language: str
 ):
+    # Create a chat message with its role, language, and timestamp.
     return {
         "role": role,
         "content": content,

@@ -21,20 +21,15 @@ from backend.database.mongodb import (
 )
 
 
-# =========================================================
-# ROUTER
-# =========================================================
-
+# Chat API routes.
 router = APIRouter(
     prefix="/api/chat",
     tags=["Chat"],
 )
 
 
-# =========================================================
-# EMPTY RESPONSE
-# =========================================================
-
+# Return an empty response when the AI does not return
+# the expected structured chat data.
 def empty_chat_response(message: str = ""):
 
     return {
@@ -52,10 +47,7 @@ def empty_chat_response(message: str = ""):
     }
 
 
-# =========================================================
-# CLEAN JSON TEXT
-# =========================================================
-
+# Remove markdown code blocks from an AI JSON response.
 def clean_json_text(text: str) -> str:
 
     if not text:
@@ -75,19 +67,10 @@ def clean_json_text(text: str) -> str:
     return text
 
 
-# =========================================================
-# NORMALIZE ITINERARY ACTIVITY
-# =========================================================
-
+# Convert an itinerary activity into a consistent format.
 def normalize_itinerary_activity(item):
 
-    # -----------------------------------------------------
-    # Gemini returned a string
-    # Example:
-    #
-    # "09:00 - Breakfast at a local cafe"
-    # -----------------------------------------------------
-
+    # Handle activities returned as plain text.
     if isinstance(item, str):
 
         text = item.strip()
@@ -104,16 +87,12 @@ def normalize_itinerary_activity(item):
                 "activity": activity.strip(),
             }
 
-        # No time supplied
         return {
             "time": "",
             "activity": text,
         }
 
-    # -----------------------------------------------------
-    # Gemini returned an object
-    # -----------------------------------------------------
-
+    # Handle activities returned as objects.
     if isinstance(item, dict):
 
         return {
@@ -138,20 +117,14 @@ def normalize_itinerary_activity(item):
             ),
         }
 
-    # -----------------------------------------------------
-    # Unknown format
-    # -----------------------------------------------------
-
+    # Convert unexpected activity formats to text.
     return {
         "time": "",
         "activity": str(item),
     }
 
 
-# =========================================================
-# NORMALIZE ITINERARY
-# =========================================================
-
+# Normalize the different parts of the itinerary.
 def normalize_itinerary(itinerary):
 
     if not isinstance(
@@ -164,10 +137,7 @@ def normalize_itinerary(itinerary):
 
     for day in itinerary:
 
-        # -------------------------------------------------
-        # Skip invalid days
-        # -------------------------------------------------
-
+        # Ignore invalid day entries.
         if not isinstance(
             day,
             dict
@@ -176,10 +146,8 @@ def normalize_itinerary(itinerary):
 
         new_day = {}
 
-        # -------------------------------------------------
-        # Normalize morning / afternoon / evening
-        # -------------------------------------------------
-
+        # Keep morning, afternoon and evening activities
+        # in the same format.
         for period in [
             "morning",
             "afternoon",
@@ -207,10 +175,7 @@ def normalize_itinerary(itinerary):
 
             ]
 
-        # -------------------------------------------------
-        # Preserve other day-level fields
-        # -------------------------------------------------
-
+        # Keep any additional information returned for the day.
         for key, value in day.items():
 
             if key not in [
@@ -228,16 +193,11 @@ def normalize_itinerary(itinerary):
     return normalized
 
 
-# =========================================================
-# NORMALIZE AI RESPONSE
-# =========================================================
-
+# Make sure the AI response follows the format expected
+# by the frontend and API response model.
 def normalize_chat_response(response):
 
-    # =====================================================
-    # CASE 1 — STRING RESPONSE
-    # =====================================================
-
+    # Convert a string response into JSON when possible.
     if isinstance(
         response,
         str
@@ -272,10 +232,7 @@ def normalize_chat_response(response):
                 text
             )
 
-    # =====================================================
-    # CASE 2 — INVALID RESPONSE
-    # =====================================================
-
+    # Return an empty response for unsupported formats.
     if not isinstance(
         response,
         dict
@@ -285,10 +242,7 @@ def normalize_chat_response(response):
             str(response)
         )
 
-    # =====================================================
-    # CASE 3 — NESTED JSON INSIDE MESSAGE
-    # =====================================================
-
+    # Sometimes Gemini places the JSON inside the message field.
     message_value = response.get(
         "message"
     )
@@ -325,10 +279,7 @@ def normalize_chat_response(response):
 
                 pass
 
-    # =====================================================
-    # SAFE LIST
-    # =====================================================
-
+    # Only return lists when the value is actually a list.
     def safe_list(value):
 
         if isinstance(
@@ -339,10 +290,7 @@ def normalize_chat_response(response):
 
         return []
 
-    # =====================================================
-    # NORMALIZE ITINERARY
-    # =====================================================
-
+    # Normalize the itinerary before returning the response.
     itinerary = normalize_itinerary(
         safe_list(
             response.get(
@@ -351,10 +299,6 @@ def normalize_chat_response(response):
             )
         )
     )
-
-    # =====================================================
-    # FINAL RESPONSE
-    # =====================================================
 
     return {
 
@@ -426,10 +370,7 @@ def normalize_chat_response(response):
     }
 
 
-# =========================================================
-# CHAT ENDPOINT
-# =========================================================
-
+# Handle chat messages and return a structured AI response.
 @router.post(
     "",
     response_model=ChatResponse
@@ -438,19 +379,14 @@ async def chat(
     request: ChatRequest
 ):
 
-    # =====================================================
-    # 1. SESSION MANAGEMENT
-    # =====================================================
-
+    # Create a new session ID when one is not provided.
     session_id = (
         request.session_id
         or str(uuid4())
     )
 
-    # =====================================================
-    # 2. LOAD CONVERSATION HISTORY
-    # =====================================================
-
+    # Load previous messages so Gemini can understand
+    # the current conversation.
     conversation_history = []
 
     try:
@@ -472,19 +408,13 @@ async def chat(
                 ""
             )
 
-            # =============================================
-            # USER
-            # =============================================
-
+            # Store the latest user message until
+            # its assistant response is found.
             if role == "user":
 
                 pending_user_message = (
                     content
                 )
-
-            # =============================================
-            # ASSISTANT
-            # =============================================
 
             elif (
                 role == "assistant"
@@ -497,6 +427,7 @@ async def chat(
                     content
                 )
 
+                # Convert saved JSON strings back into objects.
                 if isinstance(
                     assistant_content,
                     str
@@ -536,10 +467,7 @@ async def chat(
 
         conversation_history = []
 
-    # =====================================================
-    # 3. GENERATE AI RESPONSE
-    # =====================================================
-
+    # Generate the response using the Gemini service.
     try:
 
         raw_response = generate_chat_response(
@@ -557,10 +485,7 @@ async def chat(
 
         error_message = str(e)
 
-        # =================================================
-        # GEMINI QUOTA / RATE LIMIT
-        # =================================================
-
+        # Handle Gemini quota and rate-limit errors.
         if (
             "quota"
             in error_message.lower()
@@ -598,28 +523,19 @@ async def chat(
             detail=f"Chat service error: {str(e)}"
         )
 
-    # =====================================================
-    # 4. NORMALIZE RESPONSE
-    # =====================================================
-
+    # Convert the AI response into the expected structure.
     response = normalize_chat_response(
         raw_response
     )
 
-    # =====================================================
-    # 5. SAVE TO MONGODB
-    # =====================================================
-
+    # Save the conversation in MongoDB.
     try:
 
         now = datetime.now(
             timezone.utc
         )
 
-        # -------------------------------------------------
-        # USER MESSAGE
-        # -------------------------------------------------
-
+        # Save the user's message.
         save_chat_message(
             session_id=session_id,
             role="user",
@@ -627,10 +543,7 @@ async def chat(
             language=request.language,
         )
 
-        # -------------------------------------------------
-        # ASSISTANT RESPONSE
-        # -------------------------------------------------
-
+        # Save the assistant's structured response.
         save_chat_message(
             session_id=session_id,
             role="assistant",
@@ -648,51 +561,33 @@ async def chat(
             flush=True
         )
 
-    # =====================================================
-    # 6. RETURN STRUCTURED RESPONSE
-    # =====================================================
-
+    # Return the structured response to the frontend.
     return ChatResponse(
 
         success=True,
 
-        # -------------------------------------------------
-        # Session
-        # -------------------------------------------------
-
+        # Current conversation session.
         session_id=
             session_id,
 
-        # -------------------------------------------------
-        # Language
-        # -------------------------------------------------
-
+        # Language used for the response.
         language=
             request.language,
 
-        # -------------------------------------------------
-        # Main response
-        # -------------------------------------------------
-
+        # Main AI response.
         message=
             response.get(
                 "message",
                 ""
             ),
 
-        # -------------------------------------------------
-        # Destination
-        # -------------------------------------------------
-
+        # Destination information.
         destination=
             response.get(
                 "destination"
             ),
 
-        # -------------------------------------------------
-        # Trip information
-        # -------------------------------------------------
-
+        # Trip details.
         trip_duration=
             response.get(
                 "trip_duration"
@@ -713,50 +608,35 @@ async def chat(
                 "estimated_budget"
             ),
 
-        # -------------------------------------------------
-        # Attractions
-        # -------------------------------------------------
-
+        # Recommended attractions.
         attractions=
             response.get(
                 "attractions",
                 []
             ),
 
-        # -------------------------------------------------
-        # Food
-        # -------------------------------------------------
-
+        # Recommended food options.
         food=
             response.get(
                 "food",
                 []
             ),
 
-        # -------------------------------------------------
-        # Transportation
-        # -------------------------------------------------
-
+        # Suggested transportation options.
         transportation=
             response.get(
                 "transportation",
                 []
             ),
 
-        # -------------------------------------------------
-        # Travel tips
-        # -------------------------------------------------
-
+        # Helpful travel tips.
         tips=
             response.get(
                 "tips",
                 []
             ),
 
-        # -------------------------------------------------
-        # Detailed itinerary
-        # -------------------------------------------------
-
+        # Detailed day-by-day itinerary.
         itinerary=
             response.get(
                 "itinerary",

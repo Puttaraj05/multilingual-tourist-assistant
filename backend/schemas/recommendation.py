@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, model_validator
 
 
 class RecommendationRequest(BaseModel):
-    # Option 1: Near Me
+    # Coordinates used when searching for places near the user.
     latitude: Optional[float] = Field(
         default=None,
         ge=-90,
@@ -17,23 +17,26 @@ class RecommendationRequest(BaseModel):
         le=180
     )
 
-    # Option 2: Search Near a typed location
+    # Location name used when searching near a typed place.
     location: Optional[str] = Field(
         default=None,
         min_length=2,
         max_length=200
     )
 
+    # Category of places to search for.
     category: str = Field(
         default="all"
     )
 
+    # Search radius in kilometers.
     radius: float = Field(
         default=5.0,
         gt=0,
         le=50
     )
 
+    # Maximum number of recommendations to return.
     max_results: int = Field(
         default=5,
         gt=0,
@@ -51,13 +54,13 @@ class RecommendationRequest(BaseModel):
             and self.location.strip() != ""
         )
 
-        # Latitude and longitude must both exist
+        # Ensure latitude and longitude are provided together.
         if has_latitude != has_longitude:
             raise ValueError(
                 "Both latitude and longitude must be provided together."
             )
 
-        # User must select Near Me OR type a location
+        # Require either coordinates or a typed location.
         if not (
             has_latitude and has_longitude
         ) and not has_location:

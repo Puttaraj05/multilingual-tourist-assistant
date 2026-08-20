@@ -1,26 +1,18 @@
-/* =========================================================
-   TRAVELMATE AUTHENTICATION
-========================================================= */
+// Handle login, signup, and authentication data for TravelMate.
 
 const API_AUTH = "/api/auth";
 
 const TOKEN_KEY = "travelmate_token";
 const USER_KEY = "travelmate_user";
 
-
-/* =========================================================
-   ELEMENTS
-========================================================= */
+// Get the authentication forms and tab controls from the page.
 
 const tabs = document.querySelectorAll(".tab");
 
 const loginForm = document.getElementById("loginForm");
 const signupForm = document.getElementById("signupForm");
 
-
-/* =========================================================
-   TABS
-========================================================= */
+// Switch between the login and signup forms.
 
 tabs.forEach(tab => {
 
@@ -48,10 +40,7 @@ tabs.forEach(tab => {
 
 });
 
-
-/* =========================================================
-   SAVE AUTH DATA
-========================================================= */
+// Save the token and user information returned by the authentication API.
 
 function saveAuth(data) {
 
@@ -73,19 +62,14 @@ function saveAuth(data) {
     );
 }
 
-
-/* =========================================================
-   API RESPONSE HANDLER
-========================================================= */
+// Convert the API response into JSON and provide a useful error for non-JSON responses.
 
 async function parseResponse(response) {
 
     const contentType =
         response.headers.get("content-type") || "";
 
-    /*
-     * Normal FastAPI JSON response
-     */
+    // FastAPI normally returns authentication responses as JSON.
 
     if (contentType.includes("application/json")) {
 
@@ -93,10 +77,7 @@ async function parseResponse(response) {
 
     }
 
-    /*
-     * Prevent:
-     * Unexpected token 'I', "Internal S..."
-     */
+    // If the server returns plain text or an HTML error page, show that response instead.
 
     const text = await response.text();
 
@@ -105,10 +86,7 @@ async function parseResponse(response) {
     );
 }
 
-
-/* =========================================================
-   LOGIN
-========================================================= */
+// Handle the login form submission.
 
 loginForm?.addEventListener(
     "submit",
@@ -186,10 +164,7 @@ loginForm?.addEventListener(
 
             saveAuth(data);
 
-
-            /*
-             * Successful login
-             */
+            // Send the user to the dashboard after a successful login.
 
             window.location.href =
                 "/dashboard.html";
@@ -217,10 +192,7 @@ loginForm?.addEventListener(
     }
 );
 
-
-/* =========================================================
-   SIGN UP
-========================================================= */
+// Handle the account creation form.
 
 signupForm?.addEventListener(
     "submit",
@@ -246,9 +218,7 @@ signupForm?.addEventListener(
             inputs[3].value;
 
 
-        /* =================================================
-           VALIDATION
-        ================================================= */
+        // Check the basic signup requirements before sending the request.
 
         if (name.length < 2) {
 
@@ -280,9 +250,7 @@ signupForm?.addEventListener(
         }
 
 
-        /*
-         * bcrypt supports maximum 72 bytes
-         */
+        // bcrypt supports passwords up to a maximum of 72 bytes.
 
         if (
             new TextEncoder()
@@ -354,10 +322,7 @@ signupForm?.addEventListener(
 
             saveAuth(data);
 
-
-            /*
-             * Successful signup
-             */
+            // Send the new user to the dashboard after signup.
 
             window.location.href =
                 "/dashboard.html";

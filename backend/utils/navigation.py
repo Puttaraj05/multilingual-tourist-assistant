@@ -5,6 +5,7 @@ def create_navigation_url(
     destination_longitude: float
 ) -> str:
 
+    # Build a Google Maps driving directions URL from the origin to the destination.
     return (
         "https://www.google.com/maps/dir/"
         "?api=1"

@@ -10,13 +10,7 @@ def get_conversation_history(
     session_id: str,
     limit: int = 10
 ):
-    """
-    Get previous conversation messages.
-
-    Uses the central MongoDB history helper so that
-    sorting and timestamp handling remain consistent.
-    """
-
+    # Get previous messages using the shared MongoDB helper.
     messages = get_chat_messages(
         session_id=session_id,
         limit=limit
@@ -24,6 +18,7 @@ def get_conversation_history(
 
     history = []
 
+    # Group each user message with its assistant response.
     for message in messages:
 
         role = message.get("role")
@@ -42,6 +37,7 @@ def get_conversation_history(
 
         elif role == "assistant":
 
+            # Attach the assistant response to the latest user message.
             if (
                 history
                 and history[-1]["assistant"] == ""
@@ -57,11 +53,7 @@ def save_message(
     content: str,
     language: str
 ):
-    """
-    Save one chat message using the central
-    MongoDB message writer.
-    """
-
+    # Save the chat message using the shared MongoDB writer.
     return save_chat_message(
         session_id=session_id,
         role=role,
@@ -74,10 +66,7 @@ def create_conversation(
     session_id: str,
     language: str
 ):
-    """
-    Create a conversation if it doesn't exist.
-    """
-
+    # Create the conversation only if it does not already exist.
     return ensure_conversation(
         session_id=session_id,
         language=language

@@ -1,11 +1,9 @@
 from typing import List, Optional
+
 from pydantic import BaseModel, Field
 
 
-# =========================================================
-# REQUEST
-# =========================================================
-
+# Define the data received from the chat request.
 class ChatRequest(BaseModel):
 
     message: str
@@ -15,10 +13,7 @@ class ChatRequest(BaseModel):
     session_id: Optional[str] = None
 
 
-# =========================================================
-# ATTRACTION
-# =========================================================
-
+# Define the structure of a tourist attraction.
 class Attraction(BaseModel):
 
     name: str
@@ -34,10 +29,7 @@ class Attraction(BaseModel):
     location: Optional[str] = None
 
 
-# =========================================================
-# FOOD
-# =========================================================
-
+# Define the structure of a food recommendation.
 class FoodRecommendation(BaseModel):
 
     name: str
@@ -53,10 +45,7 @@ class FoodRecommendation(BaseModel):
     approximate_cost: Optional[str] = None
 
 
-# =========================================================
-# TRANSPORTATION
-# =========================================================
-
+# Define the available transportation options.
 class TransportOption(BaseModel):
 
     mode: str
@@ -70,10 +59,7 @@ class TransportOption(BaseModel):
     travel_time: Optional[str] = None
 
 
-# =========================================================
-# TRAVEL TIP
-# =========================================================
-
+# Define a useful travel tip.
 class TravelTip(BaseModel):
 
     title: str
@@ -81,10 +67,7 @@ class TravelTip(BaseModel):
     description: str
 
 
-# =========================================================
-# ITINERARY ACTIVITY
-# =========================================================
-
+# Define one activity in the itinerary.
 class ItineraryActivity(BaseModel):
 
     time: Optional[str] = None
@@ -100,10 +83,7 @@ class ItineraryActivity(BaseModel):
     estimated_cost: Optional[str] = None
 
 
-# =========================================================
-# ITINERARY DAY
-# =========================================================
-
+# Define the activities and details for one itinerary day.
 class ItineraryDay(BaseModel):
 
     day: int
@@ -112,6 +92,7 @@ class ItineraryDay(BaseModel):
 
     summary: Optional[str] = None
 
+    # Store activities for each part of the day.
     morning: List[ItineraryActivity] = Field(
         default_factory=list
     )
@@ -145,10 +126,7 @@ class ItineraryDay(BaseModel):
     distance: Optional[str] = None
 
 
-# =========================================================
-# CHAT RESPONSE
-# =========================================================
-
+# Define the complete response returned by the chat API.
 class ChatResponse(BaseModel):
 
     success: bool

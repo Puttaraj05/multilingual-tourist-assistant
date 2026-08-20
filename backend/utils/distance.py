@@ -8,6 +8,7 @@ def calculate_distance(
     longitude2: float
 ) -> float:
 
+    # Use the Earth's average radius in kilometers for the Haversine calculation.
     earth_radius_km = 6371.0
 
     lat1 = radians(latitude1)

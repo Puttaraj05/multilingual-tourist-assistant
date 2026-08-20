@@ -5,10 +5,7 @@ import easyocr
 import numpy as np
 
 
-# =========================================================
-# OCR LANGUAGES
-# =========================================================
-
+# Languages supported by the OCR readers.
 READER_LANGS = [
     "en",
     "hi",
@@ -22,10 +19,7 @@ READER_LANGS = [
 _readers = {}
 
 
-# =========================================================
-# SCRIPT RANGES
-# =========================================================
-
+# Unicode ranges used to identify the detected script.
 SCRIPT_RANGES = {
     "en": [
         (0x0041, 0x024F),
@@ -49,10 +43,7 @@ SCRIPT_RANGES = {
 }
 
 
-# =========================================================
-# READER
-# =========================================================
-
+# Create and reuse an OCR reader for each language.
 def get_reader(lang):
     """
     Create and cache one EasyOCR reader per language.
@@ -74,10 +65,7 @@ def get_reader(lang):
     return _readers[lang]
 
 
-# =========================================================
-# IMAGE PREPROCESSING
-# =========================================================
-
+# Improve the image before passing it to EasyOCR.
 def preprocess(image):
     arr = np.array(image)
     bgr = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
@@ -104,29 +92,25 @@ def preprocess(image):
     return enhanced
 
 
-# =========================================================
-# BOX HELPERS
-# =========================================================
-
+# Convert OCR box coordinates into integer values.
 def clean_box(box):
     return [[int(point[0]), int(point[1])] for point in box]
 
 
+# Create a simplified key for comparing OCR boxes.
 def _box_key(box):
     xs = [round(float(point[0]) / 12) for point in box]
     ys = [round(float(point[1]) / 12) for point in box]
     return tuple(xs + ys)
 
 
-# =========================================================
-# SCRIPT HELPERS
-# =========================================================
-
+# Check whether a character belongs to a script range.
 def _in_ranges(char, ranges):
     code = ord(char)
     return any(start <= code <= end for start, end in ranges)
 
 
+# Calculate how much of the text matches the expected script.
 def script_match_ratio(text, lang):
     chars = [c for c in text if c.isalpha()]
     if not chars:
@@ -137,6 +121,7 @@ def script_match_ratio(text, lang):
     return matched / len(chars)
 
 
+# Calculate the percentage of alphabetic characters that are Latin.
 def latin_ratio(text):
     chars = [c for c in text if c.isalpha()]
     if not chars:
@@ -144,16 +129,14 @@ def latin_ratio(text):
     return sum(("A" <= c <= "Z") or ("a" <= c <= "z") for c in chars) / len(chars)
 
 
-# =========================================================
-# TEXT CLEANING
-# =========================================================
-
+# Remove unnecessary spaces from OCR output.
 def clean_text(text):
     text = str(text).strip()
     text = re.sub(r"[ \t]+", " ", text)
     return text
 
 
+# Normalize text before comparing OCR results.
 def normalize_text(text):
     return re.sub(
         r"[^0-9A-Za-z"
@@ -173,13 +156,11 @@ def normalize_text(text):
     ).lower()
 
 
-# =========================================================
-# NUMERIC / PRICE HELPERS
-# =========================================================
-
+# Characters commonly found in prices and numeric values.
 NUMERIC_CHARS = "0123456789$€£¥₹.,:%/-+()"
 
 
+# Check whether OCR output mainly contains numeric characters.
 def is_numeric_text(text):
     compact = text.replace(" ", "").strip()
     if not compact:
@@ -191,10 +172,12 @@ def is_numeric_text(text):
     return (allowed / len(compact)) >= 0.60
 
 
+# Check whether the text contains a supported currency symbol.
 def contains_currency_symbol(text):
     return any(symbol in text for symbol in ["₹", "$", "€", "£", "¥"])
 
 
+# Calculate how much of the text contains numeric characters.
 def numeric_ratio(text):
     compact = text.replace(" ", "").strip()
     if not compact:
@@ -202,10 +185,7 @@ def numeric_ratio(text):
     return sum(ch in NUMERIC_CHARS for ch in compact) / len(compact)
 
 
-# =========================================================
-# DUPLICATION
-# =========================================================
-
+# Remove duplicate OCR results while keeping the higher-confidence result.
 def deduplicate_items(items):
     unique = {}
     for item in items:
@@ -218,10 +198,7 @@ def deduplicate_items(items):
     return list(unique.values())
 
 
-# =========================================================
-# OCR RESULT SCORING
-# =========================================================
-
+# Score OCR results using confidence, script matching, and text length.
 def score_result(items, lang):
     if not items:
         return -1.0
@@ -249,10 +226,7 @@ def score_result(items, lang):
     return score
 
 
-# =========================================================
-# NUMERIC REGION RECOGNITION (IMPROVED)
-# =========================================================
-
+# Run a second OCR pass to improve recognition of prices and symbols.
 def refine_numeric_text(reader, image, box):
     """
     Stronger second-pass OCR for prices.
@@ -273,7 +247,7 @@ def refine_numeric_text(reader, image, box):
         if crop.size == 0:
             return None
 
-        # Higher upscale for better symbol recognition
+        # Upscale the crop to improve recognition of small symbols.
         crop = cv2.resize(crop, None, fx=4.0, fy=4.0, interpolation=cv2.INTER_CUBIC)
 
         allowlist = "0123456789₹$€£¥.,:%/-+() "
@@ -291,7 +265,7 @@ def refine_numeric_text(reader, image, box):
                 link_threshold=0.20,
             )
 
-        # Multiple passes
+        # Try several image versions to improve price recognition.
         results = run_ocr(crop)
 
         gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
@@ -318,7 +292,7 @@ def refine_numeric_text(reader, image, box):
 
             score = float(confidence)
 
-            # Strong bonus for currency symbol
+            # Give preference to results that correctly detect currency.
             if contains_currency_symbol(cleaned):
                 score += 0.40
 
@@ -338,10 +312,7 @@ def refine_numeric_text(reader, image, box):
         return None
 
 
-# =========================================================
-# MAIN OCR
-# =========================================================
-
+# Extract text, language, confidence, and bounding boxes from an image.
 def extract_text_from_image(image):
     processed = preprocess(image)
     processed_height, processed_width = processed.shape[:2]
@@ -381,7 +352,7 @@ def extract_text_from_image(image):
                         has_currency_original = contains_currency_symbol(final_text)
                         has_currency_refined = contains_currency_symbol(refined)
 
-                        # Prefer result that contains currency symbol
+                        # Prefer the refined result when it identifies currency correctly.
                         if has_currency_refined and not has_currency_original:
                             print(f"Currency fixed: '{final_text}' → '{refined}'")
                             final_text = refined
@@ -428,7 +399,7 @@ def extract_text_from_image(image):
     best = max(candidates, key=lambda x: x["score"])
     items = best["items"]
 
-    # Natural reading order
+    # Sort detected text into a natural reading order.
     items.sort(
         key=lambda x: (
             min(point[1] for point in x["box"]),

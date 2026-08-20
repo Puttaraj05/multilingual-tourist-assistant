@@ -7,16 +7,12 @@ from dotenv import load_dotenv
 from google import genai
 
 
-# =========================================================
-# LOAD ENVIRONMENT
-# =========================================================
+# Load environment variables from the .env file.
 
 load_dotenv()
 
 
-# =========================================================
-# GEMINI CONFIGURATION
-# =========================================================
+# Read the Gemini API key from the environment.
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -26,15 +22,15 @@ if not GEMINI_API_KEY:
     )
 
 
+# Use the configured Gemini model or the default model.
+
 MODEL_NAME = os.getenv(
     "GEMINI_MODEL",
     "gemini-3.6-flash"
 )
 
 
-# =========================================================
-# GEMINI CLIENT
-# =========================================================
+# Create the Gemini client using the API key.
 
 client = genai.Client(
     api_key=GEMINI_API_KEY
@@ -46,9 +42,7 @@ print(
 )
 
 
-# =========================================================
-# SYSTEM PROMPT
-# =========================================================
+# Define the instructions used to generate consistent travel responses.
 
 SYSTEM_PROMPT = """
 
@@ -109,9 +103,7 @@ The JSON must follow EXACTLY this structure:
 }
 
 
-=========================================================
 ATTRACTIONS
-=========================================================
 
 Each attraction MUST be an object:
 
@@ -125,9 +117,7 @@ Each attraction MUST be an object:
 }
 
 
-=========================================================
 FOOD
-=========================================================
 
 Each food recommendation MUST be an object:
 
@@ -141,9 +131,7 @@ Each food recommendation MUST be an object:
 }
 
 
-=========================================================
 TRANSPORTATION
-=========================================================
 
 Each transportation option MUST be an object:
 
@@ -156,9 +144,7 @@ Each transportation option MUST be an object:
 }
 
 
-=========================================================
 TRAVEL TIPS
-=========================================================
 
 Each tip MUST be an object:
 
@@ -168,9 +154,7 @@ Each tip MUST be an object:
 }
 
 
-=========================================================
 ITINERARY
-=========================================================
 
 Each itinerary day MUST be an object:
 
@@ -228,9 +212,7 @@ Each itinerary day MUST be an object:
 }
 
 
-=========================================================
 VERY IMPORTANT ITINERARY RULE
-=========================================================
 
 morning, afternoon, evening and night MUST contain
 OBJECTS.
@@ -249,9 +231,7 @@ Instead return:
 This rule is mandatory.
 
 
-=========================================================
 SIMPLE QUESTIONS
-=========================================================
 
 If the user asks a simple question:
 
@@ -260,9 +240,7 @@ If the user asks a simple question:
 - use empty arrays for irrelevant sections
 
 
-=========================================================
 TRIP PLANNING
-=========================================================
 
 If the user asks for a complete trip plan:
 
@@ -274,9 +252,7 @@ If the user asks for a complete trip plan:
 - detailed itinerary
 
 
-=========================================================
 SAFETY
-=========================================================
 
 Never invent dangerous or clearly false information.
 
@@ -285,9 +261,7 @@ When information is uncertain, say so clearly.
 """
 
 
-# =========================================================
-# EMPTY RESPONSE
-# =========================================================
+# Create a consistent empty response when no valid data is available.
 
 def empty_response(message=""):
     return {
@@ -306,9 +280,7 @@ def empty_response(message=""):
     }
 
 
-# =========================================================
-# CLEAN JSON RESPONSE
-# =========================================================
+# Clean and parse Gemini's response into a JSON object.
 
 def clean_json_response(text):
 
@@ -317,7 +289,8 @@ def clean_json_response(text):
 
     text = str(text).strip()
 
-    # Remove ```json
+    # Remove Markdown JSON code fences if Gemini adds them.
+
     text = re.sub(
         r"^```json\s*",
         "",
@@ -325,7 +298,8 @@ def clean_json_response(text):
         flags=re.IGNORECASE
     )
 
-    # Remove ```
+    # Remove a generic Markdown code fence.
+
     text = re.sub(
         r"^```\s*",
         "",
@@ -340,7 +314,8 @@ def clean_json_response(text):
 
     text = text.strip()
 
-    # Find JSON object if Gemini adds extra text
+    # Extract the JSON object if Gemini adds extra text around it.
+
     start = text.find("{")
     end = text.rfind("}")
 
@@ -348,6 +323,8 @@ def clean_json_response(text):
         text = text[start:end + 1]
 
     try:
+
+        # Parse the cleaned response as JSON.
 
         parsed = json.loads(text)
 
@@ -358,24 +335,24 @@ def clean_json_response(text):
 
     except json.JSONDecodeError:
 
+        # Return a safe response when the JSON cannot be parsed.
+
         return empty_response(text)
 
 
-# =========================================================
-# NORMALIZE ITINERARY ACTIVITY
-# =========================================================
+# Convert itinerary activities into a consistent object structure.
 
 def normalize_activity(activity):
 
-    # Gemini sometimes returns a string.
-    # Convert it into the structure required
-    # by ItineraryActivity.
+    # Convert string activities into the required object format.
 
     if isinstance(activity, str):
 
         activity = activity.strip()
 
         if " - " in activity:
+
+            # Separate the time from the activity description.
 
             activity_time, description = activity.split(
                 " - ",
@@ -392,6 +369,8 @@ def normalize_activity(activity):
         }
 
     if isinstance(activity, dict):
+
+        # Keep activity details while filling missing optional fields.
 
         return {
             "time": activity.get("time"),
@@ -421,16 +400,18 @@ def normalize_activity(activity):
             ),
         }
 
+    # Convert unexpected activity values into text.
+
     return {
         "activity": str(activity)
     }
 
 
-# =========================================================
-# NORMALIZE ITINERARY DAY
-# =========================================================
+# Normalize one itinerary day into the expected structure.
 
 def normalize_itinerary_day(day, index):
+
+    # Return an empty day when Gemini provides invalid day data.
 
     if not isinstance(day, dict):
 
@@ -452,8 +433,12 @@ def normalize_itinerary_day(day, index):
 
     def normalize_activities(value):
 
+        # Ignore invalid activity sections instead of raising an error.
+
         if not isinstance(value, list):
             return []
+
+        # Normalize every activity into a consistent structure.
 
         return [
             normalize_activity(item)
@@ -528,11 +513,11 @@ def normalize_itinerary_day(day, index):
     }
 
 
-# =========================================================
-# NORMALIZE COMPLETE RESPONSE
-# =========================================================
+# Normalize the complete Gemini response before returning it.
 
 def normalize_response(response):
+
+    # Return a safe response when Gemini does not return a dictionary.
 
     if not isinstance(response, dict):
 
@@ -545,8 +530,12 @@ def normalize_response(response):
         []
     )
 
+    # Make sure the itinerary is always represented as a list.
+
     if not isinstance(itinerary, list):
         itinerary = []
+
+    # Normalize each itinerary day into the expected structure.
 
     itinerary = [
         normalize_itinerary_day(
@@ -557,6 +546,8 @@ def normalize_response(response):
     ]
 
     def safe_list(value):
+
+        # Keep only valid list values for recommendation sections.
 
         if isinstance(value, list):
             return value
@@ -627,9 +618,7 @@ def normalize_response(response):
     }
 
 
-# =========================================================
-# GENERATE CHAT RESPONSE
-# =========================================================
+# Generate a structured travel response using Gemini.
 
 def generate_chat_response(
     message,
@@ -637,14 +626,14 @@ def generate_chat_response(
     conversation_history=None
 ):
 
+    # Use an empty history when no previous conversation is available.
+
     conversation_history = (
         conversation_history
         or []
     )
 
-    # =====================================================
-    # BUILD HISTORY
-    # =====================================================
+    # Convert previous conversations into text for Gemini context.
 
     history_text = ""
 
@@ -665,6 +654,8 @@ def generate_chat_response(
             dict
         ):
 
+            # Convert structured assistant responses into JSON text.
+
             assistant_message = json.dumps(
                 assistant_message,
                 ensure_ascii=False
@@ -676,9 +667,7 @@ def generate_chat_response(
             "\n"
         )
 
-    # =====================================================
-    # BUILD PROMPT
-    # =====================================================
+    # Build the prompt using the language, history, and current message.
 
     prompt = f"""
 
@@ -700,9 +689,7 @@ Return ONLY valid JSON.
 
 """
 
-    # =====================================================
-    # GEMINI REQUEST WITH RETRIES
-    # =====================================================
+    # Try the Gemini request up to three times for temporary failures.
 
     max_retries = 3
 
@@ -739,9 +726,7 @@ Return ONLY valid JSON.
                 flush=True
             )
 
-            # =============================================
-            # RETRY TEMPORARY 503 ERRORS
-            # =============================================
+            # Check whether the error is temporary and can be retried.
 
             is_temporary_error = (
                 "503" in error_text
@@ -753,7 +738,8 @@ Return ONLY valid JSON.
 
                 if attempt < max_retries - 1:
 
-                    # 2 sec -> 4 sec -> 8 sec
+                    # Increase the wait time after each failed attempt.
+
                     wait_time = 2 ** (attempt + 1)
 
                     print(
@@ -768,17 +754,13 @@ Return ONLY valid JSON.
 
                     continue
 
-            # =============================================
-            # DO NOT RETRY OTHER ERRORS
-            # =============================================
+            # Stop immediately for errors that are not temporary.
 
             raise RuntimeError(
                 error_text
             )
 
-    # =====================================================
-    # SAFETY CHECK
-    # =====================================================
+    # Make sure Gemini returned a response after all attempts.
 
     if response is None:
 
@@ -786,9 +768,7 @@ Return ONLY valid JSON.
             "Gemini failed after all retry attempts."
         )
 
-    # =====================================================
-    # GET RESPONSE TEXT
-    # =====================================================
+    # Extract the text returned by Gemini.
 
     response_text = getattr(
         response,
@@ -802,17 +782,13 @@ Return ONLY valid JSON.
             "Gemini returned an empty response."
         )
 
-    # =====================================================
-    # PARSE JSON
-    # =====================================================
+    # Parse Gemini's response into the expected JSON structure.
 
     parsed = clean_json_response(
         response_text
     )
 
-    # =====================================================
-    # NORMALIZE RESPONSE
-    # =====================================================
+    # Normalize the parsed response before returning it to the API.
 
     return normalize_response(
         parsed
