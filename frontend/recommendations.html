@@ -58,36 +58,45 @@
 
     <nav>
 
-        <a href="/">
+        <a href="/" data-i18n="nav.home">
             Home
         </a>
 
     
 
-        <a href="/planner.html">
+        <a href="/planner.html" data-i18n="nav.planner">
             Planner
         </a>
 
-        <a href="/translation.html">
+        <a href="/translation.html" data-i18n="nav.translator">
             Translator
         </a>
 
-        <a href="/chat.html">
+        <a href="/chat.html" data-i18n="nav.chat">
             Chat
         </a>
 
-        <a href="/recommendations.html" >
-            Recommendations
-        </a>
+        <a href="/recommendations.html"  data-i18n="nav.recommendations">Recommendations</a>
 
-        <a href="/emergency.html">
+        <a href="/emergency.html" data-i18n="nav.emergency">
             Emergency
         </a>
 
     </nav>
 
 
-    <div
+            <!-- Global Language Selector -->
+        <select
+            id="globalLanguageSelector"
+            class="global-language-selector"
+            aria-label="Select interface language"
+        >
+            <option value="en">🌐 English</option>
+            <option value="hi">🌐 हिंदी</option>
+            <option value="te">🌐 తెలుగు</option>
+        </select>
+
+<div
         class="nav-actions"
         id="authSection"
     >
@@ -101,10 +110,10 @@
 ===================================================== -->
 
 <section class="recommend-hero">
-<span class="badge">
+<span class="badge" data-i18n="recommendations.badge">
     Nearby Explorer
 </span>
-<h1>
+<h1 data-i18n="recommendations.title">
     Find What's Around You
 </h1>
 <p>
@@ -124,7 +133,7 @@
     <input
         id="searchLocation"
         type="text"
-        placeholder="Search city or destination"
+        placeholder="Search city or destination" data-i18n-placeholder="recommendations.searchPlaceholder"
         autocomplete="off"
     >
     <button
@@ -132,7 +141,7 @@
         type="button"
     >
         <i class="fa-solid fa-location-crosshairs"></i>
-        Near Me
+        <span data-i18n="recommendations.nearMe">Near Me</span>
     </button>
 </div>
 <!-- =================================================
@@ -141,40 +150,41 @@
 <div class="filters">
     <!-- DISTANCE -->
     <select id="distanceFilter">
-        <option value="5">
+        <option value="5" data-i18n="recommendations.within5">
             Within 5 km
         </option>
         <option
             value="10"
             selected
+            data-i18n="recommendations.within10"
         >
             Within 10 km
         </option>
-        <option value="15">
+        <option value="15" data-i18n="recommendations.within15">
             Within 15 km
         </option>
-        <option value="25">
+        <option value="25" data-i18n="recommendations.within25">
             Within 25 km
         </option>
     </select>
     <!-- CATEGORY -->
     <select id="categoryFilter">
-        <option value="all">
+        <option value="all" data-i18n="recommendations.allPlaces">
             All Places
         </option>
-        <option value="restaurant">
+        <option value="restaurant" data-i18n="recommendations.restaurants">
             Restaurants
         </option>
-        <option value="hotel">
+        <option value="hotel" data-i18n="recommendations.hotels">
             Hotels
         </option>
-        <option value="cafe">
+        <option value="cafe" data-i18n="recommendations.cafes">
             Cafés
         </option>
-        <option value="attraction">
+        <option value="attraction" data-i18n="recommendations.attractions">
             Attractions
         </option>
-        <option value="shopping">
+        <option value="shopping" data-i18n="recommendations.shopping">
             Shopping
         </option>
     </select>
@@ -184,7 +194,7 @@
         type="button"
     >
         <i class="fa-solid fa-magnifying-glass"></i>
-        Search
+        <span data-i18n="recommendations.search">Search</span>
     </button>
 </div>
 </section>
@@ -193,10 +203,10 @@
 ===================================================== -->
 <section class="recommend-results">
 <div class="result-header">
-    <h2>
+    <h2 data-i18n="recommendations.recommended">
         Recommended For You
     </h2>
-    <span id="resultCount">
+    <span id="resultCount" data-i18n="recommendations.ready">
         Ready to search
     </span>
 </div>
@@ -209,10 +219,10 @@
 >
     <div class="recommend-empty">
         <i class="fa-solid fa-compass"></i>
-        <h3>
+        <h3 data-i18n="recommendations.discoverTitle">
             Discover places around you
         </h3>
-        <p>
+        <p data-i18n="recommendations.discoverDescription">
             Search for a city or destination,
             or click "Near Me" to find places
             around your current location.
@@ -225,5 +235,7 @@
 ===================================================== -->
 <script src="/static/js/recommendations.js"></script>
 <script src="/static/js/auth-state.js"></script>
+<script src="/static/js/global-language.js"></script>
+
 </body>
 </html>

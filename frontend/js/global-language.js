@@ -1,0 +1,1036 @@
+document.addEventListener("DOMContentLoaded", () => {
+
+    const selector = document.getElementById("globalLanguageSelector");
+
+    const savedLanguage =
+        localStorage.getItem("travelmateLanguage") || "en";
+
+    if (selector) {
+
+        selector.value = savedLanguage;
+
+        selector.addEventListener("change", () => {
+
+            const language = selector.value;
+
+            localStorage.setItem(
+                "travelmateLanguage",
+                language
+            );
+
+            applyGlobalLanguage(language);
+        });
+    }
+
+    applyGlobalLanguage(savedLanguage);
+});
+
+
+const translations = {
+
+    /* =====================================================
+       ENGLISH
+    ===================================================== */
+
+    en: {
+
+        nav: {
+            home: "Home",
+            planner: "Planner",
+            translator: "Translator",
+            chat: "Chat",
+            recommendations: "Recommendations",
+            emergency: "Emergency",
+            features: "Features",
+            discover: "Discover",
+            about: "About"
+        },
+
+        home: {
+
+            heroTag: "🌍 Explore • Connect • Experience",
+
+            heroTitle: "Where to",
+            heroTitleNext: "Next?",
+
+            heroDescription:
+                "Plan smarter with AI-powered itineraries, multilingual assistance, local recommendations and emergency support — all in one place.",
+
+            getStarted: "Get Started",
+
+            featuresTitle:
+                "Everything You Need For a Smarter Journey",
+
+            translation: "Translation",
+            translationDescription:
+                "Real-time multilingual assistance while travelling.",
+
+            itinerary: "AI Itinerary",
+            itineraryDescription:
+                "Personalized day-by-day travel plans within your budget.",
+
+            recommendations: "Recommendations",
+            recommendationsDescription:
+                "Discover attractions, food and hidden local gems.",
+
+            emergency: "Emergency Help",
+            emergencyDescription:
+                "Quick access to nearby hospitals, police and emergency contacts.",
+
+            popularDestinations: "Popular Destinations",
+            exploreMore: "Explore More →",
+
+            whyTravelMate: "Why TravelMate?",
+            whyDescription:
+                "TravelMate combines AI planning, multilingual communication, local recommendations and emergency support into one seamless travel experience."
+        },
+
+
+        features: {
+
+            heroTag: "AI Powered Travel Experience",
+
+            title:
+                "Everything You Need for a Smarter Journey",
+
+            description:
+                "From planning your trip to translating conversations and finding nearby attractions, TravelMate brings every travel tool into one place.",
+
+            chatTitle: "Chat with AI",
+            chatDescription:
+                "Ask travel questions, get instant assistance and explore destinations naturally.",
+            chatButton: "Open Assistant →",
+
+            plannerTitle: "Plan My Itinerary",
+            plannerDescription:
+                "Generate personalized day-by-day travel plans based on budget and interests.",
+            plannerButton: "Create Itinerary →",
+
+            translationTitle: "Multilingual Chat",
+            translationDescription:
+                "Break language barriers with real-time AI-powered translations.",
+            translationButton: "Start Translating →",
+
+            recommendationTitle: "Top Recommendations",
+            recommendationDescription:
+                "Discover the best attractions, restaurants and hidden local gems.",
+            recommendationButton: "Explore Places →",
+
+            emergencyTitle: "Emergency Assistance",
+            emergencyDescription:
+                "Access nearby hospitals, police stations and emergency contacts whenever needed.",
+            emergencyButton: "Emergency Support →",
+
+            footerTitle:
+                "Built to Make Every Journey Easier",
+
+            footerDescription:
+                "TravelMate combines AI planning, multilingual communication, local recommendations and emergency support into one seamless travel experience."
+        },
+
+
+        recommendations: {
+
+            badge: "Nearby Explorer",
+
+            title: "Find What's Around You",
+
+            description:
+                "Discover restaurants, hotels, cafés, attractions, shopping and other useful places near your destination.",
+
+            searchPlaceholder:
+                "Search city or destination",
+
+            nearMe: "Near Me",
+
+            within5: "Within 5 km",
+            within10: "Within 10 km",
+            within15: "Within 15 km",
+            within25: "Within 25 km",
+
+            allPlaces: "All Places",
+            restaurants: "Restaurants",
+            hotels: "Hotels",
+            cafes: "Cafés",
+            attractions: "Attractions",
+            shopping: "Shopping",
+
+            search: "Search",
+
+            recommended: "Recommended For You",
+
+            ready: "Ready to search",
+
+            discoverTitle:
+                "Discover places around you",
+
+            discoverDescription:
+                'Search for a city or destination, or click "Near Me" to find places around your current location.'
+        },
+
+
+
+        planner: {
+            tagline: "Your Smart Travel Companion",
+            personalized: "Personalized Travel Planner",
+            title: "Plan Your Journey",
+            intro: "Build a personalized day-by-day travel plan that matches your destination, budget, travel style and interests. From local food spots to must-visit attractions, we'll help you organize your trip before you even pack your bags.",
+            whatYouGet: "What You'll Get",
+            destinationPlans: "Destination-based plans",
+            destinationDescription: "Choose any city or country and receive realistic travel suggestions.",
+            budgetPlanning: "Budget-friendly planning",
+            budgetDescription: "Activities and food recommendations stay within your selected budget.",
+            personalizedExperiences: "Personalized experiences",
+            personalizedDescription: "Whether you're traveling solo, with friends or family, the schedule adapts to your trip.",
+            smartRecommendations: "Smart recommendations",
+            smartDescription: "Discover local restaurants, sightseeing spots, hidden gems and practical travel tips.",
+            beforeBegin: "Before You Begin",
+            chooseDestination: "Choose your destination.",
+            chooseDates: "Select your travel dates.",
+            setBudget: "Set your budget.",
+            pickInterests: "Pick your interests.",
+            chooseStyle: "Choose your travel style.",
+            language: "Language",
+            destination: "Destination",
+            destinationPlaceholder: "Country or city...",
+            tripDuration: "Trip Duration",
+            travelDate: "Travel Date",
+            currency: "Currency",
+            budget: "Budget",
+            amountPlaceholder: "Enter amount",
+            interests: "Interests",
+            food: "Food",
+            history: "History",
+            culture: "Culture",
+            shopping: "Shopping",
+            nature: "Nature",
+            adventure: "Adventure",
+            nightlife: "Nightlife",
+            photography: "Photography",
+            whosTraveling: "Who's Traveling?",
+            solo: "Solo",
+            couple: "Couple",
+            friends: "Friends",
+            family: "Family",
+            tripStyle: "Trip Style",
+            relaxed: "Relaxed",
+            relaxedDescription: "3 activities with plenty of breaks.",
+            balanced: "Balanced",
+            balancedDescription: "4 activities with a comfortable pace.",
+            packed: "Packed",
+            packedDescription: "5–6 activities for a busy day.",
+            kidsQuestion: "Traveling with a child under 12?",
+            kidsDescription: "Add kid-friendly attractions and easier schedules.",
+            generate: "Generate My Itinerary"
+        },
+
+        emergency: {
+            findNearbyHelp: "Find Nearby Help",
+            findNearbyHelpText: "Use your current GPS location to find nearby emergency services.",
+            currentLocation: "Current Location",
+            locationPlaceholder: "Use GPS or enter a location",
+            emergencyType: "Emergency Type",
+            hospital: "Hospital",
+            police: "Police",
+            ambulance: "Ambulance",
+            fireStation: "Fire Station",
+            embassy: "Embassy",
+            useCurrentLocation: "Use My Current Location",
+            findNearbyHelpButton: "Find Nearby Help",
+            nearbyAssistance: "Nearby Assistance",
+            searchLocation: "Search your location",
+            resultsDescription: "Nearby emergency services will appear here with distance, directions and contact numbers.",
+            travelIncident: "Travel Incident",
+            reportLost: "Report Lost or Stolen Items",
+            incidentType: "Incident Type",
+            country: "Country",
+            ready: "Ready",
+            brand: "TravelMate",
+            tagline: "Your Smart Travel Companion",
+            travelSafety: "Travel Safety",
+            title: "Emergency Assistance",
+            description: "Find nearby hospitals, police stations, emergency services and report travel incidents instantly.",
+            preferredCountry: "Preferred Country",
+            preferredCountryDescription: "Select the country where you currently need emergency assistance.",
+            emergencyNumbers: "Emergency Numbers",
+            selectCountry: "Select a country to view emergency contacts.",
+            lostDocument: "Lost Passport / Document",
+            uk: "United Kingdom",
+            whatHappened: "What happened?",
+            descriptionPlaceholder: "Example: My wallet was stolen near the railway station. It contains my ID, cards and cash.",
+            maxCharacters: "Maximum 2000 characters",
+            incidentLocation: "Incident Location",
+            locationQuestion: "Where did this happen?",
+            reportIncident: "Report Incident",
+            myReports: "My Travel Safety Reports",
+            refresh: "Refresh",
+            noReports: "No reports loaded",
+            reportsDescription: "Your submitted travel safety reports will appear here.",
+            ready: "Ready",
+            incidentDescription: "Lost your passport, phone, wallet or other belongings? Record the incident in your TravelMate support log.",
+            lostItem: "Lost Item",
+            stolenItem: "Theft / Stolen Item",
+            unsafeSituation: "Unsafe Situation",
+            lostDocument: "Lost Passport / Document",
+            medicalEmergency: "Medical Emergency",
+            other: "Other",
+            india: "India",
+            uae: "United Arab Emirates",
+            usa: "United States"
+        },
+
+        chat: {
+            newChat: "New Chat",
+            recentChats: "Recent Chats",
+            noChats: "No chats yet",
+            inputPlaceholder: "Ask about a destination..."
+        },
+
+        translation: {
+            multilingualAssistant: "Multilingual Assistant",
+            title: "Translate Without Barriers",
+            description: "Translate text, signs and conversations instantly. Communicate confidently wherever your journey takes you.",
+            textTranslation: "Text Translation",
+            textDescription: "Translate messages, conversations, signs and travel information.",
+            autoDetect: "Auto Detect",
+            yourText: "Your Text",
+            inputPlaceholder: "Type something here...",
+            translation: "Translation",
+            outputPlaceholder: "Your translated text will appear here...",
+            translateText: "Translate Text",
+            imageTranslation: "Image Translation",
+            imageDescription: "Upload a menu, sign, ticket or document containing text.",
+            targetLanguage: "Target Language",
+            imageTargetDescription: "Choose the language you want the image text translated into."
+        },
+
+
+        common: {
+
+            welcome: "Welcome to TravelMate",
+            learnMore: "Learn More",
+            getStarted: "Get Started",
+            submit: "Submit",
+            cancel: "Cancel",
+            save: "Save",
+            loading: "Loading..."
+        }
+    },
+
+
+    /* =====================================================
+       HINDI
+    ===================================================== */
+
+    hi: {
+
+        nav: {
+            home: "होम",
+            planner: "यात्रा योजना",
+            translator: "अनुवादक",
+            chat: "चैट",
+            recommendations: "सिफारिशें",
+            emergency: "आपातकाल",
+            features: "विशेषताएं",
+            discover: "खोजें",
+            about: "हमारे बारे में"
+        },
+
+        home: {
+
+            heroTag: "🌍 खोजें • जुड़ें • अनुभव करें",
+
+            heroTitle: "अगला",
+            heroTitleNext: "कहाँ?",
+
+            heroDescription:
+                "AI आधारित यात्रा योजनाओं, बहुभाषी सहायता, स्थानीय सिफारिशों और आपातकालीन सहायता के साथ बेहतर योजना बनाएं — सब कुछ एक ही जगह।",
+
+            getStarted: "शुरू करें",
+
+            featuresTitle:
+                "एक बेहतर यात्रा के लिए आपको जो कुछ चाहिए",
+
+            translation: "अनुवाद",
+            translationDescription:
+                "यात्रा के दौरान रीयल-टाइम बहुभाषी सहायता।",
+
+            itinerary: "AI यात्रा योजना",
+            itineraryDescription:
+                "आपके बजट के अनुसार व्यक्तिगत दिन-प्रतिदिन यात्रा योजनाएं।",
+
+            recommendations: "सिफारिशें",
+            recommendationsDescription:
+                "आकर्षण, भोजन और स्थानीय छिपे हुए स्थान खोजें।",
+
+            emergency: "आपातकालीन सहायता",
+            emergencyDescription:
+                "नजदीकी अस्पतालों, पुलिस और आपातकालीन संपर्कों तक त्वरित पहुंच।",
+
+            popularDestinations: "लोकप्रिय गंतव्य",
+            exploreMore: "और देखें →",
+
+            whyTravelMate: "TravelMate क्यों?",
+            whyDescription:
+                "TravelMate AI योजना, बहुभाषी संचार, स्थानीय सिफारिशों और आपातकालीन सहायता को एक सहज यात्रा अनुभव में जोड़ता है।"
+        },
+
+
+        features: {
+
+            heroTag: "AI आधारित यात्रा अनुभव",
+
+            title:
+                "एक बेहतर यात्रा के लिए आपको जो कुछ चाहिए",
+
+            description:
+                "अपनी यात्रा की योजना बनाने से लेकर बातचीत का अनुवाद करने और आसपास के आकर्षण खोजने तक, TravelMate सभी यात्रा उपकरणों को एक ही जगह लाता है।",
+
+            chatTitle: "AI से चैट करें",
+            chatDescription:
+                "यात्रा संबंधी प्रश्न पूछें, तुरंत सहायता प्राप्त करें और गंतव्यों को आसानी से खोजें।",
+            chatButton: "सहायक खोलें →",
+
+            plannerTitle: "मेरी यात्रा योजना बनाएं",
+            plannerDescription:
+                "बजट और रुचियों के आधार पर व्यक्तिगत दिन-प्रतिदिन यात्रा योजनाएं बनाएं।",
+            plannerButton: "यात्रा योजना बनाएं →",
+
+            translationTitle: "बहुभाषी चैट",
+            translationDescription:
+                "रीयल-टाइम AI अनुवाद के साथ भाषा की बाधाओं को दूर करें।",
+            translationButton: "अनुवाद शुरू करें →",
+
+            recommendationTitle: "शीर्ष सिफारिशें",
+            recommendationDescription:
+                "सर्वश्रेष्ठ आकर्षण, रेस्तरां और स्थानीय छिपे हुए स्थान खोजें।",
+            recommendationButton: "स्थान खोजें →",
+
+            emergencyTitle: "आपातकालीन सहायता",
+            emergencyDescription:
+                "जरूरत पड़ने पर नजदीकी अस्पतालों, पुलिस स्टेशनों और आपातकालीन संपर्कों तक पहुंच प्राप्त करें।",
+            emergencyButton: "आपातकालीन सहायता →",
+
+            footerTitle:
+                "हर यात्रा को आसान बनाने के लिए बनाया गया",
+
+            footerDescription:
+                "TravelMate AI योजना, बहुभाषी संचार, स्थानीय सिफारिशों और आपातकालीन सहायता को एक सहज यात्रा अनुभव में जोड़ता है।"
+        },
+
+
+        recommendations: {
+
+            badge: "आस-पास खोजें",
+
+            title: "अपने आसपास की जगहें खोजें",
+
+            description:
+                "अपने गंतव्य के पास रेस्तरां, होटल, कैफ़े, आकर्षण, खरीदारी और अन्य उपयोगी स्थान खोजें।",
+
+            searchPlaceholder:
+                "शहर या गंतव्य खोजें",
+
+            nearMe: "मेरे पास",
+
+            within5: "5 किमी के अंदर",
+            within10: "10 किमी के अंदर",
+            within15: "15 किमी के अंदर",
+            within25: "25 किमी के अंदर",
+
+            allPlaces: "सभी स्थान",
+            restaurants: "रेस्तरां",
+            hotels: "होटल",
+            cafes: "कैफ़े",
+            attractions: "आकर्षण",
+            shopping: "खरीदारी",
+
+            search: "खोजें",
+
+            recommended: "आपके लिए अनुशंसित",
+
+            ready: "खोजने के लिए तैयार",
+
+            discoverTitle:
+                "अपने आसपास की जगहें खोजें",
+
+            discoverDescription:
+                'किसी शहर या गंतव्य की खोज करें, या अपने वर्तमान स्थान के आसपास की जगहें खोजने के लिए "मेरे पास" पर क्लिक करें।'
+        },
+
+
+
+        planner: {
+            tagline: "आपका स्मार्ट यात्रा साथी",
+            personalized: "व्यक्तिगत यात्रा योजनाकार",
+            title: "अपनी यात्रा की योजना बनाएं",
+            intro: "एक व्यक्तिगत दिन-प्रतिदिन यात्रा योजना बनाएं जो आपके गंतव्य, बजट, यात्रा शैली और रुचियों के अनुसार हो। स्थानीय भोजन से लेकर घूमने योग्य आकर्षणों तक, हम आपके सामान पैक करने से पहले आपकी यात्रा व्यवस्थित करने में मदद करेंगे।",
+            whatYouGet: "आपको क्या मिलेगा",
+            destinationPlans: "गंतव्य आधारित योजनाएं",
+            destinationDescription: "कोई भी शहर या देश चुनें और वास्तविक यात्रा सुझाव प्राप्त करें।",
+            budgetPlanning: "बजट के अनुकूल योजना",
+            budgetDescription: "गतिविधियां और भोजन की सिफारिशें आपके चुने हुए बजट के अनुसार रहेंगी।",
+            personalizedExperiences: "व्यक्तिगत अनुभव",
+            personalizedDescription: "चाहे आप अकेले, दोस्तों या परिवार के साथ यात्रा कर रहे हों, योजना आपकी यात्रा के अनुसार बदल जाएगी।",
+            smartRecommendations: "स्मार्ट सिफारिशें",
+            smartDescription: "स्थानीय रेस्तरां, दर्शनीय स्थल, छिपे हुए स्थान और उपयोगी यात्रा सुझाव खोजें।",
+            beforeBegin: "शुरू करने से पहले",
+            chooseDestination: "अपना गंतव्य चुनें।",
+            chooseDates: "अपनी यात्रा की तारीखें चुनें।",
+            setBudget: "अपना बजट निर्धारित करें।",
+            pickInterests: "अपनी रुचियां चुनें।",
+            chooseStyle: "अपनी यात्रा शैली चुनें।",
+            language: "भाषा",
+            destination: "गंतव्य",
+            destinationPlaceholder: "देश या शहर...",
+            tripDuration: "यात्रा अवधि",
+            travelDate: "यात्रा की तारीख",
+            currency: "मुद्रा",
+            budget: "बजट",
+            amountPlaceholder: "राशि दर्ज करें",
+            interests: "रुचियां",
+            food: "भोजन",
+            history: "इतिहास",
+            culture: "संस्कृति",
+            shopping: "खरीदारी",
+            nature: "प्रकृति",
+            adventure: "साहसिक यात्रा",
+            nightlife: "नाइटलाइफ़",
+            photography: "फोटोग्राफी",
+            whosTraveling: "कौन यात्रा कर रहा है?",
+            solo: "अकेले",
+            couple: "युगल",
+            friends: "दोस्त",
+            family: "परिवार",
+            tripStyle: "यात्रा शैली",
+            relaxed: "आरामदायक",
+            relaxedDescription: "भरपूर ब्रेक के साथ 3 गतिविधियां।",
+            balanced: "संतुलित",
+            balancedDescription: "आरामदायक गति के साथ 4 गतिविधियां।",
+            packed: "व्यस्त",
+            packedDescription: "व्यस्त दिन के लिए 5–6 गतिविधियां।",
+            kidsQuestion: "क्या 12 साल से कम उम्र का बच्चा साथ यात्रा कर रहा है?",
+            kidsDescription: "बच्चों के अनुकूल आकर्षण और आसान कार्यक्रम जोड़ें।",
+            generate: "मेरी यात्रा योजना बनाएं"
+        },
+
+        emergency: {
+            findNearbyHelp: "नजदीकी सहायता खोजें",
+            findNearbyHelpText: "नजदीकी आपातकालीन सेवाएं खोजने के लिए अपने वर्तमान GPS स्थान का उपयोग करें।",
+            currentLocation: "वर्तमान स्थान",
+            locationPlaceholder: "GPS का उपयोग करें या स्थान दर्ज करें",
+            emergencyType: "आपातकाल का प्रकार",
+            hospital: "अस्पताल",
+            police: "पुलिस",
+            ambulance: "एम्बुलेंस",
+            fireStation: "फायर स्टेशन",
+            embassy: "दूतावास",
+            useCurrentLocation: "मेरे वर्तमान स्थान का उपयोग करें",
+            findNearbyHelpButton: "नजदीकी सहायता खोजें",
+            nearbyAssistance: "नजदीकी सहायता",
+            searchLocation: "अपना स्थान खोजें",
+            resultsDescription: "नजदीकी आपातकालीन सेवाएं दूरी, दिशा और संपर्क नंबर के साथ यहां दिखाई देंगी।",
+            travelIncident: "यात्रा संबंधी घटना",
+            reportLost: "खोई या चोरी हुई वस्तुओं की रिपोर्ट करें",
+            incidentType: "घटना का प्रकार",
+            country: "देश",
+            ready: "तैयार",
+            brand: "TravelMate",
+            tagline: "आपका स्मार्ट यात्रा साथी",
+            travelSafety: "यात्रा सुरक्षा",
+            title: "आपातकालीन सहायता",
+            description: "नजदीकी अस्पताल, पुलिस स्टेशन और आपातकालीन सेवाएं खोजें और यात्रा संबंधी घटनाओं की तुरंत रिपोर्ट करें।",
+            preferredCountry: "पसंदीदा देश",
+            preferredCountryDescription: "वह देश चुनें जहां आपको वर्तमान में आपातकालीन सहायता की आवश्यकता है।",
+            emergencyNumbers: "आपातकालीन नंबर",
+            selectCountry: "आपातकालीन संपर्क देखने के लिए एक देश चुनें।",
+            lostDocument: "खोया हुआ पासपोर्ट / दस्तावेज़",
+            uk: "यूनाइटेड किंगडम",
+            whatHappened: "क्या हुआ?",
+            descriptionPlaceholder: "उदाहरण: रेलवे स्टेशन के पास मेरा बटुआ चोरी हो गया। इसमें मेरी आईडी, कार्ड और नकदी है।",
+            maxCharacters: "अधिकतम 2000 अक्षर",
+            incidentLocation: "घटना का स्थान",
+            locationQuestion: "यह घटना कहाँ हुई?",
+            reportIncident: "घटना की रिपोर्ट करें",
+            myReports: "मेरी यात्रा सुरक्षा रिपोर्ट",
+            refresh: "रिफ्रेश करें",
+            noReports: "कोई रिपोर्ट लोड नहीं हुई",
+            reportsDescription: "आपकी जमा की गई यात्रा सुरक्षा रिपोर्ट यहां दिखाई देंगी।",
+            incidentDescription: "क्या आपका पासपोर्ट, फोन, बटुआ या कोई अन्य सामान खो गया है? घटना को अपने TravelMate सहायता लॉग में दर्ज करें।",
+            lostItem: "खोई हुई वस्तु",
+            stolenItem: "चोरी की वस्तु",
+            unsafeSituation: "असुरक्षित स्थिति",
+            lostDocument: "खोया हुआ पासपोर्ट / दस्तावेज़",
+            medicalEmergency: "चिकित्सा आपातकाल",
+            other: "अन्य",
+            india: "भारत",
+            uae: "संयुक्त अरब अमीरात",
+            usa: "संयुक्त राज्य अमेरिका"
+        },
+
+        chat: {
+            newChat: "नई चैट",
+            recentChats: "हाल की चैट",
+            noChats: "अभी तक कोई चैट नहीं",
+            inputPlaceholder: "किसी गंतव्य के बारे में पूछें..."
+        },
+
+        translation: {
+            multilingualAssistant: "बहुभाषी सहायक",
+            title: "बिना भाषा की बाधा के अनुवाद करें",
+            description: "टेक्स्ट, संकेतों और बातचीत का तुरंत अनुवाद करें। अपनी यात्रा के दौरान आत्मविश्वास से संवाद करें।",
+            textTranslation: "टेक्स्ट अनुवाद",
+            textDescription: "संदेशों, बातचीत, संकेतों और यात्रा संबंधी जानकारी का अनुवाद करें।",
+            autoDetect: "स्वचालित पहचान",
+            yourText: "आपका टेक्स्ट",
+            inputPlaceholder: "यहां कुछ लिखें...",
+            translation: "अनुवाद",
+            outputPlaceholder: "आपका अनुवाद यहां दिखाई देगा...",
+            translateText: "टेक्स्ट का अनुवाद करें",
+            imageTranslation: "इमेज अनुवाद",
+            imageDescription: "टेक्स्ट वाले मेनू, संकेत, टिकट या दस्तावेज़ अपलोड करें।",
+            targetLanguage: "लक्षित भाषा",
+            imageTargetDescription: "वह भाषा चुनें जिसमें आप इमेज के टेक्स्ट का अनुवाद चाहते हैं।"
+        },
+
+
+        common: {
+
+            welcome: "TravelMate में आपका स्वागत है",
+            learnMore: "और जानें",
+            getStarted: "शुरू करें",
+            submit: "जमा करें",
+            cancel: "रद्द करें",
+            save: "सहेजें",
+            loading: "लोड हो रहा है..."
+        }
+    },
+
+
+    /* =====================================================
+       TELUGU
+    ===================================================== */
+
+    te: {
+
+        nav: {
+            home: "హోమ్",
+            planner: "ప్రయాణ ప్రణాళిక",
+            translator: "అనువాదకుడు",
+            chat: "చాట్",
+            recommendations: "సిఫార్సులు",
+            emergency: "అత్యవసరం",
+            features: "ఫీచర్లు",
+            discover: "అన్వేషించండి",
+            about: "మా గురించి"
+        },
+
+        home: {
+
+            heroTag: "🌍 అన్వేషించండి • కనెక్ట్ అవ్వండి • అనుభవించండి",
+
+            heroTitle: "తర్వాత",
+            heroTitleNext: "ఎక్కడ?",
+
+            heroDescription:
+                "AI ఆధారిత ప్రయాణ ప్రణాళికలు, బహుభాషా సహాయం, స్థానిక సిఫార్సులు మరియు అత్యవసర సహాయంతో తెలివిగా ప్రయాణాన్ని ప్లాన్ చేసుకోండి — అన్నీ ఒకే చోట.",
+
+            getStarted: "ప్రారంభించండి",
+
+            featuresTitle:
+                "మెరుగైన ప్రయాణానికి కావలసిన ప్రతిదీ",
+
+            translation: "అనువాదం",
+            translationDescription:
+                "ప్రయాణ సమయంలో రియల్-టైమ్ బహుభాషా సహాయం.",
+
+            itinerary: "AI ప్రయాణ ప్రణాళిక",
+            itineraryDescription:
+                "మీ బడ్జెట్‌కు అనుగుణంగా వ్యక్తిగత రోజువారీ ప్రయాణ ప్రణాళికలు.",
+
+            recommendations: "సిఫార్సులు",
+            recommendationsDescription:
+                "ఆకర్షణలు, ఆహారం మరియు స్థానిక ప్రత్యేక ప్రదేశాలను కనుగొనండి.",
+
+            emergency: "అత్యవసర సహాయం",
+            emergencyDescription:
+                "సమీపంలోని ఆసుపత్రులు, పోలీస్ మరియు అత్యవసర సంప్రదింపు వివరాలకు త్వరిత ప్రాప్యత.",
+
+            popularDestinations: "ప్రసిద్ధ గమ్యస్థానాలు",
+            exploreMore: "మరింత చూడండి →",
+
+            whyTravelMate: "TravelMate ఎందుకు?",
+            whyDescription:
+                "TravelMate AI ప్రణాళిక, బహుభాషా కమ్యూనికేషన్, స్థానిక సిఫార్సులు మరియు అత్యవసర సహాయాన్ని ఒకే సులభమైన ప్రయాణ అనుభవంలో అందిస్తుంది."
+        },
+
+
+        features: {
+
+            heroTag: "AI ఆధారిత ప్రయాణ అనుభవం",
+
+            title:
+                "మెరుగైన ప్రయాణానికి కావలసిన ప్రతిదీ",
+
+            description:
+                "మీ ప్రయాణాన్ని ప్లాన్ చేయడం నుండి సంభాషణలను అనువదించడం మరియు సమీపంలోని ఆకర్షణలను కనుగొనడం వరకు, TravelMate అన్ని ప్రయాణ సాధనాలను ఒకే చోట అందిస్తుంది.",
+
+            chatTitle: "AIతో చాట్ చేయండి",
+            chatDescription:
+                "ప్రయాణ ప్రశ్నలు అడగండి, తక్షణ సహాయం పొందండి మరియు గమ్యస్థానాలను సహజంగా అన్వేషించండి.",
+            chatButton: "సహాయకుడిని తెరవండి →",
+
+            plannerTitle: "నా ప్రయాణ ప్రణాళిక",
+            plannerDescription:
+                "బడ్జెట్ మరియు ఆసక్తుల ఆధారంగా వ్యక్తిగత రోజువారీ ప్రయాణ ప్రణాళికలను రూపొందించండి.",
+            plannerButton: "ప్రయాణ ప్రణాళిక రూపొందించండి →",
+
+            translationTitle: "బహుభాషా చాట్",
+            translationDescription:
+                "రియల్-టైమ్ AI అనువాదాలతో భాషా అడ్డంకులను తొలగించండి.",
+            translationButton: "అనువాదం ప్రారంభించండి →",
+
+            recommendationTitle: "ముఖ్యమైన సిఫార్సులు",
+            recommendationDescription:
+                "ఉత్తమ ఆకర్షణలు, రెస్టారెంట్లు మరియు స్థానిక ప్రత్యేక ప్రదేశాలను కనుగొనండి.",
+            recommendationButton: "ప్రదేశాలను అన్వేషించండి →",
+
+            emergencyTitle: "అత్యవసర సహాయం",
+            emergencyDescription:
+                "అవసరమైనప్పుడు సమీపంలోని ఆసుపత్రులు, పోలీస్ స్టేషన్లు మరియు అత్యవసర సంప్రదింపులను పొందండి.",
+            emergencyButton: "అత్యవసర సహాయం →",
+
+            footerTitle:
+                "ప్రతి ప్రయాణాన్ని సులభతరం చేయడానికి రూపొందించబడింది",
+
+            footerDescription:
+                "TravelMate AI ప్రణాళిక, బహుభాషా కమ్యూనికేషన్, స్థానిక సిఫార్సులు మరియు అత్యవసర సహాయాన్ని ఒకే ప్రయాణ అనుభవంలో అందిస్తుంది."
+        },
+
+
+        recommendations: {
+
+            badge: "సమీప ప్రదేశాల అన్వేషణ",
+
+            title: "మీ చుట్టూ ఉన్న ప్రదేశాలను కనుగొనండి",
+
+            description:
+                "మీ గమ్యస్థానానికి సమీపంలోని రెస్టారెంట్లు, హోటళ్లు, కేఫ్‌లు, ఆకర్షణలు, షాపింగ్ మరియు ఇతర ఉపయోగకరమైన ప్రదేశాలను కనుగొనండి.",
+
+            searchPlaceholder:
+                "నగరం లేదా గమ్యస్థానాన్ని శోధించండి",
+
+            nearMe: "నా సమీపంలో",
+
+            within5: "5 కి.మీ లోపు",
+            within10: "10 కి.మీ లోపు",
+            within15: "15 కి.మీ లోపు",
+            within25: "25 కి.మీ లోపు",
+
+            allPlaces: "అన్ని ప్రదేశాలు",
+            restaurants: "రెస్టారెంట్లు",
+            hotels: "హోటళ్లు",
+            cafes: "కేఫ్‌లు",
+            attractions: "ఆకర్షణలు",
+            shopping: "షాపింగ్",
+
+            search: "శోధించండి",
+
+            recommended: "మీ కోసం సిఫార్సులు",
+
+            ready: "శోధించడానికి సిద్ధంగా ఉంది",
+
+            discoverTitle:
+                "మీ చుట్టూ ఉన్న ప్రదేశాలను కనుగొనండి",
+
+            discoverDescription:
+                'నగరం లేదా గమ్యస్థానాన్ని శోధించండి లేదా మీ ప్రస్తుత ప్రదేశం చుట్టూ ఉన్న ప్రదేశాలను కనుగొనడానికి "నా సమీపంలో" క్లిక్ చేయండి.'
+        },
+
+
+
+        planner: {
+            tagline: "మీ స్మార్ట్ ట్రావెల్ సహచరి",
+            personalized: "వ్యక్తిగత ప్రయాణ ప్రణాళిక",
+            title: "మీ ప్రయాణాన్ని ప్లాన్ చేసుకోండి",
+            intro: "మీ గమ్యస్థానం, బడ్జెట్, ప్రయాణ శైలి మరియు ఆసక్తులకు సరిపోయే వ్యక్తిగత రోజువారీ ప్రయాణ ప్రణాళికను రూపొందించండి. స్థానిక ఆహారం నుండి తప్పక చూడాల్సిన ఆకర్షణల వరకు, మీరు బ్యాగులు సర్దుకునే ముందే మీ ప్రయాణాన్ని నిర్వహించడంలో మేము సహాయపడతాము.",
+            whatYouGet: "మీకు ఏమి లభిస్తుంది",
+            destinationPlans: "గమ్యస్థాన ఆధారిత ప్రణాళికలు",
+            destinationDescription: "ఏదైనా నగరం లేదా దేశాన్ని ఎంచుకుని వాస్తవిక ప్రయాణ సూచనలను పొందండి.",
+            budgetPlanning: "బడ్జెట్‌కు అనుకూలమైన ప్రణాళిక",
+            budgetDescription: "కార్యకలాపాలు మరియు ఆహార సిఫార్సులు మీరు ఎంచుకున్న బడ్జెట్‌లో ఉంటాయి.",
+            personalizedExperiences: "వ్యక్తిగత అనుభవాలు",
+            personalizedDescription: "మీరు ఒంటరిగా, స్నేహితులతో లేదా కుటుంబంతో ప్రయాణిస్తున్నా, షెడ్యూల్ మీ ప్రయాణానికి అనుగుణంగా మారుతుంది.",
+            smartRecommendations: "స్మార్ట్ సిఫార్సులు",
+            smartDescription: "స్థానిక రెస్టారెంట్లు, సందర్శనా ప్రదేశాలు, ప్రత్యేక ప్రదేశాలు మరియు ఉపయోగకరమైన ప్రయాణ సూచనలను కనుగొనండి.",
+            beforeBegin: "ప్రారంభించే ముందు",
+            chooseDestination: "మీ గమ్యస్థానాన్ని ఎంచుకోండి.",
+            chooseDates: "మీ ప్రయాణ తేదీలను ఎంచుకోండి.",
+            setBudget: "మీ బడ్జెట్‌ను నిర్ణయించండి.",
+            pickInterests: "మీ ఆసక్తులను ఎంచుకోండి.",
+            chooseStyle: "మీ ప్రయాణ శైలిని ఎంచుకోండి.",
+            language: "భాష",
+            destination: "గమ్యస్థానం",
+            destinationPlaceholder: "దేశం లేదా నగరం...",
+            tripDuration: "ప్రయాణ వ్యవధి",
+            travelDate: "ప్రయాణ తేదీ",
+            currency: "కరెన్సీ",
+            budget: "బడ్జెట్",
+            amountPlaceholder: "మొత్తాన్ని నమోదు చేయండి",
+            interests: "ఆసక్తులు",
+            food: "ఆహారం",
+            history: "చరిత్ర",
+            culture: "సంస్కృతి",
+            shopping: "షాపింగ్",
+            nature: "ప్రకృతి",
+            adventure: "సాహసం",
+            nightlife: "నైట్‌లైఫ్",
+            photography: "ఫోటోగ్రఫీ",
+            whosTraveling: "ఎవరు ప్రయాణిస్తున్నారు?",
+            solo: "ఒంటరిగా",
+            couple: "జంట",
+            friends: "స్నేహితులు",
+            family: "కుటుంబం",
+            tripStyle: "ప్రయాణ శైలి",
+            relaxed: "ఆహ్లాదకరమైన",
+            relaxedDescription: "చాలా విరామాలతో 3 కార్యకలాపాలు.",
+            balanced: "సమతుల్య",
+            balancedDescription: "సౌకర్యవంతమైన వేగంతో 4 కార్యకలాపాలు.",
+            packed: "బిజీ",
+            packedDescription: "బిజీ రోజుకు 5–6 కార్యకలాపాలు.",
+            kidsQuestion: "12 సంవత్సరాల కంటే తక్కువ వయస్సు ఉన్న పిల్లవాడు మీతో ప్రయాణిస్తున్నారా?",
+            kidsDescription: "పిల్లలకు అనుకూలమైన ఆకర్షణలు మరియు సులభమైన షెడ్యూల్‌లను జోడించండి.",
+            generate: "నా ప్రయాణ ప్రణాళికను రూపొందించండి"
+        },
+
+        emergency: {
+            findNearbyHelp: "సమీపంలోని సహాయాన్ని కనుగొనండి",
+            findNearbyHelpText: "సమీపంలోని అత్యవసర సేవలను కనుగొనడానికి మీ ప్రస్తుత GPS స్థానాన్ని ఉపయోగించండి.",
+            currentLocation: "ప్రస్తుత స్థానం",
+            locationPlaceholder: "GPS ఉపయోగించండి లేదా స్థానాన్ని నమోదు చేయండి",
+            emergencyType: "అత్యవసర రకం",
+            hospital: "ఆసుపత్రి",
+            police: "పోలీస్",
+            ambulance: "అంబులెన్స్",
+            fireStation: "ఫైర్ స్టేషన్",
+            embassy: "రాయబార కార్యాలయం",
+            useCurrentLocation: "నా ప్రస్తుత స్థానాన్ని ఉపయోగించండి",
+            findNearbyHelpButton: "సమీపంలోని సహాయాన్ని కనుగొనండి",
+            nearbyAssistance: "సమీపంలోని సహాయం",
+            searchLocation: "మీ స్థానాన్ని శోధించండి",
+            resultsDescription: "సమీపంలోని అత్యవసర సేవలు దూరం, మార్గాలు మరియు సంప్రదింపు నంబర్లతో ఇక్కడ కనిపిస్తాయి.",
+            travelIncident: "ప్రయాణ సంఘటన",
+            reportLost: "పోగొట్టుకున్న లేదా దొంగిలించబడిన వస్తువులను నివేదించండి",
+            incidentType: "సంఘటన రకం",
+            country: "దేశం",
+            ready: "సిద్ధంగా ఉంది",
+            brand: "TravelMate",
+            tagline: "మీ స్మార్ట్ ట్రావెల్ సహచరి",
+            travelSafety: "ప్రయాణ భద్రత",
+            title: "అత్యవసర సహాయం",
+            description: "సమీపంలోని ఆసుపత్రులు, పోలీస్ స్టేషన్లు మరియు అత్యవసర సేవలను కనుగొని, ప్రయాణ సంఘటనలను వెంటనే నివేదించండి.",
+            preferredCountry: "ఇష్టమైన దేశం",
+            preferredCountryDescription: "మీకు ప్రస్తుతం అత్యవసర సహాయం అవసరమైన దేశాన్ని ఎంచుకోండి.",
+            emergencyNumbers: "అత్యవసర నంబర్లు",
+            selectCountry: "అత్యవసర సంప్రదింపు వివరాలను చూడటానికి ఒక దేశాన్ని ఎంచుకోండి.",
+            lostDocument: "పోయిన పాస్‌పోర్ట్ / పత్రం",
+            uk: "యునైటెడ్ కింగ్‌డమ్",
+            whatHappened: "ఏం జరిగింది?",
+            descriptionPlaceholder: "ఉదాహరణ: రైల్వే స్టేషన్ దగ్గర నా వాలెట్ దొంగిలించబడింది. అందులో నా ID, కార్డులు మరియు నగదు ఉన్నాయి.",
+            maxCharacters: "గరిష్టంగా 2000 అక్షరాలు",
+            incidentLocation: "ఘటన జరిగిన ప్రదేశం",
+            locationQuestion: "ఇది ఎక్కడ జరిగింది?",
+            reportIncident: "ఘటనను నివేదించండి",
+            myReports: "నా ప్రయాణ భద్రతా నివేదికలు",
+            refresh: "రిఫ్రెష్ చేయండి",
+            noReports: "ఎటువంటి నివేదికలు లోడ్ కాలేదు",
+            reportsDescription: "మీరు సమర్పించిన ప్రయాణ భద్రతా నివేదికలు ఇక్కడ కనిపిస్తాయి.",
+            incidentDescription: "మీ పాస్‌పోర్ట్, ఫోన్, వాలెట్ లేదా ఇతర వస్తువులు పోయాయా? ఘటనను మీ TravelMate సహాయ లాగ్‌లో నమోదు చేయండి.",
+            lostItem: "పోయిన వస్తువు",
+            stolenItem: "దొంగిలించబడిన వస్తువు",
+            unsafeSituation: "అసురక్షిత పరిస్థితి",
+            lostDocument: "పోయిన పాస్‌పోర్ట్ / పత్రం",
+            medicalEmergency: "వైద్య అత్యవసర పరిస్థితి",
+            other: "ఇతర",
+            india: "భారతదేశం",
+            uae: "యునైటెడ్ అరబ్ ఎమిరేట్స్",
+            usa: "యునైటెడ్ స్టేట్స్"
+        },
+
+        chat: {
+            newChat: "కొత్త చాట్",
+            recentChats: "ఇటీవలి చాట్‌లు",
+            noChats: "ఇంకా చాట్‌లు లేవు",
+            inputPlaceholder: "గమ్యస్థానం గురించి అడగండి..."
+        },
+
+        translation: {
+            multilingualAssistant: "బహుభాషా సహాయకుడు",
+            title: "భాషా అడ్డంకులు లేకుండా అనువదించండి",
+            description: "టెక్స్ట్, సంకేతాలు మరియు సంభాషణలను వెంటనే అనువదించండి. మీ ప్రయాణంలో ఎక్కడ ఉన్నా నమ్మకంగా కమ్యూనికేట్ చేయండి.",
+            textTranslation: "టెక్స్ట్ అనువాదం",
+            textDescription: "సందేశాలు, సంభాషణలు, సంకేతాలు మరియు ప్రయాణ సమాచారాన్ని అనువదించండి.",
+            autoDetect: "స్వయంచాలక గుర్తింపు",
+            yourText: "మీ టెక్స్ట్",
+            inputPlaceholder: "ఇక్కడ ఏదైనా టైప్ చేయండి...",
+            translation: "అనువాదం",
+            outputPlaceholder: "మీ అనువాదం ఇక్కడ కనిపిస్తుంది...",
+            translateText: "టెక్స్ట్‌ను అనువదించండి",
+            imageTranslation: "చిత్ర అనువాదం",
+            imageDescription: "టెక్స్ట్ ఉన్న మెనూ, సైన్, టికెట్ లేదా డాక్యుమెంట్‌ను అప్‌లోడ్ చేయండి.",
+            targetLanguage: "లక్ష్య భాష",
+            imageTargetDescription: "చిత్రంలోని టెక్స్ట్‌ను ఏ భాషలోకి అనువదించాలో ఎంచుకోండి."
+        },
+
+
+        common: {
+
+            welcome: "TravelMate కు స్వాగతం",
+            learnMore: "మరింత తెలుసుకోండి",
+            getStarted: "ప్రారంభించండి",
+            submit: "సమర్పించండి",
+            cancel: "రద్దు చేయండి",
+            save: "సేవ్ చేయండి",
+            loading: "లోడ్ అవుతోంది..."
+        }
+    }
+};
+
+function getTranslation(language, key) {
+
+    const parts = key.split(".");
+
+    let value = translations[language];
+
+    for (const part of parts) {
+
+        if (!value) {
+            return null;
+        }
+
+        value = value[part];
+    }
+
+    return value || null;
+}
+
+
+function applyGlobalLanguage(language) {
+
+    const currentTranslations =
+        translations[language] || translations.en;
+
+
+    /*
+     * TEXT CONTENT
+     */
+
+    document
+        .querySelectorAll("[data-i18n]")
+        .forEach(element => {
+
+            const key = element.dataset.i18n;
+
+            const translated =
+                getTranslation(language, key);
+
+            if (translated) {
+                element.textContent = translated;
+            }
+        });
+
+
+    /*
+     * PLACEHOLDERS
+     */
+
+    document
+        .querySelectorAll("[data-i18n-placeholder]")
+        .forEach(element => {
+
+            const key =
+                element.dataset.i18nPlaceholder;
+
+            const translated =
+                getTranslation(language, key);
+
+            if (translated) {
+                element.placeholder = translated;
+            }
+        });
+
+
+    /*
+     * TITLE / ARIA
+     */
+
+    document
+        .querySelectorAll("[data-i18n-title]")
+        .forEach(element => {
+
+            const key =
+                element.dataset.i18nTitle;
+
+            const translated =
+                getTranslation(language, key);
+
+            if (translated) {
+                element.title = translated;
+            }
+        });
+
+
+    /*
+     * LANGUAGE SELECTOR
+     */
+
+    const selector =
+        document.getElementById(
+            "globalLanguageSelector"
+        );
+
+    if (selector) {
+        selector.value = language;
+    }
+
+
+    /*
+     * HTML LANGUAGE
+     */
+
+    document.documentElement.lang = language;
+}
+
+
+/* =====================================================
+   GLOBAL LANGUAGE INITIALIZATION
+===================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const selector =
+        document.getElementById("globalLanguageSelector");
+
+    const savedLanguage =
+        localStorage.getItem("globalLanguage") || "en";
+
+    applyGlobalLanguage(savedLanguage);
+
+    if (selector) {
+
+        selector.value = savedLanguage;
+
+        selector.addEventListener("change", () => {
+
+            const language = selector.value;
+
+            localStorage.setItem(
+                "globalLanguage",
+                language
+            );
+
+            applyGlobalLanguage(language);
+        });
+    }
+
+});

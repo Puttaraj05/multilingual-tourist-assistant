@@ -69,7 +69,7 @@
         <a href="/">
                 <h2 >TravelMate</h2>
             </a>
-        <p>Your Smart Travel Companion</p>
+        <p data-i18n="common.tagline">Your Smart Travel Companion</p>
     </div>
 </div>
 
@@ -77,32 +77,55 @@
     <nav>
 
         <a
-            href="#"
+            href="/"
             class="active"
+            data-i18n="nav.home"
         >
             Home
         </a>
 
-        <a href="features.html">
+        <a
+            href="/features.html"
+            data-i18n="nav.features"
+        >
             Features
         </a>
 
-        <a href="#discover">
+        <a
+            href="#discover"
+            data-i18n="nav.discover"
+        >
             Discover
         </a>
 
-        <a href="about.html">
+        <a
+            href="/about.html"
+            data-i18n="nav.about"
+        >
             About
         </a>
 
     </nav>
 
 
-    <div
-    class="nav-actions"
-    id="authSection"
->
-    <!-- Filled automatically by auth-state.js -->
+    <div class="nav-actions">
+
+    <!-- Global Language Selector -->
+    <select
+        id="globalLanguageSelector"
+        class="global-language-selector"
+        aria-label="Select interface language"
+    >
+        <option value="en">🌐 English</option>
+        <option value="hi">🌐 हिंदी</option>
+        <option value="te">🌐 తెలుగు</option>
+    </select>
+
+    <!-- Authentication buttons/menu -->
+    <div id="authSection">
+        <!-- Filled automatically by auth-state.js -->
+    </div>
+
 </div>
 
 </header>
@@ -117,17 +140,18 @@
 
     <div class="hero-left">
 
-        <span class="hero-tag">
+        <span class="hero-tag" data-i18n="home.heroTag">
             🌍 Explore • Connect • Experience
         </span>
 
 
         <h1>
-            Where to <span>Next?</span>
+            <span data-i18n="home.heroTitle">Where to</span>
+            <span data-i18n="home.heroTitleNext">Next?</span>
         </h1>
 
 
-        <p>
+        <p data-i18n="home.heroDescription">
             Plan smarter with AI-powered itineraries,
             multilingual assistance, local recommendations
             and emergency support — all in one place.
@@ -137,6 +161,7 @@
         <a
             href="features.html"
             class="hero-btn"
+            data-i18n="home.getStarted"
         >
             Get Started
         </a>
@@ -180,11 +205,11 @@
 
             <i class="fa-solid fa-language"></i>
 
-            <h3>
+            <h3 data-i18n="home.translation">
                 Translation
             </h3>
 
-            <p>
+            <p data-i18n="home.translationDescription">
                 Real-time multilingual assistance while travelling.
             </p>
 
@@ -198,11 +223,11 @@
 
             <i class="fa-solid fa-map-location-dot"></i>
 
-            <h3>
+            <h3 data-i18n="home.itinerary">
                 AI Itinerary
             </h3>
 
-            <p>
+            <p data-i18n="home.itineraryDescription">
                 Personalized day-by-day travel plans within your budget.
             </p>
 
@@ -217,11 +242,11 @@
 
             <i class="fa-solid fa-compass"></i>
 
-            <h3>
+            <h3 data-i18n="home.recommendations">
                 Recommendations
             </h3>
 
-            <p>
+            <p data-i18n="home.recommendationsDescription">
                 Discover attractions, food and hidden local gems.
             </p>
 
@@ -235,11 +260,11 @@
 
             <i class="fa-solid fa-shield-heart"></i>
 
-            <h3>
+            <h3 data-i18n="home.emergency">
                 Emergency Help
             </h3>
 
-            <p>
+            <p data-i18n="home.emergencyDescription">
                 Quick access to nearby hospitals, police and emergency contacts.
             </p>
 
@@ -262,11 +287,11 @@
 
     <div class="section-header">
 
-        <h2>
+        <h2 data-i18n="home.popularDestinations">
             Popular Destinations
         </h2>
 
-        <a href="recommendations.html">
+        <a href="recommendations.html" data-i18n="home.exploreMore">
             Explore More →
         </a>
 
@@ -389,12 +414,12 @@
     class="about"
 >
 
-    <h2>
+    <h2 data-i18n="home.whyTravelMate">
         Why TravelMate?
     </h2>
 
 
-    <p>
+    <p data-i18n="home.whyDescription">
         TravelMate combines AI planning, multilingual communication,
         local recommendations and emergency support into one seamless
         travel experience.
@@ -403,7 +428,7 @@
 </section>
 
 <script src="/static/js/auth-state.js"></script>
-
+<script src="/static/js/global-language.js"></script>
 </body>
 
 </html>

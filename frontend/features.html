@@ -33,10 +33,21 @@
 </div>
 
 <nav>
-<a href="index.html">Home</a>
-<a href="features.html" >Features</a>
+<a href="/" data-i18n="nav.home">Home</a>
+<a href="/features.html" data-i18n="nav.features">Features</a>
 
 </nav>
+
+        <!-- Global Language Selector -->
+        <select
+            id="globalLanguageSelector"
+            class="global-language-selector"
+            aria-label="Select interface language"
+        >
+            <option value="en">🌐 English</option>
+            <option value="hi">🌐 हिंदी</option>
+            <option value="te">🌐 తెలుగు</option>
+        </select>
 
 <div
         class="nav-actions"
@@ -49,13 +60,13 @@
 
 <section class="features-hero">
 
-<span class="hero-tag">
+<span class="hero-tag" data-i18n="features.heroTag">
 AI Powered Travel Experience
 </span>
 
-<h1>Everything You Need for a Smarter Journey</h1>
+<h1 data-i18n="features.title">Everything You Need for a Smarter Journey</h1>
 
-<p>
+<p data-i18n="features.description">
 From planning your trip to translating conversations and finding
 nearby attractions, TravelMate brings every travel tool into one place.
 </p>
@@ -72,13 +83,13 @@ nearby attractions, TravelMate brings every travel tool into one place.
 <i class="fa-solid fa-robot"></i>
 </div>
 
-<h3>Chat with AI</h3>
+<h3 data-i18n="features.chatTitle">Chat with AI</h3>
 
-<p>
+<p data-i18n="features.chatDescription">
 Ask travel questions, get instant assistance and explore destinations naturally.
 </p>
 
-<span>Open Assistant →</span>
+<span data-i18n="features.chatButton">Open Assistant →</span>
 
 </a>
 
@@ -88,13 +99,13 @@ Ask travel questions, get instant assistance and explore destinations naturally.
 <i class="fa-solid fa-route"></i>
 </div>
 
-<h3>Plan My Itinerary</h3>
+<h3 data-i18n="features.plannerTitle">Plan My Itinerary</h3>
 
-<p>
+<p data-i18n="features.plannerDescription">
 Generate personalized day-by-day travel plans based on budget and interests.
 </p>
 
-<span>Create Itinerary →</span>
+<span data-i18n="features.plannerButton">Create Itinerary →</span>
 
 </a>
 
@@ -104,13 +115,13 @@ Generate personalized day-by-day travel plans based on budget and interests.
 <i class="fa-solid fa-language"></i>
 </div>
 
-<h3>Multilingual Chat</h3>
+<h3 data-i18n="features.translationTitle">Multilingual Chat</h3>
 
-<p>
+<p data-i18n="features.translationDescription">
 Break language barriers with real-time AI-powered translations.
 </p>
 
-<span>Start Translating →</span>
+<span data-i18n="features.translationButton">Start Translating →</span>
 
 </a>
 
@@ -120,13 +131,13 @@ Break language barriers with real-time AI-powered translations.
 <i class="fa-solid fa-location-dot"></i>
 </div>
 
-<h3>Top Recommendations</h3>
+<h3 data-i18n="features.recommendationTitle">Top Recommendations</h3>
 
-<p>
+<p data-i18n="features.recommendationDescription">
 Discover the best attractions, restaurants and hidden local gems.
 </p>
 
-<span>Explore Places →</span>
+<span data-i18n="features.recommendationButton">Explore Places →</span>
 
 </a>
 
@@ -136,13 +147,13 @@ Discover the best attractions, restaurants and hidden local gems.
 <i class="fa-solid fa-shield-heart"></i>
 </div>
 
-<h3>Emergency Assistance</h3>
+<h3 data-i18n="features.emergencyTitle">Emergency Assistance</h3>
 
-<p>
+<p data-i18n="features.emergencyDescription">
 Access nearby hospitals, police stations and emergency contacts whenever needed.
 </p>
 
-<span>Emergency Support →</span>
+<span data-i18n="features.emergencyButton">Emergency Support →</span>
 
 </a>
 
@@ -152,15 +163,15 @@ Access nearby hospitals, police stations and emergency contacts whenever needed.
 
 <section id="about" class="feature-footer">
 
-<h2>Built to Make Every Journey Easier</h2>
+<h2 data-i18n="features.footerTitle">Built to Make Every Journey Easier</h2>
 
-<p>
+<p data-i18n="features.footerDescription">
 TravelMate combines AI planning, multilingual communication, local
 recommendations and emergency support into one seamless travel experience.
 </p>
 
 </section>
-
+<script src="/static/js/global-language.js"></script>
 <script src="/static/js/auth-state.js"></script>
 </body>
 </html>

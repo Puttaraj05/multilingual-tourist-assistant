@@ -90,7 +90,9 @@
             Chat
         </a>
 
-        <a href="/recommendations.html"  data-i18n="nav.recommendations">Recommendations</a>
+        <a href="/recommendations.html" >
+            Recommendations
+        </a>
 
         <a href="/emergency.html" data-i18n="nav.emergency">
             Emergency
@@ -149,7 +151,7 @@
                         ＋
                     </span>
 
-                    <span data-i18n="chat.newChat">
+                    <span>
                         New Chat
                     </span>
 
@@ -159,7 +161,7 @@
 
                 <!-- RECENT CHAT LABEL -->
 
-                <div class="section-label" data-i18n="chat.recentChats">
+                <div class="section-label">
 
                     Recent Chats
 
@@ -175,7 +177,7 @@
                     aria-label="Recent chats"
                 >
 
-                    <div class="empty-recent" data-i18n="chat.noChats">
+                    <div class="empty-recent">
                         No chats yet
                     </div>
 
@@ -305,7 +307,7 @@
                         type="text"
                         autocomplete="off"
                         maxlength="2000"
-                        placeholder="Ask about a destination..." data-i18n-placeholder="chat.inputPlaceholder"
+                        placeholder="Ask about a destination..."
                         aria-label="Ask about a destination"
                     >
 

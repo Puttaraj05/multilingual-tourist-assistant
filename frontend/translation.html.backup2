@@ -84,7 +84,9 @@
             Chat
         </a>
 
-        <a href="/recommendations.html"  data-i18n="nav.recommendations">Recommendations</a>
+        <a href="/recommendations.html" >
+            Recommendations
+        </a>
 
         <a href="/emergency.html" data-i18n="nav.emergency">
             Emergency
@@ -128,17 +130,17 @@
 
     <section class="translation-hero">
 
-        <span class="planner-tag" data-i18n="translation.multilingualAssistant">
+        <span class="planner-tag">
             Multilingual Assistant
         </span>
 
 
-        <h1 data-i18n="translation.title">
+        <h1>
             Translate Without Barriers
         </h1>
 
 
-        <p data-i18n="translation.description">
+        <p>
             Translate text, signs and conversations instantly.
             Communicate confidently wherever your journey takes you.
         </p>
@@ -157,10 +159,10 @@
 
             <h2>
                 <i class="fa-solid fa-language"></i>
-                <span data-i18n="translation.textTranslation">Text Translation</span>
+                Text Translation
             </h2>
 
-            <p data-i18n="translation.textDescription">
+            <p>
                 Translate messages, conversations, signs and
                 travel information.
             </p>
@@ -179,7 +181,7 @@
                 aria-label="Source language"
             >
 
-                <option value="auto" selected data-i18n="translation.autoDetect">
+                <option value="auto" selected>
                     Auto Detect
                 </option>
 
@@ -323,13 +325,13 @@
 
             <div class="translate-box">
 
-                <label for="inputText" data-i18n="translation.yourText">
+                <label for="inputText">
                     Your Text
                 </label>
 
                 <textarea
                     id="inputText"
-                    placeholder="Type something here..." data-i18n-placeholder="translation.inputPlaceholder"
+                    placeholder="Type something here..."
                     maxlength="5000"
                 ></textarea>
 
@@ -348,13 +350,13 @@
 
             <div class="translate-box">
 
-                <label for="translatedText" data-i18n="translation.translation">
+                <label for="translatedText">
                     Translation
                 </label>
 
                 <textarea
                     id="translatedText"
-                    placeholder="Your translated text will appear here..." data-i18n-placeholder="translation.outputPlaceholder"
+                    placeholder="Your translated text will appear here..."
                     readonly
                 ></textarea>
 
@@ -371,7 +373,7 @@
             type="button"
         >
             <i class="fa-solid fa-language"></i>
-            <span data-i18n="translation.translateText">Translate Text</span>
+            Translate Text
         </button>
 
 
@@ -396,10 +398,10 @@
 
             <h2>
                 <i class="fa-solid fa-image"></i>
-                <span data-i18n="translation.imageTranslation">Image Translation</span>
+                Image Translation
             </h2>
 
-            <p data-i18n="translation.imageDescription">
+            <p>
                 Upload a menu, sign, ticket or document
                 containing text.
             </p>
@@ -420,11 +422,11 @@
 
         <div>
 
-            <h3 data-i18n="translation.targetLanguage">
+            <h3>
                 Target Language
             </h3>
 
-            <p data-i18n="translation.imageTargetDescription">
+            <p>
                 Choose the language you want the image text translated into.
             </p>
 
@@ -669,7 +671,7 @@
                 aria-label="Voice source language"
             >
 
-                <option value="auto" selected data-i18n="translation.autoDetect">
+                <option value="auto" selected>
                     Auto Detect
                 </option>
 

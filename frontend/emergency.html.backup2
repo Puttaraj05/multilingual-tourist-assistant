@@ -40,9 +40,9 @@
 
         <div>
             <a href="/">
-                <h2 data-i18n="common.brand">TravelMate</h2>
+                <h2 >TravelMate</h2>
             </a>
-            <p data-i18n="common.tagline">Your Smart Travel Companion</p>
+            <p>Your Smart Travel Companion</p>
         </div>
 
     </div>
@@ -67,7 +67,9 @@
             Chat
         </a>
 
-        <a href="/recommendations.html"  data-i18n="nav.recommendations">Recommendations</a>
+        <a href="/recommendations.html" >
+            Recommendations
+        </a>
 
         <a href="/emergency.html" data-i18n="nav.emergency">
             Emergency
@@ -106,11 +108,11 @@
 
     <section class="emergency-hero">
 
-        <span class="hero-tag" data-i18n="emergency.travelSafety">
+        <span class="hero-tag">
             Travel Safety
         </span>
 
-        <h1 data-i18n="emergency.title">
+        <h1>
             Emergency Assistance
         </h1>
 
@@ -124,22 +126,22 @@
 
             <div class="quick-card hospital">
                 <i class="fa-solid fa-hospital"></i>
-                <span data-i18n="emergency.hospital">Hospital</span>
+                <span>Hospital</span>
             </div>
 
             <div class="quick-card police">
                 <i class="fa-solid fa-shield-halved"></i>
-                <span data-i18n="emergency.police">Police</span>
+                <span>Police</span>
             </div>
 
             <div class="quick-card ambulance">
                 <i class="fa-solid fa-truck-medical"></i>
-                <span data-i18n="emergency.ambulance">Ambulance</span>
+                <span>Ambulance</span>
             </div>
 
             <div class="quick-card embassy">
                 <i class="fa-solid fa-landmark"></i>
-                <span data-i18n="emergency.embassy">Embassy</span>
+                <span>Embassy</span>
             </div>
 
         </div>
@@ -155,34 +157,35 @@
 
         <h2>
             <i class="fa-solid fa-earth-asia"></i>
-            <span data-i18n="emergency.preferredCountry">Preferred Country</span>
+            Preferred Country
         </h2>
 
-        <p data-i18n="emergency.preferredCountryDescription">
-            Select the country where you currently need emergency assistance.
+        <p>
+            Select the country where you currently need emergency
+            assistance.
         </p>
 
         <div class="form-group">
 
-            <label for="country" data-i18n="emergency.country">
+            <label for="country">
                 Country
             </label>
 
             <select id="country">
 
-                <option value="IN" data-i18n="emergency.india">
+                <option value="IN">
                     India
                 </option>
 
-                <option value="AE" data-i18n="emergency.uae">
+                <option value="AE">
                     United Arab Emirates
                 </option>
 
-                <option value="US" data-i18n="emergency.usa">
+                <option value="US">
                     United States
                 </option>
 
-                <option value="GB" data-i18n="emergency.uk">
+                <option value="GB">
                     United Kingdom
                 </option>
 
@@ -202,11 +205,11 @@
 
                 <i class="fa-solid fa-phone"></i>
 
-                <h3 data-i18n="emergency.emergencyNumbers">
+                <h3>
                     Emergency Numbers
                 </h3>
 
-                <p data-i18n="emergency.selectCountry">
+                <p>
                     Select a country to view emergency contacts.
                 </p>
 
@@ -226,13 +229,13 @@
 
         <h2>
             <i class="fa-solid fa-location-crosshairs"></i>
-            <span data-i18n="emergency.findNearbyHelp">Find Nearby Help</span>
+            Find Nearby Help
         </h2>
 
-        <p data-i18n="emergency.findNearbyHelpText">
-            Use your current GPS location to find nearby emergency services.
+        <p>
+            Use your current GPS location to find nearby emergency
+            services.
         </p>
-
 
 
         <form id="emergencyForm">
@@ -241,14 +244,14 @@
 
                 <div class="form-group">
 
-                    <label for="location" data-i18n="emergency.currentLocation">
+                    <label for="location">
                         Current Location
                     </label>
 
                     <input
                         id="location"
                         type="text"
-                        placeholder="Use GPS or enter a location" data-i18n-placeholder="emergency.locationPlaceholder"
+                        placeholder="Use GPS or enter a location"
                     >
 
                 </div>
@@ -256,29 +259,29 @@
 
                 <div class="form-group">
 
-                    <label for="type" data-i18n="emergency.emergencyType">
+                    <label for="type">
                         Emergency Type
                     </label>
 
                     <select id="type">
 
-                        <option value="Hospital" data-i18n="emergency.hospital">
+                        <option value="Hospital">
                             Hospital
                         </option>
 
-                        <option value="Police" data-i18n="emergency.police">
+                        <option value="Police">
                             Police
                         </option>
 
-                        <option value="Ambulance" data-i18n="emergency.ambulance">
+                        <option value="Ambulance">
                             Ambulance
                         </option>
 
-                        <option value="Fire" data-i18n="emergency.fireStation">
+                        <option value="Fire">
                             Fire Station
                         </option>
 
-                        <option value="Embassy" data-i18n="emergency.embassy">
+                        <option value="Embassy">
                             Embassy
                         </option>
 
@@ -297,7 +300,7 @@
                     class="secondary-action"
                 >
                     <i class="fa-solid fa-location-crosshairs"></i>
-                    <span data-i18n="emergency.useCurrentLocation">Use My Current Location</span>
+                    Use My Current Location
                 </button>
 
 
@@ -306,7 +309,7 @@
                     type="submit"
                 >
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <span data-i18n="emergency.findNearbyHelpButton">Find Nearby Help</span>
+                    Find Nearby Help
                 </button>
 
             </div>
@@ -325,7 +328,7 @@
 
         <div class="results-header">
 
-            <h2 data-i18n="emergency.nearbyAssistance">
+            <h2>
                 Nearby Assistance
             </h2>
 
@@ -345,12 +348,13 @@
 
                 <i class="fa-solid fa-location-crosshairs"></i>
 
-                <h3 data-i18n="emergency.searchLocation">
+                <h3>
                     Search your location
                 </h3>
 
-                <p data-i18n="emergency.resultsDescription">
-                    Nearby emergency services will appear here with distance, directions and contact numbers.
+                <p>
+                    Nearby emergency services will appear here with
+                    distance, directions and contact numbers.
                 </p>
 
             </div>
@@ -369,15 +373,15 @@
 
         <div class="card-header">
 
-            <span class="hero-tag" data-i18n="emergency.travelIncident">
+            <span class="hero-tag">
                 Travel Incident
             </span>
 
-            <h2 data-i18n="emergency.reportLost">
+            <h2>
                 Report Lost or Stolen Items
             </h2>
 
-            <p data-i18n="emergency.incidentDescription">
+            <p>
                 Lost your passport, phone, wallet or other belongings?
                 Record the incident in your TravelMate support log.
             </p>
@@ -394,33 +398,33 @@
 
                 <div class="form-group">
 
-                    <label for="incidentType" data-i18n="emergency.incidentType">
+                    <label for="incidentType">
                         Incident Type
                     </label>
 
                     <select id="incidentType">
 
-                        <option value="lost" data-i18n="emergency.lostItem">
+                        <option value="lost">
                             Lost Item
                         </option>
 
-                        <option value="theft" data-i18n="emergency.stolenItem">
+                        <option value="theft">
                             Theft / Stolen Item
                         </option>
 
-                        <option value="unsafe" data-i18n="emergency.unsafeSituation">
+                        <option value="unsafe">
                             Unsafe Situation
                         </option>
 
-                        <option value="document" data-i18n="emergency.lostDocument">
+                        <option value="document">
                             Lost Passport / Document
                         </option>
 
-                        <option value="medical" data-i18n="emergency.medicalEmergency">
+                        <option value="medical">
                             Medical Emergency
                         </option>
 
-                        <option value="other" data-i18n="emergency.other">
+                        <option value="other">
                             Other
                         </option>
 
@@ -433,25 +437,25 @@
 
                 <div class="form-group">
 
-                    <label for="incidentCountry" data-i18n="emergency.country">
+                    <label for="incidentCountry">
                         Country
                     </label>
 
                     <select id="incidentCountry">
 
-                        <option value="IN" data-i18n="emergency.india">
+                        <option value="IN">
                             India
                         </option>
 
-                        <option value="AE" data-i18n="emergency.uae">
+                        <option value="AE">
                             United Arab Emirates
                         </option>
 
-                        <option value="US" data-i18n="emergency.usa">
+                        <option value="US">
                             United States
                         </option>
 
-                        <option value="GB" data-i18n="emergency.uk">
+                        <option value="GB">
                             United Kingdom
                         </option>
 
@@ -466,7 +470,7 @@
 
             <div class="form-group">
 
-                <label for="incidentDescription" data-i18n="emergency.whatHappened">
+                <label for="incidentDescription">
                     What happened?
                 </label>
 
@@ -477,7 +481,7 @@
                     placeholder="Example: My wallet was stolen near the railway station. It contains my ID, cards and cash."
                 ></textarea>
 
-                <small data-i18n="emergency.maxCharacters">
+                <small>
                     Maximum 2000 characters
                 </small>
 
@@ -488,7 +492,7 @@
 
             <div class="form-group">
 
-                <label for="incidentLocation" data-i18n="emergency.incidentLocation">
+                <label for="incidentLocation">
                     Incident Location
                 </label>
 
@@ -496,7 +500,6 @@
                     id="incidentLocation"
                     type="text"
                     placeholder="Where did this happen?"
-                    data-i18n-placeholder="emergency.locationQuestion"
                 >
 
             </div>
@@ -510,7 +513,7 @@
 
                 <i class="fa-solid fa-file-circle-exclamation"></i>
 
-                <span data-i18n="emergency.reportIncident">Report Incident</span>
+                Report Incident
 
             </button>
 
@@ -536,7 +539,7 @@
 
         <div class="results-header">
 
-            <h2 data-i18n="emergency.myReports">
+            <h2>
                 My Travel Safety Reports
             </h2>
 
@@ -546,7 +549,7 @@
                 type="button"
             >
                 <i class="fa-solid fa-rotate"></i>
-                <span data-i18n="emergency.refresh">Refresh</span>
+                Refresh
             </button>
 
         </div>
@@ -558,11 +561,11 @@
 
                 <i class="fa-solid fa-shield-halved"></i>
 
-                <h3 data-i18n="emergency.noReports">
+                <h3>
                     No reports loaded
                 </h3>
 
-                <p data-i18n="emergency.reportsDescription">
+                <p>
                     Your submitted travel safety reports will appear here.
                 </p>
 
