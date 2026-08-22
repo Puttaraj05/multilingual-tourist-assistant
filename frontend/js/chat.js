@@ -1,6 +1,5 @@
-/* TravelMate AI Chat
-   MongoDB chat history
-*/
+// TravelMate AI Chat
+// Stores chat history and communicates with the FastAPI backend
 
 const API_ENDPOINT = "/api/chat";
 const SESSION_STORAGE_KEY = "travelmate_session_id";
@@ -18,10 +17,9 @@ let currentChat = {
 let chatHistory = [];
 
 
-/* Escape HTML before displaying user or API content */
+// Escape text before putting it into HTML
 
 function escapeHtml(value) {
-
     return String(value ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -31,14 +29,10 @@ function escapeHtml(value) {
 }
 
 
-/* Get text from an object using possible field names */
+// Get a value from an object
 
 function fieldText(item, keys) {
-
-    if (
-        item === null ||
-        item === undefined
-    ) {
+    if (item === null || item === undefined) {
         return "";
     }
 
@@ -50,19 +44,13 @@ function fieldText(item, keys) {
     }
 
     for (const key of keys) {
-
         if (
             item[key] !== undefined &&
             item[key] !== null &&
             item[key] !== ""
         ) {
-
-            if (
-                typeof item[key] === "object"
-            ) {
-                return JSON.stringify(
-                    item[key]
-                );
+            if (typeof item[key] === "object") {
+                return JSON.stringify(item[key]);
             }
 
             return String(item[key]);
@@ -73,10 +61,9 @@ function fieldText(item, keys) {
 }
 
 
-/* Convert a value into an array */
+// Make sure a value is an array
 
 function asArray(value) {
-
     if (Array.isArray(value)) {
         return value;
     }
@@ -93,10 +80,9 @@ function asArray(value) {
 }
 
 
-/* Images used for different attraction categories */
+// Images for attraction categories
 
 const CATEGORY_IMAGES = {
-
     Historical:
         "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=700&q=70",
 
@@ -125,7 +111,6 @@ const HERO_IMAGE =
 
 
 function imgForCategory(category) {
-
     return (
         CATEGORY_IMAGES[category] ||
         CATEGORY_IMAGES.default
@@ -133,10 +118,9 @@ function imgForCategory(category) {
 }
 
 
-/* Create a unique chat session ID */
+// Create a unique chat ID
 
 function generateSessionId() {
-
     return (
         "session-" +
         Date.now() +
@@ -148,15 +132,23 @@ function generateSessionId() {
 }
 
 
-/* Create a new chat session */
+// Get the currently selected language
+
+function getSelectedLanguage() {
+    const select =
+        document.getElementById("languageSelect");
+
+    return select?.value || "English";
+}
+
+
+// Create a new chat
 
 function createNewSession() {
-
     const sessionId =
         generateSessionId();
 
-    currentSessionId =
-        sessionId;
+    currentSessionId = sessionId;
 
     localStorage.setItem(
         SESSION_STORAGE_KEY,
@@ -164,28 +156,18 @@ function createNewSession() {
     );
 
     const language =
-        document.getElementById(
-            "languageSelect"
-        )?.value ||
-        "English";
+        getSelectedLanguage();
 
     currentChat = {
-
         id: sessionId,
-
         title: "New Chat",
-
         language: language,
-
         destination: "",
-
         messages: []
     };
 
     const resultArea =
-        document.getElementById(
-            "resultArea"
-        );
+        document.getElementById("resultArea");
 
     if (resultArea) {
         resultArea.innerHTML = "";
@@ -195,30 +177,19 @@ function createNewSession() {
 }
 
 
-/* Load saved chat messages from MongoDB */
+// Load an old chat from MongoDB
 
-async function loadChatHistoryFromServer(
-    sessionId
-) {
-
+async function loadChatHistoryFromServer(sessionId) {
     if (!sessionId) {
         return false;
     }
 
     try {
-
-        console.log(
-            "Loading MongoDB history:",
-            sessionId
+        const response = await fetch(
+            `${API_ENDPOINT}/history/${encodeURIComponent(sessionId)}`
         );
 
-        const response =
-            await fetch(
-                `${API_ENDPOINT}/history/${encodeURIComponent(sessionId)}`
-            );
-
         if (!response.ok) {
-
             console.error(
                 "History request failed:",
                 response.status
@@ -227,76 +198,44 @@ async function loadChatHistoryFromServer(
             return false;
         }
 
-        const data =
-            await response.json();
+        const data = await response.json();
 
         if (
             !data.success ||
             !Array.isArray(data.messages)
         ) {
-
-            console.log(
-                "No MongoDB history found."
-            );
-
             return false;
         }
 
-        const messages =
-            data.messages;
+        const messages = data.messages;
 
         if (!messages.length) {
-
-            console.log(
-                "Session exists but contains no messages."
-            );
-
             return false;
         }
 
-
-        /* Restore the current session */
-
-        currentSessionId =
-            sessionId;
+        currentSessionId = sessionId;
 
         localStorage.setItem(
             SESSION_STORAGE_KEY,
             sessionId
         );
 
-
-        /* Find the language used in the conversation */
-
         const firstLanguage =
             messages.find(
                 message =>
                     message &&
                     message.language
-            )?.language ||
-            "English";
-
+            )?.language || "English";
 
         currentChat = {
-
             id: sessionId,
-
             title: "Travel Chat",
-
             language: firstLanguage,
-
             destination: "",
-
             messages: []
         };
 
-
-        /* Convert MongoDB messages to frontend format */
-
-        for (
-            const message of messages
-        ) {
-
+        for (const message of messages) {
             if (
                 !message ||
                 !message.role
@@ -304,25 +243,12 @@ async function loadChatHistoryFromServer(
                 continue;
             }
 
-
-            /* Restore user message */
-
-            if (
-                message.role === "user"
-            ) {
-
+            if (message.role === "user") {
                 currentChat.messages.push({
-
                     role: "user",
-
-                    content:
-                        message.content ||
-                        "",
-
+                    content: message.content || "",
                     language:
-                        message.language ||
-                        "English",
-
+                        message.language || "English",
                     timestamp:
                         message.created_at ||
                         message.timestamp ||
@@ -332,75 +258,41 @@ async function loadChatHistoryFromServer(
                 continue;
             }
 
-
-            /* Restore assistant message */
-
-            if (
-                message.role === "assistant"
-            ) {
-
+            if (message.role === "assistant") {
                 let content =
-                    message.content ||
-                    "";
+                    message.content || "";
 
-                let parsedContent =
-                    null;
+                let parsedContent = null;
 
-
-                /* Assistant responses are stored as JSON */
-
-                if (
-                    typeof content ===
-                    "string"
-                ) {
-
+                if (typeof content === "string") {
                     try {
-
                         parsedContent =
-                            JSON.parse(
-                                content
-                            );
-
+                            JSON.parse(content);
                     } catch {
-
-                        parsedContent =
-                            content;
+                        parsedContent = content;
                     }
-
                 } else {
-
-                    parsedContent =
-                        content;
+                    parsedContent = content;
                 }
 
+                const assistantData =
+                    typeof parsedContent === "object" &&
+                    parsedContent !== null
+                        ? parsedContent
+                        : {
+                            message:
+                                String(
+                                    parsedContent || ""
+                                )
+                        };
 
                 currentChat.messages.push({
-
                     role: "assistant",
 
                     content:
-                        typeof parsedContent ===
-                        "object"
-                            ? (
-                                parsedContent.message ||
-                                ""
-                            )
-                            : String(
-                                parsedContent ||
-                                ""
-                            ),
+                        assistantData.message || "",
 
-                    data:
-                        typeof parsedContent ===
-                        "object"
-                            ? parsedContent
-                            : {
-                                message:
-                                    String(
-                                        parsedContent ||
-                                        ""
-                                    )
-                            },
+                    data: assistantData,
 
                     query: "",
 
@@ -416,9 +308,6 @@ async function loadChatHistoryFromServer(
             }
         }
 
-
-        /* Create the chat title from the first user message */
-
         const firstUserMessage =
             currentChat.messages.find(
                 message =>
@@ -426,36 +315,33 @@ async function loadChatHistoryFromServer(
             );
 
         if (firstUserMessage?.content) {
-
             currentChat.title =
                 createChatTitle(
                     firstUserMessage.content
                 );
         }
 
+        // Set the language dropdown to the chat language
 
-        /* Add the restored chat to the recent list */
+        const languageSelect =
+            document.getElementById(
+                "languageSelect"
+            );
+
+        if (languageSelect) {
+            languageSelect.value =
+                currentChat.language;
+        }
 
         updateChatHistory();
 
-
-        /* Display the restored conversation */
-
         renderConversation();
-
-
-        console.log(
-            "MongoDB chat restored successfully:",
-            currentChat.messages.length,
-            "messages"
-        );
 
         return true;
 
     } catch (error) {
-
         console.error(
-            "Failed to load MongoDB chat history:",
+            "Could not load chat history:",
             error
         );
 
@@ -464,10 +350,9 @@ async function loadChatHistoryFromServer(
 }
 
 
-/* Update the recent chat list */
+// Update recent chat information
 
 function updateChatHistory() {
-
     if (
         !currentChat ||
         !currentChat.id ||
@@ -477,7 +362,6 @@ function updateChatHistory() {
         return;
     }
 
-
     const existingIndex =
         chatHistory.findIndex(
             chat =>
@@ -485,18 +369,14 @@ function updateChatHistory() {
                 currentChat.id
         );
 
-
     const firstUserMessage =
         currentChat.messages.find(
             message =>
                 message.role === "user"
         );
 
-
     const chatObject = {
-
-        id:
-            currentChat.id,
+        id: currentChat.id,
 
         title:
             currentChat.title ||
@@ -519,64 +399,48 @@ function updateChatHistory() {
         messages:
             currentChat.messages,
 
-        time:
-            "Saved"
+        time: "Saved"
     };
 
-
     if (existingIndex >= 0) {
-
-        chatHistory[
-            existingIndex
-        ] = chatObject;
-
+        chatHistory[existingIndex] =
+            chatObject;
     } else {
-
         chatHistory.unshift(
             chatObject
         );
     }
 
-
     chatHistory =
-        chatHistory.slice(
-            0,
-            15
-        );
-
+        chatHistory.slice(0, 15);
 
     renderRecentList();
 }
 
 
-/* Start a completely new chat */
+// Start a new conversation
 
 function startNewChat() {
-
     createNewSession();
 
     showWelcomeScreen();
 
     document
-        .getElementById(
-            "chatInput"
-        )
+        .getElementById("chatInput")
         ?.focus();
 }
 
 
-/* Save the current chat in frontend memory */
+// Save the current chat locally
 
 function saveCurrentChat() {
-
     updateChatHistory();
 }
 
 
-/* Display recent chats */
+// Show recent chats
 
 function renderRecentList() {
-
     const list =
         document.getElementById(
             "recentList"
@@ -586,9 +450,7 @@ function renderRecentList() {
         return;
     }
 
-
     if (!chatHistory.length) {
-
         list.innerHTML = `
             <div class="empty-recent">
                 No chats yet
@@ -598,95 +460,73 @@ function renderRecentList() {
         return;
     }
 
-
     list.innerHTML =
         chatHistory
-            .map(
-                chat => {
+            .map(chat => {
+                const active =
+                    chat.id ===
+                    currentSessionId
+                        ? "active"
+                        : "";
 
-                    const active =
-                        chat.id ===
-                        currentSessionId
-                            ? "active"
-                            : "";
+                return `
+                    <button
+                        type="button"
+                        class="recent-item ${active}"
+                        data-chat-id="${escapeHtml(
+                            chat.id
+                        )}"
+                    >
+                        <span class="recent-dot"></span>
 
+                        <div class="recent-text">
+                            <strong>
+                                ${escapeHtml(
+                                    chat.title ||
+                                    "Travel Chat"
+                                )}
+                            </strong>
 
-                    return `
-                        <button
-                            type="button"
-                            class="recent-item ${active}"
-                            data-chat-id="${escapeHtml(
-                                chat.id
-                            )}"
-                        >
-
-                            <span class="recent-dot"></span>
-
-                            <div class="recent-text">
-
-                                <strong>
-                                    ${escapeHtml(
-                                        chat.title ||
-                                        "Travel Chat"
-                                    )}
-                                </strong>
-
-                                <span>
-                                    ${escapeHtml(
-                                        chat.language ||
-                                        "English"
-                                    )}
-                                    ·
-                                    ${escapeHtml(
-                                        chat.time ||
-                                        "Saved"
-                                    )}
-                                </span>
-
-                            </div>
-
-                        </button>
-                    `;
-                }
-            )
+                            <span>
+                                ${escapeHtml(
+                                    chat.language ||
+                                    "English"
+                                )}
+                                ·
+                                ${escapeHtml(
+                                    chat.time ||
+                                    "Saved"
+                                )}
+                            </span>
+                        </div>
+                    </button>
+                `;
+            })
             .join("");
-
 
     list
         .querySelectorAll(
             ".recent-item"
         )
-        .forEach(
-            item => {
-
-                item.addEventListener(
-                    "click",
-                    async () => {
-
-                        await openChat(
-                            item.dataset.chatId
-                        );
-
-                    }
-                );
-
-            }
-        );
+        .forEach(item => {
+            item.addEventListener(
+                "click",
+                async () => {
+                    await openChat(
+                        item.dataset.chatId
+                    );
+                }
+            );
+        });
 }
 
 
-/* Open a saved chat */
+// Open an existing chat
 
-async function openChat(
-    sessionId
-) {
-
+async function openChat(sessionId) {
     if (!sessionId) {
         return;
     }
-
-
-    /* Check chats already loaded in the browser */
 
     const localChat =
         chatHistory.find(
@@ -695,9 +535,7 @@ async function openChat(
                 sessionId
         );
 
-
     if (localChat) {
-
         currentSessionId =
             sessionId;
 
@@ -707,9 +545,7 @@ async function openChat(
         );
 
         currentChat = {
-
-            id:
-                localChat.id,
+            id: localChat.id,
 
             title:
                 localChat.title ||
@@ -724,10 +560,8 @@ async function openChat(
                 "",
 
             messages:
-                localChat.messages ||
-                []
+                localChat.messages || []
         };
-
 
         const languageSelect =
             document.getElementById(
@@ -735,11 +569,9 @@ async function openChat(
             );
 
         if (languageSelect) {
-
             languageSelect.value =
                 currentChat.language;
         }
-
 
         renderConversation();
 
@@ -748,19 +580,15 @@ async function openChat(
         return;
     }
 
-
-    /* If not loaded locally, get it from MongoDB */
-
     await loadChatHistoryFromServer(
         sessionId
     );
 }
 
 
-/* Show the welcome screen */
+// Show the initial welcome message
 
 function showWelcomeScreen() {
-
     const area =
         document.getElementById(
             "resultArea"
@@ -770,29 +598,23 @@ function showWelcomeScreen() {
         return;
     }
 
-
     area.innerHTML = `
+        <div class="welcome-screen">
+            <h2>
+                How can I help?
+            </h2>
 
-    <div class="welcome-screen">
-
-        <h2>
-            How can I help?
-        </h2>
-
-        <p>
-            Ask TravelMate about your trip.
-        </p>
-
-    </div>
-
-`;
+            <p>
+                Ask TravelMate about your trip.
+            </p>
+        </div>
+    `;
 }
 
 
-/* Display all messages in the current chat */
+// Render all messages
 
 function renderConversation() {
-
     const area =
         document.getElementById(
             "resultArea"
@@ -802,28 +624,21 @@ function renderConversation() {
         return;
     }
 
-
     area.innerHTML = "";
-
 
     if (
         !currentChat.messages ||
         !currentChat.messages.length
     ) {
-
         showWelcomeScreen();
-
         return;
     }
 
-
     currentChat.messages.forEach(
         message => {
-
             if (
                 message.role === "user"
             ) {
-
                 appendUserMessage(
                     message.content,
                     false
@@ -832,21 +647,15 @@ function renderConversation() {
                 return;
             }
 
-
             if (
                 message.role === "assistant"
             ) {
-
-                /* Restored assistant messages contain message.data */
-
                 const assistantData =
-                    message.data ||
-                    {
+                    message.data || {
                         message:
                             message.content ||
                             ""
                     };
-
 
                 appendAssistantMessage(
                     assistantData,
@@ -854,24 +663,20 @@ function renderConversation() {
                     false
                 );
             }
-
         }
     );
-
 
     scrollChatToBottom(false);
 }
 
 
-/* Format the assistant response for the chat interface */
+// Render the AI response
 
 function renderAssistantResponse(
     data,
     userQuery
 ) {
-
     if (!data) {
-
         return `
             <div class="error-box">
                 No response received.
@@ -879,19 +684,15 @@ function renderAssistantResponse(
         `;
     }
 
-
     const message =
         data.message || "";
 
-
     let destination = "";
-
 
     if (
         typeof data.destination ===
         "string"
     ) {
-
         destination =
             data.destination;
 
@@ -900,72 +701,49 @@ function renderAssistantResponse(
         typeof data.destination ===
         "object"
     ) {
-
         destination =
-            data.destination.name ||
-            "";
+            data.destination.name || "";
     }
-
 
     destination =
         destination ||
         currentChat.destination ||
         "";
 
-
     if (destination) {
-
         currentChat.destination =
             destination;
     }
 
-
     const attractions =
-        asArray(
-            data.attractions
-        );
+        asArray(data.attractions);
 
     const food =
-        asArray(
-            data.food
-        );
+        asArray(data.food);
 
     const transportation =
-        asArray(
-            data.transportation
-        );
+        asArray(data.transportation);
 
     const tips =
-        asArray(
-            data.tips
-        );
+        asArray(data.tips);
 
     const itinerary =
-        asArray(
-            data.itinerary
-        );
-
+        asArray(data.itinerary);
 
     const tripOverview =
-        data.trip_overview ||
-        "";
+        data.trip_overview || "";
 
     const tripDuration =
-        data.trip_duration ||
-        "";
+        data.trip_duration || "";
 
     const travelStyle =
-        data.travel_style ||
-        "";
+        data.travel_style || "";
 
     const bestTime =
-        data.best_time_to_visit ||
-        "";
+        data.best_time_to_visit || "";
 
     const budget =
-        data.estimated_budget ||
-        "";
-
+        data.estimated_budget || "";
 
     const hasTripContent =
         attractions.length > 0 ||
@@ -979,7 +757,6 @@ function renderAssistantResponse(
         bestTime ||
         budget;
 
-
     const messageHtml =
         message
             ? `
@@ -989,16 +766,13 @@ function renderAssistantResponse(
             `
             : "";
 
-
     if (!hasTripContent) {
-
         return `
             <div class="assistant-card">
                 ${messageHtml}
             </div>
         `;
     }
-
 
     const heroHtml =
         destination
@@ -1104,7 +878,6 @@ function renderAssistantResponse(
             `
             : "";
 
-
     const overviewHtml =
         tripOverview ||
         tripDuration ||
@@ -1139,6 +912,7 @@ function renderAssistantResponse(
                                         <span>
                                             📅 Duration
                                         </span>
+
                                         <strong>
                                             ${escapeHtml(
                                                 tripDuration
@@ -1156,6 +930,7 @@ function renderAssistantResponse(
                                         <span>
                                             ✨ Travel Style
                                         </span>
+
                                         <strong>
                                             ${escapeHtml(
                                                 travelStyle
@@ -1173,6 +948,7 @@ function renderAssistantResponse(
                                         <span>
                                             🌤️ Best Time
                                         </span>
+
                                         <strong>
                                             ${escapeHtml(
                                                 bestTime
@@ -1190,6 +966,7 @@ function renderAssistantResponse(
                                         <span>
                                             💰 Estimated Budget
                                         </span>
+
                                         <strong>
                                             ${escapeHtml(
                                                 budget
@@ -1201,14 +978,11 @@ function renderAssistantResponse(
                         }
 
                     </div>
-
                 </div>
             `
             : "";
 
-
     return `
-
         ${heroHtml}
 
         ${overviewHtml}
@@ -1248,15 +1022,13 @@ function renderAssistantResponse(
                 )
                 : ""
         }
-
     `;
 }
 
 
-/* Convert plain text into safe HTML */
+// Convert text to safe HTML
 
 function formatText(text) {
-
     if (!text) {
         return "";
     }
@@ -1273,12 +1045,11 @@ function formatText(text) {
 }
 
 
-/* Display attraction cards */
+// Render attraction cards
 
 function renderAttractions(
     attractions
 ) {
-
     return `
         <div class="section-title">
             🏛️ Top Attractions
@@ -1289,7 +1060,6 @@ function renderAttractions(
             ${
                 attractions
                     .map(item => {
-
                         const category =
                             fieldText(
                                 item,
@@ -1338,7 +1108,6 @@ function renderAttractions(
                                 item,
                                 ["location"]
                             );
-
 
                         return `
                             <div class="attraction-card">
@@ -1413,7 +1182,6 @@ function renderAttractions(
                                     }
 
                                 </div>
-
                             </div>
                         `;
                     })
@@ -1425,10 +1193,9 @@ function renderAttractions(
 }
 
 
-/* Display food recommendations */
+// Render food recommendations
 
 function renderFood(food) {
-
     return `
         <div class="panel">
 
@@ -1439,7 +1206,6 @@ function renderFood(food) {
             ${
                 food
                     .map(item => {
-
                         const name =
                             fieldText(
                                 item,
@@ -1468,8 +1234,7 @@ function renderFood(food) {
                             );
 
                         const mustTry =
-                            item.must_try ===
-                            true;
+                            item.must_try === true;
 
                         const cost =
                             fieldText(
@@ -1480,7 +1245,6 @@ function renderFood(food) {
                                     "cost"
                                 ]
                             );
-
 
                         return `
                             <div class="food-row">
@@ -1555,12 +1319,11 @@ function renderFood(food) {
 }
 
 
-/* Display transportation options */
+// Render transportation options
 
 function renderTransportation(
     transportation
 ) {
-
     return `
         <div class="panel">
 
@@ -1571,7 +1334,6 @@ function renderTransportation(
             ${
                 transportation
                     .map(item => {
-
                         const mode =
                             fieldText(
                                 item,
@@ -1618,7 +1380,6 @@ function renderTransportation(
                                     "travelTime"
                                 ]
                             );
-
 
                         return `
                             <div class="transport-row">
@@ -1693,10 +1454,9 @@ function renderTransportation(
 }
 
 
-/* Display travel tips */
+// Render travel tips
 
 function renderTips(tips) {
-
     return `
         <div class="panel">
 
@@ -1707,7 +1467,6 @@ function renderTips(tips) {
             ${
                 tips
                     .map(item => {
-
                         const title =
                             fieldText(
                                 item,
@@ -1725,7 +1484,6 @@ function renderTips(tips) {
                                     "details"
                                 ]
                             );
-
 
                         return `
                             <div class="tip-item">
@@ -1761,12 +1519,11 @@ function renderTips(tips) {
 }
 
 
-/* Display the detailed itinerary */
+// Render the itinerary
 
 function renderDetailedItinerary(
     itinerary
 ) {
-
     return `
         <div class="panel itinerary-panel">
 
@@ -1776,11 +1533,10 @@ function renderDetailedItinerary(
 
             ${
                 itinerary
-                    .map(
-                        day =>
-                            renderItineraryDay(
-                                day
-                            )
+                    .map(day =>
+                        renderItineraryDay(
+                            day
+                        )
                     )
                     .join("")
             }
@@ -1790,10 +1546,9 @@ function renderDetailedItinerary(
 }
 
 
-/* Display one itinerary day */
+// Render one itinerary day
 
 function renderItineraryDay(day) {
-
     const dayNumber =
         fieldText(
             day,
@@ -1819,34 +1574,22 @@ function renderItineraryDay(day) {
         );
 
     const morning =
-        asArray(
-            day.morning
-        );
+        asArray(day.morning);
 
     const afternoon =
-        asArray(
-            day.afternoon
-        );
+        asArray(day.afternoon);
 
     const evening =
-        asArray(
-            day.evening
-        );
+        asArray(day.evening);
 
     const night =
-        asArray(
-            day.night
-        );
+        asArray(day.night);
 
     const activities =
-        asArray(
-            day.activities
-        );
+        asArray(day.activities);
 
     const meals =
-        asArray(
-            day.meals
-        );
+        asArray(day.meals);
 
     const travelNotes =
         fieldText(
@@ -1879,7 +1622,6 @@ function renderItineraryDay(day) {
             day,
             ["accommodation"]
         );
-
 
     return `
         <div class="itinerary-day">
@@ -2020,13 +1762,12 @@ function renderItineraryDay(day) {
 }
 
 
-/* Display activities for a specific time of day */
+// Render a morning, afternoon, evening or night block
 
 function renderTimeBlock(
     title,
     items
 ) {
-
     if (!items.length) {
         return "";
     }
@@ -2042,11 +1783,10 @@ function renderTimeBlock(
 
                 ${
                     items
-                        .map(
-                            item =>
-                                renderActivityItem(
-                                    item
-                                )
+                        .map(item =>
+                            renderActivityItem(
+                                item
+                            )
                         )
                         .join("")
                 }
@@ -2058,12 +1798,11 @@ function renderTimeBlock(
 }
 
 
-/* Display one activity */
+// Render one activity
 
 function renderActivityItem(
     activity
 ) {
-
     if (
         activity === null ||
         activity === undefined
@@ -2071,12 +1810,10 @@ function renderActivityItem(
         return "";
     }
 
-
     if (
         typeof activity === "string" ||
         typeof activity === "number"
     ) {
-
         return `
             <div class="timeline-item">
 
@@ -2089,7 +1826,6 @@ function renderActivityItem(
             </div>
         `;
     }
-
 
     const time =
         fieldText(
@@ -2134,7 +1870,6 @@ function renderActivityItem(
                 "cost"
             ]
         );
-
 
     return `
         <div class="timeline-item">
@@ -2217,13 +1952,12 @@ function renderActivityItem(
 }
 
 
-/* Display a simple list of activities */
+// Render a simple activity list
 
 function renderActivityList(
     title,
     items
 ) {
-
     return `
         <div class="activity-list">
 
@@ -2256,12 +1990,9 @@ function renderActivityList(
 }
 
 
-/* Convert an activity object into readable text */
+// Convert an activity into readable text
 
-function activityText(
-    activity
-) {
-
+function activityText(activity) {
     if (
         activity === null ||
         activity === undefined
@@ -2269,17 +2000,12 @@ function activityText(
         return "";
     }
 
-
     if (
         typeof activity === "string" ||
         typeof activity === "number"
     ) {
-
-        return String(
-            activity
-        );
+        return String(activity);
     }
-
 
     const time =
         fieldText(
@@ -2303,7 +2029,6 @@ function activityText(
             ["location"]
         );
 
-
     return [
         time,
         name,
@@ -2314,12 +2039,60 @@ function activityText(
 }
 
 
-/* Send a request to the TravelMate chat API */
+// Build a clear language instruction for Gemini
+
+function buildLanguageInstruction(
+    language
+) {
+    return `
+IMPORTANT LANGUAGE RULE:
+
+The selected target language is: ${language}.
+
+You MUST write the complete response in ${language}.
+
+Do not translate the user's input into another language.
+
+Do not answer in English unless the selected target language is English.
+
+All text fields must use ${language}, including:
+- message
+- destination
+- trip duration
+- travel style
+- best time
+- budget
+- attractions
+- food
+- transportation
+- tips
+- itinerary
+- activity names
+- descriptions
+- locations
+- accommodation
+- travel notes
+
+Keep numbers, dates and currency values natural for ${language}.
+
+Return valid JSON only.
+`;
+}
+
+
+// Send the request to FastAPI
 
 async function fetchTripPlan(
     query,
     language
 ) {
+    // Create an explicit instruction so the AI knows
+    // which language must be used for the answer.
+
+    const languageInstruction =
+        buildLanguageInstruction(
+            language
+        );
 
     const response =
         await fetch(
@@ -2329,14 +2102,16 @@ async function fetchTripPlan(
 
                 headers: {
                     "Content-Type":
+                        "application/json",
+
+                    "Accept":
                         "application/json"
                 },
 
                 body:
                     JSON.stringify({
-
                         message:
-                            query,
+                            `${languageInstruction}\n\nUSER REQUEST:\n${query}`,
 
                         language:
                             language,
@@ -2347,49 +2122,44 @@ async function fetchTripPlan(
             }
         );
 
-
     if (!response.ok) {
-
         let errorText =
             `HTTP ${response.status}`;
 
-
         try {
-
             const errorData =
                 await response.json();
 
             if (errorData.detail) {
-
                 errorText =
                     errorData.detail;
             }
-
         } catch {
-            /* Ignore invalid error response */
+            // The server did not return JSON
         }
-
 
         throw new Error(
             errorText
         );
     }
 
-
     const data =
         await response.json();
 
+    if (!data) {
+        throw new Error(
+            "Empty response received from server."
+        );
+    }
 
-    /* Use the session ID returned by the backend */
+    // Save the session ID returned by FastAPI
 
     if (data.session_id) {
-
         currentSessionId =
             data.session_id;
 
         currentChat.id =
             data.session_id;
-
 
         localStorage.setItem(
             SESSION_STORAGE_KEY,
@@ -2397,15 +2167,19 @@ async function fetchTripPlan(
         );
     }
 
+    // Keep the selected language in the frontend
+
+    data.language =
+        data.language ||
+        language;
 
     return data;
 }
 
 
-/* Send the user's message */
+// Send a user message
 
 async function sendMessage() {
-
     const input =
         document.getElementById(
             "chatInput"
@@ -2415,51 +2189,41 @@ async function sendMessage() {
         return;
     }
 
-
     const query =
         input.value.trim();
-
 
     if (!query) {
         return;
     }
 
+    // Read the language at the exact moment
+    // the user clicks Send.
 
     const language =
-        document.getElementById(
-            "languageSelect"
-        )?.value ||
-        "English";
+        getSelectedLanguage();
 
-
-    /* Create a session if there is no active session */
+    // Create a session if needed
 
     if (!currentSessionId) {
-
         createNewSession();
     }
 
+    // Always use the currently selected language
 
     currentChat.language =
         language;
-
 
     if (
         currentChat.messages.length ===
         0
     ) {
-
         currentChat.title =
-            createChatTitle(
-                query
-            );
+            createChatTitle(query);
     }
 
-
-    /* Add the user's message to the current chat */
+    // Add the user message
 
     currentChat.messages.push({
-
         role: "user",
 
         content:
@@ -2472,30 +2236,20 @@ async function sendMessage() {
             new Date().toISOString()
     });
 
-
     appendUserMessage(
         query,
         true
     );
 
-
     input.value = "";
-
 
     appendLoading();
 
-    scrollChatToBottom(
-        true
-    );
-
-
-    /* Send the message to the backend */
+    scrollChatToBottom(true);
 
     let data;
 
-
     try {
-
         data =
             await fetchTripPlan(
                 query,
@@ -2503,45 +2257,39 @@ async function sendMessage() {
             );
 
     } catch (error) {
-
         console.error(
             "TravelMate API error:",
             error
         );
 
-
         removeLoading();
 
+        // Show the real error instead of
+        // making the page appear to refresh.
 
         appendAssistantMessage(
             {
                 message:
-                    "Sorry, TravelMate is temporarily unavailable. Please try again in a few seconds."
+                    `TravelMate could not generate a response.\n\nError: ${error.message}`
             },
             query,
             true
         );
-
 
         input.focus();
 
         return;
     }
 
-
     removeLoading();
 
-
-    /* Add the assistant response to the current chat */
+    // Save the assistant response
 
     currentChat.messages.push({
-
-        role:
-            "assistant",
+        role: "assistant",
 
         content:
-            data.message ||
-            "",
+            data.message || "",
 
         data:
             data,
@@ -2550,23 +2298,21 @@ async function sendMessage() {
             query,
 
         language:
+            data.language ||
             language,
 
         timestamp:
             new Date().toISOString()
     });
 
-
-    /* Update the destination if one was returned */
+    // Update destination
 
     let destination = "";
-
 
     if (
         typeof data.destination ===
         "string"
     ) {
-
         destination =
             data.destination;
 
@@ -2575,19 +2321,17 @@ async function sendMessage() {
         typeof data.destination ===
         "object"
     ) {
-
         destination =
             data.destination.name ||
             "";
     }
 
-
     if (destination) {
-
         currentChat.destination =
             destination;
     }
 
+    // Show the AI response
 
     appendAssistantMessage(
         data,
@@ -2595,28 +2339,22 @@ async function sendMessage() {
         true
     );
 
-
-    /* MongoDB saving is handled by FastAPI */
+    // Update recent chats
 
     saveCurrentChat();
 
-
-    scrollChatToBottom(
-        true
-    );
-
+    scrollChatToBottom(true);
 
     input.focus();
 }
 
 
-/* Add a user message to the chat */
+// Add a user message
 
 function appendUserMessage(
     query,
     shouldScroll = true
 ) {
-
     const area =
         document.getElementById(
             "resultArea"
@@ -2625,44 +2363,33 @@ function appendUserMessage(
     if (!area) {
         return;
     }
-
 
     const div =
         document.createElement(
             "div"
         );
 
-
     div.className =
         "user-msg";
 
-
     div.innerHTML =
-        escapeHtml(
-            query
-        );
+        escapeHtml(query);
 
-
-    area.appendChild(
-        div
-    );
-
+    area.appendChild(div);
 
     if (shouldScroll) {
-
         scrollChatToBottom();
     }
 }
 
 
-/* Add an assistant response to the chat */
+// Add an AI message
 
 function appendAssistantMessage(
     data,
     query,
     shouldScroll = true
 ) {
-
     const area =
         document.getElementById(
             "resultArea"
@@ -2672,16 +2399,13 @@ function appendAssistantMessage(
         return;
     }
 
-
     const wrapper =
         document.createElement(
             "div"
         );
 
-
     wrapper.className =
         "assistant-response";
-
 
     wrapper.innerHTML =
         renderAssistantResponse(
@@ -2689,25 +2413,18 @@ function appendAssistantMessage(
             query
         );
 
-
-    area.appendChild(
-        wrapper
-    );
-
+    area.appendChild(wrapper);
 
     if (shouldScroll) {
-
         scrollChatToBottom();
     }
 }
 
 
-/* Show the loading message while waiting for the API */
+// Show loading message
 
 function appendLoading() {
-
     removeLoading();
-
 
     const area =
         document.getElementById(
@@ -2718,20 +2435,16 @@ function appendLoading() {
         return;
     }
 
-
     const loading =
         document.createElement(
             "div"
         );
 
-
     loading.id =
         "chatLoading";
 
-
     loading.className =
         "loading";
-
 
     loading.innerHTML = `
         <div>
@@ -2739,35 +2452,29 @@ function appendLoading() {
         </div>
     `;
 
-
-    area.appendChild(
-        loading
-    );
+    area.appendChild(loading);
 }
 
 
-/* Remove the loading message */
+// Remove loading message
 
 function removeLoading() {
-
     const loading =
         document.getElementById(
             "chatLoading"
         );
 
     if (loading) {
-
         loading.remove();
     }
 }
 
 
-/* Scroll the chat area to the latest message */
+// Scroll to the latest message
 
 function scrollChatToBottom(
     smooth = true
 ) {
-
     const scrollArea =
         document.getElementById(
             "chatScrollArea"
@@ -2777,51 +2484,33 @@ function scrollChatToBottom(
         return;
     }
 
+    setTimeout(() => {
+        scrollArea.scrollTo({
+            top:
+                scrollArea.scrollHeight,
 
-    setTimeout(
-        () => {
-
-            scrollArea.scrollTo({
-
-                top:
-                    scrollArea.scrollHeight,
-
-                behavior:
-                    smooth
-                        ? "smooth"
-                        : "auto"
-            });
-
-        },
-        50
-    );
+            behavior:
+                smooth
+                    ? "smooth"
+                    : "auto"
+        });
+    }, 50);
 }
 
 
-/* Create a short title from the user's first message */
+// Create a short chat title
 
-function createChatTitle(
-    query
-) {
-
+function createChatTitle(query) {
     let title =
         String(
             query || ""
         ).trim();
 
-
-    if (
-        title.length > 36
-    ) {
-
+    if (title.length > 36) {
         title =
-            title.substring(
-                0,
-                36
-            ) +
+            title.substring(0, 36) +
             "...";
     }
-
 
     return (
         title ||
@@ -2830,10 +2519,9 @@ function createChatTitle(
 }
 
 
-/* Update the current chat language */
+// Watch for target language changes
 
 function initializeLanguageListener() {
-
     const languageSelect =
         document.getElementById(
             "languageSelect"
@@ -2843,24 +2531,30 @@ function initializeLanguageListener() {
         return;
     }
 
-
     languageSelect.addEventListener(
         "change",
         function () {
+            // Change the current chat language immediately
 
             currentChat.language =
                 this.value;
 
+            // Save the new language for this chat
+
             saveCurrentChat();
+
+            console.log(
+                "Target language changed to:",
+                this.value
+            );
         }
     );
 }
 
 
-/* Allow Enter to send a message */
+// Allow Enter to send
 
 function initializeInputListener() {
-
     const input =
         document.getElementById(
             "chatInput"
@@ -2870,30 +2564,25 @@ function initializeInputListener() {
         return;
     }
 
-
     input.addEventListener(
         "keydown",
         function (event) {
-
             if (
                 event.key === "Enter" &&
                 !event.shiftKey
             ) {
-
                 event.preventDefault();
 
                 sendMessage();
             }
-
         }
     );
 }
 
 
-/* Connect the New Chat button */
+// Connect New Chat button
 
 function initializeNewChatButton() {
-
     const button =
         document.getElementById(
             "newChatBtn"
@@ -2903,7 +2592,6 @@ function initializeNewChatButton() {
         return;
     }
 
-
     button.addEventListener(
         "click",
         startNewChat
@@ -2911,53 +2599,33 @@ function initializeNewChatButton() {
 }
 
 
-/* Initialize the chat page */
+// Initialize the chat page
 
 async function initializeChat() {
-
     console.log(
         "Initializing TravelMate chat..."
     );
-
-
-    /* Check whether an existing session is saved */
 
     const savedSessionId =
         localStorage.getItem(
             SESSION_STORAGE_KEY
         );
 
-
     if (savedSessionId) {
-
-        console.log(
-            "Found saved session:",
-            savedSessionId
-        );
-
-
         const restored =
             await loadChatHistoryFromServer(
                 savedSessionId
             );
 
-
         if (restored) {
-
             console.log(
                 "Existing conversation restored."
             );
-
         } else {
-
-            /* Reuse the saved session if it has no messages */
-
             currentSessionId =
                 savedSessionId;
 
-
             currentChat = {
-
                 id:
                     savedSessionId,
 
@@ -2965,10 +2633,7 @@ async function initializeChat() {
                     "New Chat",
 
                 language:
-                    document.getElementById(
-                        "languageSelect"
-                    )?.value ||
-                    "English",
+                    getSelectedLanguage(),
 
                 destination:
                     "",
@@ -2977,21 +2642,16 @@ async function initializeChat() {
                     []
             };
 
-
             showWelcomeScreen();
 
             renderRecentList();
         }
 
     } else {
-
-        /* Create a session for the first visit */
-
         createNewSession();
 
         showWelcomeScreen();
     }
-
 
     initializeLanguageListener();
 
@@ -2999,11 +2659,7 @@ async function initializeChat() {
 
     initializeNewChatButton();
 
-
-    /* Make sure the recent chat list is displayed */
-
     renderRecentList();
-
 
     document
         .getElementById(
@@ -3013,7 +2669,7 @@ async function initializeChat() {
 }
 
 
-/* Start the chat after the page loads */
+// Start when the page is ready
 
 document.addEventListener(
     "DOMContentLoaded",

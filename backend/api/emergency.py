@@ -17,14 +17,17 @@ from backend.database.mongodb import (
 )
 
 
+# All emergency APIs start with /api
 router = APIRouter(
     prefix="/api",
     tags=["Emergency AI"],
 )
 
 
-# Store common emergency contact numbers for supported countries.
+# Common emergency numbers for some countries
 CONTACTS = [
+
+    # India
     {
         "country_code": "IN",
         "country_name": "India",
@@ -54,6 +57,7 @@ CONTACTS = [
         "description": "Fire emergency.",
     },
 
+    # UAE
     {
         "country_code": "AE",
         "country_name": "United Arab Emirates",
@@ -76,6 +80,7 @@ CONTACTS = [
         "description": "Civil Defence / fire emergency.",
     },
 
+    # USA
     {
         "country_code": "US",
         "country_name": "United States",
@@ -84,6 +89,7 @@ CONTACTS = [
         "description": "Police, fire and medical emergency.",
     },
 
+    # UK
     {
         "country_code": "GB",
         "country_name": "United Kingdom",
@@ -101,12 +107,13 @@ CONTACTS = [
 ]
 
 
-# Return the current UTC time in ISO format.
+# Gives the current time
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
-# Get emergency contacts from MongoDB and use the local list if needed.
+# Gets emergency numbers from MongoDB.
+# If MongoDB is not available, it uses the numbers above.
 def get_contacts(country_code: str):
 
     code = (country_code or "IN").upper()
@@ -135,7 +142,8 @@ def get_contacts(country_code: str):
     ]
 
 
-# Calculate the distance between two GPS points in kilometers.
+# Finds the distance between two locations
+# using their latitude and longitude.
 def calculate_distance(
     lat1,
     lon1,
@@ -169,7 +177,7 @@ def calculate_distance(
     return earth_radius_km * c
 
 
-# Search OpenStreetMap for emergency services near the user's location.
+# Searches OpenStreetMap for nearby emergency places
 def search_nearby_osm(
     latitude: float,
     longitude: float,
@@ -179,40 +187,60 @@ def search_nearby_osm(
 
     service_type = service_type.lower().strip()
 
+    # These are the OpenStreetMap search rules
+    # for each emergency service.
     filters = {
 
+        # Hospitals
         "hospital": """
             node["amenity"="hospital"](around:{radius},{lat},{lon});
             way["amenity"="hospital"](around:{radius},{lat},{lon});
             relation["amenity"="hospital"](around:{radius},{lat},{lon});
         """,
 
+        # Police stations
         "police": """
             node["amenity"="police"](around:{radius},{lat},{lon});
             way["amenity"="police"](around:{radius},{lat},{lon});
             relation["amenity"="police"](around:{radius},{lat},{lon});
         """,
 
+        # Fire stations
         "fire station": """
             node["amenity"="fire_station"](around:{radius},{lat},{lon});
             way["amenity"="fire_station"](around:{radius},{lat},{lon});
             relation["amenity"="fire_station"](around:{radius},{lat},{lon});
         """,
 
+        # Ambulance stations
         "ambulance": """
             node["emergency"="ambulance_station"](around:{radius},{lat},{lon});
             way["emergency"="ambulance_station"](around:{radius},{lat},{lon});
             relation["emergency"="ambulance_station"](around:{radius},{lat},{lon});
         """,
+
+        # Embassies
+        "embassy": """
+            node["amenity"="embassy"](around:{radius},{lat},{lon});
+            way["amenity"="embassy"](around:{radius},{lat},{lon});
+            relation["amenity"="embassy"](around:{radius},{lat},{lon});
+        """,
     }
 
+    # Get the correct search query
+    # for the selected emergency type.
     query_template = filters.get(service_type)
 
+    # If the service is not supported, return nothing.
     if not query_template:
 
-        # Use hospitals as a fallback when ambulance stations are not mapped.
-        query_template = filters["hospital"]
+        print(
+            f"Unsupported emergency service: {service_type}"
+        )
 
+        return []
+
+    # Create the final Overpass API query
     query = f"""
     [out:json][timeout:20];
 
@@ -227,6 +255,7 @@ def search_nearby_osm(
     out center tags;
     """
 
+    # OpenStreetMap Overpass API
     url = "https://overpass-api.de/api/interpreter"
 
     try:
@@ -260,7 +289,8 @@ def search_nearby_osm(
         return []
 
 
-# Convert OpenStreetMap results into a simple format for the frontend.
+# Converts OpenStreetMap data into
+# a simple format that our frontend can use.
 def format_osm_results(
     elements,
     user_lat,
@@ -274,11 +304,11 @@ def format_osm_results(
 
         tags = element.get("tags", {})
 
-        # Get coordinates directly when the result is a node.
+        # Get location directly if it is a node
         lat = element.get("lat")
         lon = element.get("lon")
 
-        # Get the center coordinates for ways and relations.
+        # For ways and relations, get the center location
         if lat is None or lon is None:
 
             center = element.get("center", {})
@@ -286,7 +316,7 @@ def format_osm_results(
             lat = center.get("lat")
             lon = center.get("lon")
 
-        # Skip places that do not have usable coordinates.
+        # Skip the result if location is missing
         if lat is None or lon is None:
             continue
 
@@ -299,12 +329,14 @@ def format_osm_results(
 
             continue
 
+        # Get the name of the place
         name = (
             tags.get("name")
             or tags.get("official_name")
             or f"Nearby {service_type.title()}"
         )
 
+        # Build the address
         address_parts = []
 
         for key in [
@@ -321,6 +353,7 @@ def format_osm_results(
 
         address = ", ".join(address_parts)
 
+        # Calculate how far the place is from the user
         distance = calculate_distance(
             user_lat,
             user_lon,
@@ -328,25 +361,35 @@ def format_osm_results(
             lon,
         )
 
+        # Store all information needed by frontend
         results.append(
             {
                 "name": name,
+
                 "service": service_type.title(),
+
                 "latitude": lat,
+
                 "longitude": lon,
+
                 "distance_km": round(
                     distance,
                     2,
                 ),
+
                 "address": address,
+
                 "phone": (
                     tags.get("phone")
                     or tags.get("contact:phone")
                 ),
+
                 "website": (
                     tags.get("website")
                     or tags.get("contact:website")
                 ),
+
+                # Opens Google Maps directions
                 "maps_url": (
                     "https://www.google.com/maps/dir/?"
                     + urlencode(
@@ -361,7 +404,7 @@ def format_osm_results(
             }
         )
 
-    # Show the closest emergency services first.
+    # Show nearest places first
     results.sort(
         key=lambda item: item["distance_km"]
     )
@@ -369,7 +412,7 @@ def format_osm_results(
     return results
 
 
-# Store the GPS location data received from the frontend.
+# Data received when saving the user's location
 class LocationRequest(BaseModel):
 
     latitude: float = Field(
@@ -392,7 +435,7 @@ class LocationRequest(BaseModel):
     countryCode: str | None = None
 
 
-# Store the location data sent when the user triggers SOS.
+# Data received when the user presses SOS
 class SOSRequest(BaseModel):
 
     latitude: float = Field(
@@ -415,7 +458,7 @@ class SOSRequest(BaseModel):
     countryCode: str | None = None
 
 
-# Store the details of an emergency incident reported by the user.
+# Data received when the user reports an incident
 class IncidentRequest(BaseModel):
 
     type: str
@@ -442,9 +485,11 @@ class IncidentRequest(BaseModel):
     countryCode: str | None = None
 
 
-# Find nearby hospitals, police stations, fire stations or ambulance services.
+# Finds nearby hospitals, police,
+# ambulance services, fire stations and embassies.
 @router.get("/nearby-emergency")
 def nearby_emergency(
+
     latitude: float = Query(
         ...,
         ge=-90,
@@ -468,23 +513,28 @@ def nearby_emergency(
     ),
 ):
 
+    # Convert the selected type to lowercase
+    # so comparison becomes easier.
     service_type = type.lower().strip()
 
+    # Emergency types supported by our application
     allowed = {
         "hospital",
         "police",
         "ambulance",
         "fire station",
+        "embassy",
     }
 
+    # Check whether the selected type is valid
     if service_type not in allowed:
 
         raise HTTPException(
             status_code=400,
             detail=(
                 "Invalid emergency type. "
-                "Use Hospital, Police, Ambulance "
-                "or Fire Station."
+                "Use Hospital, Police, Ambulance, "
+                "Fire Station or Embassy."
             ),
         )
 
@@ -493,6 +543,7 @@ def nearby_emergency(
         f"{latitude}, {longitude}"
     )
 
+    # Search for nearby places
     elements = search_nearby_osm(
         latitude=latitude,
         longitude=longitude,
@@ -500,6 +551,7 @@ def nearby_emergency(
         radius=radius,
     )
 
+    # Convert the results into frontend format
     results = format_osm_results(
         elements,
         latitude,
@@ -521,11 +573,13 @@ def nearby_emergency(
 
         "count": len(results),
 
+        # Send only the first 20 results
         "results": results[:20],
     }
 
 
-# Return the list of countries available for emergency contacts.
+# Returns the countries available
+# for emergency contact numbers.
 @router.get("/countries")
 def countries():
 
@@ -564,6 +618,7 @@ def countries():
     except PyMongoError:
         pass
 
+    # Use local country list if database is unavailable
     seen = {}
 
     for contact in CONTACTS:
@@ -584,14 +639,16 @@ def countries():
     ]
 
 
-# Return emergency numbers for the selected country.
+# Returns emergency numbers for a country
 @router.get("/emergency-contacts")
 def emergency_contacts(
+
     country: str = Query(
         default="IN",
         min_length=2,
         max_length=2,
     )
+
 ):
 
     code = country.upper()
@@ -603,7 +660,7 @@ def emergency_contacts(
     }
 
 
-# Save the user's current GPS location in MongoDB.
+# Saves the user's current location
 @router.post("/location")
 def save_location(
     location: LocationRequest,
@@ -653,7 +710,8 @@ def save_location(
         }
 
 
-# Save an SOS event and return the emergency numbers for the country.
+# Saves an SOS event and returns
+# emergency numbers for the selected country.
 @router.post("/sos")
 def create_sos(
     sos: SOSRequest,
@@ -700,7 +758,7 @@ def create_sos(
     }
 
 
-# Save a reported emergency incident in MongoDB.
+# Saves an emergency incident
 @router.post("/incidents")
 def create_incident(
     incident: IncidentRequest,
@@ -770,7 +828,7 @@ def create_incident(
         }
 
 
-# Return the latest reported incidents from MongoDB.
+# Returns the latest reported incidents
 @router.get("/incidents")
 def incidents():
 
@@ -824,7 +882,7 @@ def incidents():
     ]
 
 
-# Return the latest SOS events from MongoDB.
+# Returns the latest SOS events
 @router.get("/sos")
 def sos_events():
 
@@ -876,7 +934,7 @@ def sos_events():
     ]
 
 
-# Return recently shared user locations from MongoDB.
+# Returns recently saved user locations
 @router.get("/locations")
 def locations():
 
@@ -925,7 +983,7 @@ def locations():
     ]
 
 
-# Check MongoDB connection and show emergency collection counts.
+# Checks whether MongoDB is working
 @router.get("/database-status")
 def database_status():
 
@@ -941,6 +999,7 @@ def database_status():
                 .name
             ),
             "collections": {
+
                 "emergency_contacts":
                     emergency_contacts_collection
                     .count_documents({}),

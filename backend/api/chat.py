@@ -16,20 +16,18 @@ from backend.services.gemini_service import (
 from backend.database.mongodb import (
     get_chat_messages,
     save_chat_message,
-    ensure_conversation,
-    update_conversation_timestamp,
 )
 
 
-# Chat API routes.
+# Chat API routes
 router = APIRouter(
     prefix="/api/chat",
     tags=["Chat"],
 )
 
 
-# Return an empty response when the AI does not return
-# the expected structured chat data.
+# Return an empty response when AI does not return
+# the expected travel data.
 def empty_chat_response(message: str = ""):
 
     return {
@@ -47,7 +45,7 @@ def empty_chat_response(message: str = ""):
     }
 
 
-# Remove markdown code blocks from an AI JSON response.
+# Remove ```json and ``` from Gemini responses.
 def clean_json_text(text: str) -> str:
 
     if not text:
@@ -56,10 +54,10 @@ def clean_json_text(text: str) -> str:
     text = str(text).strip()
 
     if text.startswith("```json"):
-        text = text[len("```json"):].strip()
+        text = text[7:].strip()
 
     elif text.startswith("```"):
-        text = text[len("```"):].strip()
+        text = text[3:].strip()
 
     if text.endswith("```"):
         text = text[:-3].strip()
@@ -67,10 +65,9 @@ def clean_json_text(text: str) -> str:
     return text
 
 
-# Convert an itinerary activity into a consistent format.
+# Convert one itinerary activity into a standard format.
 def normalize_itinerary_activity(item):
 
-    # Handle activities returned as plain text.
     if isinstance(item, str):
 
         text = item.strip()
@@ -92,7 +89,6 @@ def normalize_itinerary_activity(item):
             "activity": text,
         }
 
-    # Handle activities returned as objects.
     if isinstance(item, dict):
 
         return {
@@ -117,41 +113,32 @@ def normalize_itinerary_activity(item):
             ),
         }
 
-    # Convert unexpected activity formats to text.
     return {
         "time": "",
         "activity": str(item),
     }
 
 
-# Normalize the different parts of the itinerary.
+# Make all itinerary days use the same structure.
 def normalize_itinerary(itinerary):
 
-    if not isinstance(
-        itinerary,
-        list
-    ):
+    if not isinstance(itinerary, list):
         return []
 
     normalized = []
 
     for day in itinerary:
 
-        # Ignore invalid day entries.
-        if not isinstance(
-            day,
-            dict
-        ):
+        if not isinstance(day, dict):
             continue
 
         new_day = {}
 
-        # Keep morning, afternoon and evening activities
-        # in the same format.
         for period in [
             "morning",
             "afternoon",
-            "evening"
+            "evening",
+            "night",
         ]:
 
             activities = day.get(
@@ -166,91 +153,63 @@ def normalize_itinerary(itinerary):
                 activities = []
 
             new_day[period] = [
-
                 normalize_itinerary_activity(
                     item
                 )
-
                 for item in activities
-
             ]
 
-        # Keep any additional information returned for the day.
+        # Keep other information such as title,
+        # summary, cost and accommodation.
         for key, value in day.items():
 
             if key not in [
                 "morning",
                 "afternoon",
-                "evening"
+                "evening",
+                "night",
             ]:
 
                 new_day[key] = value
 
-        normalized.append(
-            new_day
-        )
+        normalized.append(new_day)
 
     return normalized
 
 
-# Make sure the AI response follows the format expected
-# by the frontend and API response model.
+# Make sure Gemini response matches frontend format.
 def normalize_chat_response(response):
 
-    # Convert a string response into JSON when possible.
-    if isinstance(
-        response,
-        str
-    ):
+    # Gemini may return JSON as a string.
+    if isinstance(response, str):
 
-        text = clean_json_text(
-            response
-        )
+        text = clean_json_text(response)
 
         try:
 
-            parsed = json.loads(
-                text
-            )
+            parsed = json.loads(text)
 
-            if isinstance(
-                parsed,
-                dict
-            ):
-
+            if isinstance(parsed, dict):
                 response = parsed
 
             else:
-
-                return empty_chat_response(
-                    text
-                )
+                return empty_chat_response(text)
 
         except json.JSONDecodeError:
 
-            return empty_chat_response(
-                text
-            )
+            # Do not crash when Gemini returns normal text.
+            return empty_chat_response(text)
 
-    # Return an empty response for unsupported formats.
-    if not isinstance(
-        response,
-        dict
-    ):
+    if not isinstance(response, dict):
 
         return empty_chat_response(
             str(response)
         )
 
-    # Sometimes Gemini places the JSON inside the message field.
-    message_value = response.get(
-        "message"
-    )
+    # Sometimes Gemini puts JSON inside "message".
+    message_value = response.get("message")
 
-    if isinstance(
-        message_value,
-        str
-    ):
+    if isinstance(message_value, str):
 
         nested_text = clean_json_text(
             message_value
@@ -268,70 +227,43 @@ def normalize_chat_response(response):
                     nested_text
                 )
 
-                if isinstance(
-                    nested,
-                    dict
-                ):
-
+                if isinstance(nested, dict):
                     response = nested
 
             except json.JSONDecodeError:
-
                 pass
 
-    # Only return lists when the value is actually a list.
+    # Only accept actual lists.
     def safe_list(value):
 
-        if isinstance(
-            value,
-            list
-        ):
+        if isinstance(value, list):
             return value
 
         return []
 
-    # Normalize the itinerary before returning the response.
-    itinerary = normalize_itinerary(
-        safe_list(
-            response.get(
-                "itinerary",
-                []
-            )
-        )
-    )
-
     return {
 
-        "message":
+        "message": str(
             response.get(
                 "message",
                 ""
-            ),
+            )
+        ),
 
         "destination":
-            response.get(
-                "destination"
-            ),
+            response.get("destination"),
 
         "trip_duration":
-            response.get(
-                "trip_duration"
-            ),
+            response.get("trip_duration"),
 
         "travel_style":
-            response.get(
-                "travel_style"
-            ),
+            response.get("travel_style"),
 
         "best_time_to_visit":
-            response.get(
-                "best_time_to_visit"
-            ),
+            response.get("best_time_to_visit"),
 
         "estimated_budget":
-            response.get(
-                "estimated_budget"
-            ),
+            response.get("estimated_budget"),
 
         "attractions":
             safe_list(
@@ -366,11 +298,18 @@ def normalize_chat_response(response):
             ),
 
         "itinerary":
-            itinerary,
+            normalize_itinerary(
+                safe_list(
+                    response.get(
+                        "itinerary",
+                        []
+                    )
+                )
+            ),
     }
 
 
-# Handle chat messages and return a structured AI response.
+# Handle a chat message.
 @router.post(
     "",
     response_model=ChatResponse
@@ -379,14 +318,29 @@ async def chat(
     request: ChatRequest
 ):
 
-    # Create a new session ID when one is not provided.
+    # Use the existing session or create a new one.
     session_id = (
         request.session_id
         or str(uuid4())
     )
 
-    # Load previous messages so Gemini can understand
-    # the current conversation.
+    # Use the language selected by the user.
+    selected_language = (
+        request.language
+        or "English"
+    ).strip()
+
+    if not selected_language:
+        selected_language = "English"
+
+    print(
+        f"Chat request received | "
+        f"Language: {selected_language} | "
+        f"Message: {request.message}",
+        flush=True
+    )
+
+    # Load previous conversation.
     conversation_history = []
 
     try:
@@ -396,6 +350,10 @@ async def chat(
         )
 
         pending_user_message = None
+
+        pending_user_language = (
+            selected_language
+        )
 
         for item in previous_messages:
 
@@ -408,12 +366,17 @@ async def chat(
                 ""
             )
 
-            # Store the latest user message until
-            # its assistant response is found.
+            message_language = (
+                item.get("language")
+                or selected_language
+            )
+
             if role == "user":
 
-                pending_user_message = (
-                    content
+                pending_user_message = content
+
+                pending_user_language = (
+                    message_language
                 )
 
             elif (
@@ -423,11 +386,8 @@ async def chat(
                 is not None
             ):
 
-                assistant_content = (
-                    content
-                )
+                assistant_content = content
 
-                # Convert saved JSON strings back into objects.
                 if isinstance(
                     assistant_content,
                     str
@@ -454,6 +414,8 @@ async def chat(
                     "assistant":
                         assistant_content,
 
+                    "language":
+                        pending_user_language,
                 })
 
                 pending_user_message = None
@@ -467,38 +429,42 @@ async def chat(
 
         conversation_history = []
 
-    # Generate the response using the Gemini service.
+    # Ask Gemini for the answer.
     try:
 
         raw_response = generate_chat_response(
 
             message=request.message,
 
-            language=request.language,
+            # IMPORTANT:
+            # This is the language selected by the user.
+            language=selected_language,
 
             conversation_history=
                 conversation_history,
+        )
 
+        print(
+            "Gemini response received.",
+            flush=True
         )
 
     except RuntimeError as e:
 
         error_message = str(e)
 
-        # Handle Gemini quota and rate-limit errors.
+        print(
+            f"Gemini RuntimeError: {error_message}",
+            flush=True
+        )
+
         if (
-            "quota"
-            in error_message.lower()
-
+            "quota" in error_message.lower()
             or
-
             "resource_exhausted"
             in error_message.lower()
-
             or
-
-            "429"
-            in error_message
+            "429" in error_message
         ):
 
             raise HTTPException(
@@ -523,27 +489,21 @@ async def chat(
             detail=f"Chat service error: {str(e)}"
         )
 
-    # Convert the AI response into the expected structure.
+    # Convert Gemini output into our standard format.
     response = normalize_chat_response(
         raw_response
     )
 
-    # Save the conversation in MongoDB.
+    # Save both user and assistant messages.
     try:
 
-        now = datetime.now(
-            timezone.utc
-        )
-
-        # Save the user's message.
         save_chat_message(
             session_id=session_id,
             role="user",
             content=request.message,
-            language=request.language,
+            language=selected_language,
         )
 
-        # Save the assistant's structured response.
         save_chat_message(
             session_id=session_id,
             role="assistant",
@@ -551,7 +511,7 @@ async def chat(
                 response,
                 ensure_ascii=False
             ),
-            language=request.language,
+            language=selected_language,
         )
 
     except Exception as e:
@@ -561,85 +521,62 @@ async def chat(
             flush=True
         )
 
-    # Return the structured response to the frontend.
+    # Send response back to frontend.
     return ChatResponse(
 
         success=True,
 
-        # Current conversation session.
-        session_id=
-            session_id,
+        session_id=session_id,
 
-        # Language used for the response.
-        language=
-            request.language,
+        language=selected_language,
 
-        # Main AI response.
-        message=
-            response.get(
-                "message",
-                ""
-            ),
+        message=response.get(
+            "message",
+            ""
+        ),
 
-        # Destination information.
-        destination=
-            response.get(
-                "destination"
-            ),
+        destination=response.get(
+            "destination"
+        ),
 
-        # Trip details.
-        trip_duration=
-            response.get(
-                "trip_duration"
-            ),
+        trip_duration=response.get(
+            "trip_duration"
+        ),
 
-        travel_style=
-            response.get(
-                "travel_style"
-            ),
+        travel_style=response.get(
+            "travel_style"
+        ),
 
-        best_time_to_visit=
-            response.get(
-                "best_time_to_visit"
-            ),
+        best_time_to_visit=response.get(
+            "best_time_to_visit"
+        ),
 
-        estimated_budget=
-            response.get(
-                "estimated_budget"
-            ),
+        estimated_budget=response.get(
+            "estimated_budget"
+        ),
 
-        # Recommended attractions.
-        attractions=
-            response.get(
-                "attractions",
-                []
-            ),
+        attractions=response.get(
+            "attractions",
+            []
+        ),
 
-        # Recommended food options.
-        food=
-            response.get(
-                "food",
-                []
-            ),
+        food=response.get(
+            "food",
+            []
+        ),
 
-        # Suggested transportation options.
-        transportation=
-            response.get(
-                "transportation",
-                []
-            ),
+        transportation=response.get(
+            "transportation",
+            []
+        ),
 
-        # Helpful travel tips.
-        tips=
-            response.get(
-                "tips",
-                []
-            ),
+        tips=response.get(
+            "tips",
+            []
+        ),
 
-        # Detailed day-by-day itinerary.
-        itinerary=
-            response.get(
-                "itinerary",
-                []
-            ),
+        itinerary=response.get(
+            "itinerary",
+            []
+        ),
     )

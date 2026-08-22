@@ -7,12 +7,12 @@ from dotenv import load_dotenv
 from google import genai
 
 
-# Load environment variables from the .env file.
+# Load the values from the .env file.
 
 load_dotenv()
 
 
-# Read the Gemini API key from the environment.
+# Get the Gemini API key.
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -22,7 +22,8 @@ if not GEMINI_API_KEY:
     )
 
 
-# Use the configured Gemini model or the default model.
+# Get the Gemini model name from .env.
+# If it is not there, use this default model.
 
 MODEL_NAME = os.getenv(
     "GEMINI_MODEL",
@@ -30,7 +31,7 @@ MODEL_NAME = os.getenv(
 )
 
 
-# Create the Gemini client using the API key.
+# Create the Gemini client.
 
 client = genai.Client(
     api_key=GEMINI_API_KEY
@@ -42,15 +43,15 @@ print(
 )
 
 
-# Define the instructions used to generate consistent travel responses.
+# These instructions tell Gemini how TravelMate should behave.
 
 SYSTEM_PROMPT = """
 
-You are TravelMate AI, an intelligent multilingual
-tourist assistant.
+You are TravelMate AI, a multilingual tourist assistant.
 
-You help travelers with:
+You help users with:
 
+- travel planning
 - destinations
 - attractions
 - itineraries
@@ -60,103 +61,172 @@ You help travelers with:
 - travel tips
 - local culture
 - sightseeing
-- trip planning
+- tourism questions
 
-Always answer in the language requested by the user.
 
-IMPORTANT:
+VERY IMPORTANT LANGUAGE RULE:
+
+The user's selected target language is the ONLY language
+that should be used for the response.
+
+Always answer in the requested target language.
+
+Do NOT use the language of the user's input message
+unless it is the same as the requested target language.
+
+Do NOT use the language from previous messages.
+
+Previous conversation is only for understanding context.
+
+The CURRENT requested language always has higher priority
+than previous conversation language.
+
+For example:
+
+User input:
+हैदराबाद की तीन दिवसीय यात्रा की योजना बनाएं
+
+Requested language:
+English
+
+The response must be completely in English.
+
+Another example:
+
+User input:
+Plan a three day trip to Hyderabad
+
+Requested language:
+Hindi
+
+The response must be completely in Hindi.
+
+Another example:
+
+User input:
+Plan a three day trip to Hyderabad
+
+Requested language:
+Telugu
+
+The response must be completely in Telugu.
+
+
+LANGUAGE CONSISTENCY:
+
+The selected language must be used for:
+
+- message
+- trip_overview
+- destination when it is descriptive text
+- trip_duration
+- travel_style
+- best_time_to_visit
+- estimated_budget
+- attraction names when translation is natural
+- attraction descriptions
+- attraction categories
+- food names when translation is natural
+- food descriptions
+- transportation descriptions
+- travel tips
+- itinerary titles
+- itinerary summaries
+- activity names
+- activity descriptions
+- accommodation
+- travel notes
+- all other human-readable fields
+
+Proper nouns such as official place names can remain in
+their commonly used form when necessary.
+
+Currency symbols and numbers can remain unchanged.
+
+
+VERY IMPORTANT:
 
 Return ONLY valid JSON.
 
-Do NOT use markdown.
+Do NOT use Markdown.
 
 Do NOT use code fences.
 
-Do NOT add explanations outside JSON.
+Do NOT write explanations outside JSON.
 
-The JSON must follow EXACTLY this structure:
+
+The JSON must follow this structure:
 
 {
-    "message": "Helpful conversational response",
-
+    "message": "Helpful response",
     "destination": null,
-
     "trip_overview": "",
-
     "trip_duration": "",
-
     "travel_style": "",
-
     "best_time_to_visit": "",
-
     "estimated_budget": "",
-
     "attractions": [],
-
     "food": [],
-
     "transportation": [],
-
     "tips": [],
-
     "itinerary": []
 }
 
 
-ATTRACTIONS
+ATTRACTIONS:
 
-Each attraction MUST be an object:
+Each attraction must be an object:
 
 {
     "name": "Attraction name",
     "description": "Description",
-    "category": "Historical",
-    "best_time": "Morning",
-    "estimated_time": "1-2 hours",
+    "category": "Category",
+    "best_time": "Best time",
+    "estimated_time": "Time required",
     "location": "Location"
 }
 
 
-FOOD
+FOOD:
 
-Each food recommendation MUST be an object:
+Each food recommendation must be an object:
 
 {
     "name": "Food name",
     "description": "Description",
-    "type": "Main Course",
+    "type": "Food type",
     "must_try": true,
-    "best_for": "Families",
-    "approximate_cost": "₹300"
+    "best_for": "Best for",
+    "approximate_cost": "Cost"
 }
 
 
-TRANSPORTATION
+TRANSPORTATION:
 
-Each transportation option MUST be an object:
+Each transportation option must be an object:
 
 {
-    "mode": "Taxi",
+    "mode": "Transport mode",
     "description": "Description",
-    "best_for": "Families",
-    "approximate_cost": "₹500",
-    "travel_time": "30 minutes"
+    "best_for": "Best for",
+    "approximate_cost": "Cost",
+    "travel_time": "Travel time"
 }
 
 
-TRAVEL TIPS
+TRAVEL TIPS:
 
-Each tip MUST be an object:
+Each tip must be an object:
 
 {
-    "title": "Travel tip",
-    "description": "Description"
+    "title": "Tip title",
+    "description": "Tip description"
 }
 
 
-ITINERARY
+ITINERARY:
 
-Each itinerary day MUST be an object:
+Each itinerary day must be an object:
 
 {
     "day": 1,
@@ -166,58 +236,62 @@ Each itinerary day MUST be an object:
     "morning": [
         {
             "time": "08:00",
-            "activity": "Breakfast",
+            "activity": "Activity",
             "location": "Location",
             "duration": "1 hour",
             "description": "Description",
-            "estimated_cost": "₹300"
+            "estimated_cost": "Cost"
         }
     ],
 
     "afternoon": [
         {
             "time": "13:00",
-            "activity": "Lunch",
+            "activity": "Activity",
             "location": "Location",
             "duration": "1 hour",
             "description": "Description",
-            "estimated_cost": "₹500"
+            "estimated_cost": "Cost"
         }
     ],
 
     "evening": [
         {
             "time": "18:00",
-            "activity": "Sunset sightseeing",
+            "activity": "Activity",
             "location": "Location",
             "duration": "2 hours",
             "description": "Description",
-            "estimated_cost": "₹0"
+            "estimated_cost": "Cost"
         }
     ],
 
-    "night": [],
+    "night": [
+        {
+            "time": "20:00",
+            "activity": "Activity",
+            "location": "Location",
+            "duration": "1 hour",
+            "description": "Description",
+            "estimated_cost": "Cost"
+        }
+    ],
 
     "activities": [],
-
     "meals": [],
-
     "accommodation": null,
-
     "travel_notes": "Travel information",
-
-    "estimated_cost": "₹1500",
-
-    "distance": "10 km"
+    "estimated_cost": "Cost",
+    "distance": "Distance"
 }
 
 
-VERY IMPORTANT ITINERARY RULE
+VERY IMPORTANT ITINERARY RULE:
 
 morning, afternoon, evening and night MUST contain
-OBJECTS.
+objects.
 
-NEVER return strings such as:
+NEVER return:
 
 "09:00 - Breakfast"
 
@@ -228,42 +302,55 @@ Instead return:
     "activity": "Breakfast"
 }
 
-This rule is mandatory.
 
-
-SIMPLE QUESTIONS
+SIMPLE QUESTIONS:
 
 If the user asks a simple question:
 
-- answer conversationally
-- do not generate unnecessary itinerary information
-- use empty arrays for irrelevant sections
+- answer the question directly
+- use the requested language
+- do not create unnecessary itinerary information
+- keep unrelated arrays empty
 
 
-TRIP PLANNING
+TRIP PLANNING:
 
 If the user asks for a complete trip plan:
 
 - provide destination information
-- attractions
-- food
-- transportation
-- tips
-- detailed itinerary
+- provide attractions
+- provide food recommendations
+- provide transportation
+- provide travel tips
+- provide a detailed itinerary
+- use the requested language everywhere
 
 
-SAFETY
+CONVERSATION:
 
-Never invent dangerous or clearly false information.
+Use previous conversation only to understand context.
 
-When information is uncertain, say so clearly.
+Do not copy the previous response language.
+
+The current requested language has priority.
+
+If the user changes the target language,
+immediately use the newly selected language.
+
+
+SAFETY:
+
+Do not invent dangerous or clearly false information.
+
+If information is uncertain, clearly mention that it is uncertain.
 
 """
 
 
-# Create a consistent empty response when no valid data is available.
+# Return an empty response when there is no useful AI response.
 
 def empty_response(message=""):
+
     return {
         "message": message,
         "destination": None,
@@ -280,7 +367,7 @@ def empty_response(message=""):
     }
 
 
-# Clean and parse Gemini's response into a JSON object.
+# Remove code fences and extract JSON from Gemini's response.
 
 def clean_json_response(text):
 
@@ -289,7 +376,7 @@ def clean_json_response(text):
 
     text = str(text).strip()
 
-    # Remove Markdown JSON code fences if Gemini adds them.
+    # Remove ```json if Gemini adds it.
 
     text = re.sub(
         r"^```json\s*",
@@ -298,7 +385,7 @@ def clean_json_response(text):
         flags=re.IGNORECASE
     )
 
-    # Remove a generic Markdown code fence.
+    # Remove normal ``` if Gemini adds it.
 
     text = re.sub(
         r"^```\s*",
@@ -314,37 +401,37 @@ def clean_json_response(text):
 
     text = text.strip()
 
-    # Extract the JSON object if Gemini adds extra text around it.
+    # Find the JSON object inside the response.
 
     start = text.find("{")
     end = text.rfind("}")
 
     if start != -1 and end != -1 and end > start:
-        text = text[start:end + 1]
+
+        text = text[
+            start:end + 1
+        ]
 
     try:
-
-        # Parse the cleaned response as JSON.
 
         parsed = json.loads(text)
 
         if isinstance(parsed, dict):
+
             return parsed
 
         return empty_response(text)
 
     except json.JSONDecodeError:
 
-        # Return a safe response when the JSON cannot be parsed.
-
         return empty_response(text)
 
 
-# Convert itinerary activities into a consistent object structure.
+# Make sure every itinerary activity has the same structure.
 
 def normalize_activity(activity):
 
-    # Convert string activities into the required object format.
+    # Gemini sometimes returns an activity as plain text.
 
     if isinstance(activity, str):
 
@@ -352,34 +439,48 @@ def normalize_activity(activity):
 
         if " - " in activity:
 
-            # Separate the time from the activity description.
-
-            activity_time, description = activity.split(
-                " - ",
-                1
+            activity_time, description = (
+                activity.split(
+                    " - ",
+                    1
+                )
             )
 
             return {
                 "time": activity_time.strip(),
                 "activity": description.strip(),
+                "location": None,
+                "duration": None,
+                "description": None,
+                "estimated_cost": None,
             }
 
         return {
-            "activity": activity
+            "time": None,
+            "activity": activity,
+            "location": None,
+            "duration": None,
+            "description": None,
+            "estimated_cost": None,
         }
+
+    # Gemini normally returns activities as objects.
 
     if isinstance(activity, dict):
 
-        # Keep activity details while filling missing optional fields.
-
         return {
-            "time": activity.get("time"),
+            "time": activity.get(
+                "time"
+            ),
 
             "activity": activity.get(
                 "activity",
                 activity.get(
-                    "description",
-                    ""
+                    "name",
+                    activity.get(
+                        "description",
+                        ""
+                    )
                 )
             ),
 
@@ -400,18 +501,26 @@ def normalize_activity(activity):
             ),
         }
 
-    # Convert unexpected activity values into text.
+    # Convert unexpected values to text.
 
     return {
-        "activity": str(activity)
+        "time": None,
+        "activity": str(activity),
+        "location": None,
+        "duration": None,
+        "description": None,
+        "estimated_cost": None,
     }
 
 
-# Normalize one itinerary day into the expected structure.
+# Normalize one itinerary day.
 
-def normalize_itinerary_day(day, index):
+def normalize_itinerary_day(
+    day,
+    index
+):
 
-    # Return an empty day when Gemini provides invalid day data.
+    # Create a safe empty day if the AI returns invalid data.
 
     if not isinstance(day, dict):
 
@@ -431,14 +540,13 @@ def normalize_itinerary_day(day, index):
             "distance": None,
         }
 
+    # Convert an activity section into a list of objects.
+
     def normalize_activities(value):
 
-        # Ignore invalid activity sections instead of raising an error.
-
         if not isinstance(value, list):
-            return []
 
-        # Normalize every activity into a consistent structure.
+            return []
 
         return [
             normalize_activity(item)
@@ -458,38 +566,63 @@ def normalize_itinerary_day(day, index):
         ),
 
         "summary": day.get(
-            "summary"
+            "summary",
+            ""
         ),
 
         "morning": normalize_activities(
-            day.get("morning", [])
+            day.get(
+                "morning",
+                []
+            )
         ),
 
         "afternoon": normalize_activities(
-            day.get("afternoon", [])
+            day.get(
+                "afternoon",
+                []
+            )
         ),
 
         "evening": normalize_activities(
-            day.get("evening", [])
+            day.get(
+                "evening",
+                []
+            )
         ),
 
         "night": normalize_activities(
-            day.get("night", [])
+            day.get(
+                "night",
+                []
+            )
         ),
 
         "activities": (
-            day.get("activities", [])
+            day.get(
+                "activities",
+                []
+            )
             if isinstance(
-                day.get("activities", []),
+                day.get(
+                    "activities",
+                    []
+                ),
                 list
             )
             else []
         ),
 
         "meals": (
-            day.get("meals", [])
+            day.get(
+                "meals",
+                []
+            )
             if isinstance(
-                day.get("meals", []),
+                day.get(
+                    "meals",
+                    []
+                ),
                 list
             )
             else []
@@ -500,7 +633,8 @@ def normalize_itinerary_day(day, index):
         ),
 
         "travel_notes": day.get(
-            "travel_notes"
+            "travel_notes",
+            ""
         ),
 
         "estimated_cost": day.get(
@@ -513,13 +647,14 @@ def normalize_itinerary_day(day, index):
     }
 
 
-# Normalize the complete Gemini response before returning it.
+# Make the complete response safe for the frontend.
 
 def normalize_response(response):
 
-    # Return a safe response when Gemini does not return a dictionary.
-
-    if not isinstance(response, dict):
+    if not isinstance(
+        response,
+        dict
+    ):
 
         return empty_response(
             str(response)
@@ -530,26 +665,32 @@ def normalize_response(response):
         []
     )
 
-    # Make sure the itinerary is always represented as a list.
+    if not isinstance(
+        itinerary,
+        list
+    ):
 
-    if not isinstance(itinerary, list):
         itinerary = []
-
-    # Normalize each itinerary day into the expected structure.
 
     itinerary = [
         normalize_itinerary_day(
             day,
             index
         )
-        for index, day in enumerate(itinerary)
+        for index, day in enumerate(
+            itinerary
+        )
     ]
+
+    # Keep only lists in these sections.
 
     def safe_list(value):
 
-        # Keep only valid list values for recommendation sections.
+        if isinstance(
+            value,
+            list
+        ):
 
-        if isinstance(value, list):
             return value
 
         return []
@@ -571,19 +712,23 @@ def normalize_response(response):
         ),
 
         "trip_duration": response.get(
-            "trip_duration"
+            "trip_duration",
+            ""
         ),
 
         "travel_style": response.get(
-            "travel_style"
+            "travel_style",
+            ""
         ),
 
         "best_time_to_visit": response.get(
-            "best_time_to_visit"
+            "best_time_to_visit",
+            ""
         ),
 
         "estimated_budget": response.get(
-            "estimated_budget"
+            "estimated_budget",
+            ""
         ),
 
         "attractions": safe_list(
@@ -618,7 +763,7 @@ def normalize_response(response):
     }
 
 
-# Generate a structured travel response using Gemini.
+# Generate the TravelMate response.
 
 def generate_chat_response(
     message,
@@ -626,14 +771,12 @@ def generate_chat_response(
     conversation_history=None
 ):
 
-    # Use an empty history when no previous conversation is available.
-
     conversation_history = (
         conversation_history
         or []
     )
 
-    # Convert previous conversations into text for Gemini context.
+    # Build previous conversation text.
 
     history_text = ""
 
@@ -654,8 +797,6 @@ def generate_chat_response(
             dict
         ):
 
-            # Convert structured assistant responses into JSON text.
-
             assistant_message = json.dumps(
                 assistant_message,
                 ensure_ascii=False
@@ -667,35 +808,65 @@ def generate_chat_response(
             "\n"
         )
 
-    # Build the prompt using the language, history, and current message.
+    # This instruction is repeated here on purpose.
+    # It makes the selected language stronger than the old chat language.
+
+    language_instruction = f"""
+
+CURRENT TARGET LANGUAGE: {language}
+
+IMPORTANT:
+
+Generate the ENTIRE response in {language}.
+
+The user's input language does NOT decide the response language.
+
+The previous conversation language does NOT decide the response language.
+
+Only the CURRENT TARGET LANGUAGE decides the response language.
+
+Every human-readable JSON value must be written in {language}.
+
+Do not mix languages unless a proper noun or official place
+name normally remains untranslated.
+
+"""
+
+
+    # Send the conversation and the current request to Gemini.
 
     prompt = f"""
 
 {SYSTEM_PROMPT}
 
-Requested response language:
+{language_instruction}
 
-{language}
-
-Previous conversation:
+PREVIOUS CONVERSATION:
 
 {history_text}
 
-Current user message:
+CURRENT USER MESSAGE:
 
 {message}
+
+Remember:
+
+The current target language is {language}.
 
 Return ONLY valid JSON.
 
 """
 
-    # Try the Gemini request up to three times for temporary failures.
+
+    # Try again when Gemini temporarily fails.
 
     max_retries = 3
 
     response = None
 
-    for attempt in range(max_retries):
+    for attempt in range(
+        max_retries
+    ):
 
         try:
 
@@ -706,7 +877,9 @@ Return ONLY valid JSON.
             )
 
             response = client.models.generate_content(
+
                 model=MODEL_NAME,
+
                 contents=prompt,
             )
 
@@ -726,41 +899,44 @@ Return ONLY valid JSON.
                 flush=True
             )
 
-            # Check whether the error is temporary and can be retried.
+            # Retry only temporary server errors.
 
-            is_temporary_error = (
+            temporary_error = (
                 "503" in error_text
-                or "UNAVAILABLE" in error_text
-                or "temporarily unavailable" in error_text.lower()
+                or
+                "UNAVAILABLE" in error_text
+                or
+                "temporarily unavailable"
+                in error_text.lower()
             )
 
-            if is_temporary_error:
+            if (
+                temporary_error
+                and
+                attempt < max_retries - 1
+            ):
 
-                if attempt < max_retries - 1:
+                wait_time = (
+                    2 ** (attempt + 1)
+                )
 
-                    # Increase the wait time after each failed attempt.
+                print(
+                    f"Gemini temporarily unavailable. "
+                    f"Retrying in {wait_time} seconds...",
+                    flush=True
+                )
 
-                    wait_time = 2 ** (attempt + 1)
+                time.sleep(
+                    wait_time
+                )
 
-                    print(
-                        f"Gemini temporarily unavailable. "
-                        f"Retrying in {wait_time} seconds...",
-                        flush=True
-                    )
-
-                    time.sleep(
-                        wait_time
-                    )
-
-                    continue
-
-            # Stop immediately for errors that are not temporary.
+                continue
 
             raise RuntimeError(
                 error_text
             )
 
-    # Make sure Gemini returned a response after all attempts.
+    # Make sure Gemini returned something.
 
     if response is None:
 
@@ -768,7 +944,7 @@ Return ONLY valid JSON.
             "Gemini failed after all retry attempts."
         )
 
-    # Extract the text returned by Gemini.
+    # Get Gemini's text response.
 
     response_text = getattr(
         response,
@@ -782,13 +958,14 @@ Return ONLY valid JSON.
             "Gemini returned an empty response."
         )
 
-    # Parse Gemini's response into the expected JSON structure.
+    # Convert Gemini's JSON text into a Python dictionary.
 
     parsed = clean_json_response(
         response_text
     )
 
-    # Normalize the parsed response before returning it to the API.
+    # Make sure the dictionary has the structure
+    # expected by chat.py and chat.js.
 
     return normalize_response(
         parsed
