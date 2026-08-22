@@ -1,7 +1,6 @@
-/* =========================================================
-   TRAVELMATE AI CHAT
-   Persistent MongoDB Chat History
-========================================================= */
+/* TravelMate AI Chat
+   MongoDB chat history
+*/
 
 const API_ENDPOINT = "/api/chat";
 const SESSION_STORAGE_KEY = "travelmate_session_id";
@@ -19,9 +18,7 @@ let currentChat = {
 let chatHistory = [];
 
 
-/* =========================================================
-   HTML ESCAPING
-========================================================= */
+/* Escape HTML before displaying user or API content */
 
 function escapeHtml(value) {
 
@@ -34,9 +31,7 @@ function escapeHtml(value) {
 }
 
 
-/* =========================================================
-   TEXT HELPER
-========================================================= */
+/* Get text from an object using possible field names */
 
 function fieldText(item, keys) {
 
@@ -78,9 +73,7 @@ function fieldText(item, keys) {
 }
 
 
-/* =========================================================
-   ARRAY HELPER
-========================================================= */
+/* Convert a value into an array */
 
 function asArray(value) {
 
@@ -100,9 +93,7 @@ function asArray(value) {
 }
 
 
-/* =========================================================
-   IMAGES
-========================================================= */
+/* Images used for different attraction categories */
 
 const CATEGORY_IMAGES = {
 
@@ -142,9 +133,7 @@ function imgForCategory(category) {
 }
 
 
-/* =========================================================
-   SESSION ID
-========================================================= */
+/* Create a unique chat session ID */
 
 function generateSessionId() {
 
@@ -159,10 +148,7 @@ function generateSessionId() {
 }
 
 
-/* =========================================================
-   CREATE NEW SESSION
-   ONLY USED WHEN USER CLICKS "NEW CHAT"
-========================================================= */
+/* Create a new chat session */
 
 function createNewSession() {
 
@@ -209,9 +195,7 @@ function createNewSession() {
 }
 
 
-/* =========================================================
-   LOAD SAVED CHAT FROM MONGODB
-========================================================= */
+/* Load saved chat messages from MongoDB */
 
 async function loadChatHistoryFromServer(
     sessionId
@@ -271,9 +255,7 @@ async function loadChatHistoryFromServer(
         }
 
 
-        /* =================================================
-           RESTORE SESSION
-        ================================================= */
+        /* Restore the current session */
 
         currentSessionId =
             sessionId;
@@ -284,9 +266,7 @@ async function loadChatHistoryFromServer(
         );
 
 
-        /* =================================================
-           FIND LANGUAGE
-        ================================================= */
+        /* Find the language used in the conversation */
 
         const firstLanguage =
             messages.find(
@@ -311,9 +291,7 @@ async function loadChatHistoryFromServer(
         };
 
 
-        /* =================================================
-           CONVERT MONGODB MESSAGES
-        ================================================= */
+        /* Convert MongoDB messages to frontend format */
 
         for (
             const message of messages
@@ -327,9 +305,7 @@ async function loadChatHistoryFromServer(
             }
 
 
-            /* =============================================
-               USER
-            ============================================= */
+            /* Restore user message */
 
             if (
                 message.role === "user"
@@ -357,9 +333,7 @@ async function loadChatHistoryFromServer(
             }
 
 
-            /* =============================================
-               ASSISTANT
-            ============================================= */
+            /* Restore assistant message */
 
             if (
                 message.role === "assistant"
@@ -373,9 +347,7 @@ async function loadChatHistoryFromServer(
                     null;
 
 
-                /* -----------------------------------------
-                   MongoDB stores assistant response as JSON
-                   ----------------------------------------- */
+                /* Assistant responses are stored as JSON */
 
                 if (
                     typeof content ===
@@ -445,9 +417,7 @@ async function loadChatHistoryFromServer(
         }
 
 
-        /* =================================================
-           RESTORE CHAT TITLE
-        ================================================= */
+        /* Create the chat title from the first user message */
 
         const firstUserMessage =
             currentChat.messages.find(
@@ -464,16 +434,12 @@ async function loadChatHistoryFromServer(
         }
 
 
-        /* =================================================
-           SAVE INTO FRONTEND RECENT LIST
-        ================================================= */
+        /* Add the restored chat to the recent list */
 
         updateChatHistory();
 
 
-        /* =================================================
-           DISPLAY RESTORED CHAT
-        ================================================= */
+        /* Display the restored conversation */
 
         renderConversation();
 
@@ -498,9 +464,7 @@ async function loadChatHistoryFromServer(
 }
 
 
-/* =========================================================
-   UPDATE FRONTEND RECENT CHAT LIST
-========================================================= */
+/* Update the recent chat list */
 
 function updateChatHistory() {
 
@@ -585,15 +549,9 @@ function updateChatHistory() {
 }
 
 
-/* =========================================================
-   NEW CHAT
-========================================================= */
+/* Start a completely new chat */
 
 function startNewChat() {
-
-    /*
-     * Do NOT reuse the old session.
-     */
 
     createNewSession();
 
@@ -607,10 +565,7 @@ function startNewChat() {
 }
 
 
-/* =========================================================
-   SAVE CURRENT CHAT TO FRONTEND STATE
-   MongoDB saving happens on the backend.
-========================================================= */
+/* Save the current chat in frontend memory */
 
 function saveCurrentChat() {
 
@@ -618,9 +573,7 @@ function saveCurrentChat() {
 }
 
 
-/* =========================================================
-   RECENT CHATS
-========================================================= */
+/* Display recent chats */
 
 function renderRecentList() {
 
@@ -722,9 +675,7 @@ function renderRecentList() {
 }
 
 
-/* =========================================================
-   OPEN CHAT
-========================================================= */
+/* Open a saved chat */
 
 async function openChat(
     sessionId
@@ -735,7 +686,7 @@ async function openChat(
     }
 
 
-    /* First check current frontend memory */
+    /* Check chats already loaded in the browser */
 
     const localChat =
         chatHistory.find(
@@ -798,8 +749,7 @@ async function openChat(
     }
 
 
-    /* If not in frontend memory,
-       load directly from MongoDB */
+    /* If not loaded locally, get it from MongoDB */
 
     await loadChatHistoryFromServer(
         sessionId
@@ -807,9 +757,7 @@ async function openChat(
 }
 
 
-/* =========================================================
-   WELCOME
-========================================================= */
+/* Show the welcome screen */
 
 function showWelcomeScreen() {
 
@@ -841,9 +789,7 @@ function showWelcomeScreen() {
 }
 
 
-/* =========================================================
-   RENDER CONVERSATION
-========================================================= */
+/* Display all messages in the current chat */
 
 function renderConversation() {
 
@@ -891,10 +837,7 @@ function renderConversation() {
                 message.role === "assistant"
             ) {
 
-                /*
-                 * IMPORTANT:
-                 * Restored messages use message.data.
-                 */
+                /* Restored assistant messages contain message.data */
 
                 const assistantData =
                     message.data ||
@@ -920,9 +863,7 @@ function renderConversation() {
 }
 
 
-/* =========================================================
-   ASSISTANT RESPONSE
-========================================================= */
+/* Format the assistant response for the chat interface */
 
 function renderAssistantResponse(
     data,
@@ -1312,9 +1253,7 @@ function renderAssistantResponse(
 }
 
 
-/* =========================================================
-   FORMAT TEXT
-========================================================= */
+/* Convert plain text into safe HTML */
 
 function formatText(text) {
 
@@ -1334,9 +1273,7 @@ function formatText(text) {
 }
 
 
-/* =========================================================
-   ATTRACTIONS
-========================================================= */
+/* Display attraction cards */
 
 function renderAttractions(
     attractions
@@ -1488,9 +1425,7 @@ function renderAttractions(
 }
 
 
-/* =========================================================
-   FOOD
-========================================================= */
+/* Display food recommendations */
 
 function renderFood(food) {
 
@@ -1620,9 +1555,7 @@ function renderFood(food) {
 }
 
 
-/* =========================================================
-   TRANSPORTATION
-========================================================= */
+/* Display transportation options */
 
 function renderTransportation(
     transportation
@@ -1760,9 +1693,7 @@ function renderTransportation(
 }
 
 
-/* =========================================================
-   TIPS
-========================================================= */
+/* Display travel tips */
 
 function renderTips(tips) {
 
@@ -1830,9 +1761,7 @@ function renderTips(tips) {
 }
 
 
-/* =========================================================
-   DETAILED ITINERARY
-========================================================= */
+/* Display the detailed itinerary */
 
 function renderDetailedItinerary(
     itinerary
@@ -1861,9 +1790,7 @@ function renderDetailedItinerary(
 }
 
 
-/* =========================================================
-   ITINERARY DAY
-========================================================= */
+/* Display one itinerary day */
 
 function renderItineraryDay(day) {
 
@@ -2093,9 +2020,7 @@ function renderItineraryDay(day) {
 }
 
 
-/* =========================================================
-   TIME BLOCK
-========================================================= */
+/* Display activities for a specific time of day */
 
 function renderTimeBlock(
     title,
@@ -2133,9 +2058,7 @@ function renderTimeBlock(
 }
 
 
-/* =========================================================
-   ACTIVITY ITEM
-========================================================= */
+/* Display one activity */
 
 function renderActivityItem(
     activity
@@ -2294,9 +2217,7 @@ function renderActivityItem(
 }
 
 
-/* =========================================================
-   ACTIVITY LIST
-========================================================= */
+/* Display a simple list of activities */
 
 function renderActivityList(
     title,
@@ -2334,6 +2255,8 @@ function renderActivityList(
     `;
 }
 
+
+/* Convert an activity object into readable text */
 
 function activityText(
     activity
@@ -2391,9 +2314,7 @@ function activityText(
 }
 
 
-/* =========================================================
-   API REQUEST
-========================================================= */
+/* Send a request to the TravelMate chat API */
 
 async function fetchTripPlan(
     query,
@@ -2445,7 +2366,7 @@ async function fetchTripPlan(
             }
 
         } catch {
-            // Ignore.
+            /* Ignore invalid error response */
         }
 
 
@@ -2459,9 +2380,7 @@ async function fetchTripPlan(
         await response.json();
 
 
-    /*
-     * Backend may return the session ID.
-     */
+    /* Use the session ID returned by the backend */
 
     if (data.session_id) {
 
@@ -2483,9 +2402,7 @@ async function fetchTripPlan(
 }
 
 
-/* =========================================================
-   SEND MESSAGE
-========================================================= */
+/* Send the user's message */
 
 async function sendMessage() {
 
@@ -2515,10 +2432,7 @@ async function sendMessage() {
         "English";
 
 
-    /*
-     * Only create a session if there
-     * genuinely isn't one.
-     */
+    /* Create a session if there is no active session */
 
     if (!currentSessionId) {
 
@@ -2542,9 +2456,7 @@ async function sendMessage() {
     }
 
 
-    /* =====================================================
-       USER MESSAGE
-    ===================================================== */
+    /* Add the user's message to the current chat */
 
     currentChat.messages.push({
 
@@ -2577,9 +2489,7 @@ async function sendMessage() {
     );
 
 
-    /* =====================================================
-       API
-    ===================================================== */
+    /* Send the message to the backend */
 
     let data;
 
@@ -2622,9 +2532,7 @@ async function sendMessage() {
     removeLoading();
 
 
-    /* =====================================================
-       ASSISTANT MESSAGE
-    ===================================================== */
+    /* Add the assistant response to the current chat */
 
     currentChat.messages.push({
 
@@ -2649,9 +2557,7 @@ async function sendMessage() {
     });
 
 
-    /* =====================================================
-       DESTINATION
-    ===================================================== */
+    /* Update the destination if one was returned */
 
     let destination = "";
 
@@ -2690,10 +2596,7 @@ async function sendMessage() {
     );
 
 
-    /*
-     * MongoDB saving is handled by FastAPI.
-     * This updates only the frontend recent list.
-     */
+    /* MongoDB saving is handled by FastAPI */
 
     saveCurrentChat();
 
@@ -2707,9 +2610,7 @@ async function sendMessage() {
 }
 
 
-/* =========================================================
-   USER MESSAGE
-========================================================= */
+/* Add a user message to the chat */
 
 function appendUserMessage(
     query,
@@ -2754,9 +2655,7 @@ function appendUserMessage(
 }
 
 
-/* =========================================================
-   ASSISTANT MESSAGE
-========================================================= */
+/* Add an assistant response to the chat */
 
 function appendAssistantMessage(
     data,
@@ -2803,9 +2702,7 @@ function appendAssistantMessage(
 }
 
 
-/* =========================================================
-   LOADING
-========================================================= */
+/* Show the loading message while waiting for the API */
 
 function appendLoading() {
 
@@ -2849,6 +2746,8 @@ function appendLoading() {
 }
 
 
+/* Remove the loading message */
+
 function removeLoading() {
 
     const loading =
@@ -2863,9 +2762,7 @@ function removeLoading() {
 }
 
 
-/* =========================================================
-   SCROLL
-========================================================= */
+/* Scroll the chat area to the latest message */
 
 function scrollChatToBottom(
     smooth = true
@@ -2901,9 +2798,7 @@ function scrollChatToBottom(
 }
 
 
-/* =========================================================
-   CHAT TITLE
-========================================================= */
+/* Create a short title from the user's first message */
 
 function createChatTitle(
     query
@@ -2935,9 +2830,7 @@ function createChatTitle(
 }
 
 
-/* =========================================================
-   LANGUAGE
-========================================================= */
+/* Update the current chat language */
 
 function initializeLanguageListener() {
 
@@ -2964,9 +2857,7 @@ function initializeLanguageListener() {
 }
 
 
-/* =========================================================
-   ENTER KEY
-========================================================= */
+/* Allow Enter to send a message */
 
 function initializeInputListener() {
 
@@ -2999,9 +2890,7 @@ function initializeInputListener() {
 }
 
 
-/* =========================================================
-   NEW CHAT BUTTON
-========================================================= */
+/* Connect the New Chat button */
 
 function initializeNewChatButton() {
 
@@ -3022,9 +2911,7 @@ function initializeNewChatButton() {
 }
 
 
-/* =========================================================
-   INITIALIZE CHAT
-========================================================= */
+/* Initialize the chat page */
 
 async function initializeChat() {
 
@@ -3033,15 +2920,7 @@ async function initializeChat() {
     );
 
 
-    /*
-     * IMPORTANT:
-     *
-     * DO NOT call createNewSession()
-     * immediately.
-     *
-     * First check whether the browser
-     * already has an active session.
-     */
+    /* Check whether an existing session is saved */
 
     const savedSessionId =
         localStorage.getItem(
@@ -3071,13 +2950,7 @@ async function initializeChat() {
 
         } else {
 
-            /*
-             * Session ID exists locally but
-             * MongoDB has no messages.
-             *
-             * Reuse the ID instead of
-             * creating another one.
-             */
+            /* Reuse the saved session if it has no messages */
 
             currentSessionId =
                 savedSessionId;
@@ -3112,9 +2985,7 @@ async function initializeChat() {
 
     } else {
 
-        /*
-         * First-ever visit.
-         */
+        /* Create a session for the first visit */
 
         createNewSession();
 
@@ -3129,9 +3000,7 @@ async function initializeChat() {
     initializeNewChatButton();
 
 
-    /*
-     * Make sure recent list is visible.
-     */
+    /* Make sure the recent chat list is displayed */
 
     renderRecentList();
 
@@ -3144,9 +3013,7 @@ async function initializeChat() {
 }
 
 
-/* =========================================================
-   START
-========================================================= */
+/* Start the chat after the page loads */
 
 document.addEventListener(
     "DOMContentLoaded",
